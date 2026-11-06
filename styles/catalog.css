@@ -670,3 +670,17 @@
         flex-wrap: wrap;
     }
 }
+
+
+/* Mensagem da consulta compartilhada; não duplica campo de pesquisa no explorador. */
+.explorer-search-summary {
+    flex: 1 1 240px;
+    min-width: 0;
+    font-size: 13px;
+    color: var(--text-secondary);
+    overflow-wrap: anywhere;
+}
+.explorer-search-summary p {
+    margin: 0;
+    line-height: 1.5;
+}
