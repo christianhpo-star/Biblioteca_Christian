@@ -4,8 +4,7 @@ function filterBySubarea(subarea) {
     selectedSubareas.add(subarea);
     renderSubareaChips();
     updateActiveFiltersBar();
-    switchView('explorer', 'Sub-Área: ' + subarea);
-    filterCatalog();
+    switchView('explorer', 'Subárea: ' + subarea);
 }
 
 function filterByTagDirect(tag) {
@@ -13,19 +12,18 @@ function filterByTagDirect(tag) {
     selectedTags.add(tag);
     updateActiveFiltersBar();
     switchView('explorer', 'Tag: ' + tag);
-    filterCatalog();
 }
 
 function filterByCategory(code) {
-    switchView('explorer', 'Área ' + code);
     document.getElementById('filterCategorySelect').value = code;
-    filterCatalog();
+    updateActiveFiltersBar();
+    switchView('explorer', 'Área ' + code);
 }
 
 function filterByReadingStatus(status) {
-    switchView('explorer', 'Status: ' + status);
     document.getElementById('filterStatusSelect').value = status;
-    filterCatalog();
+    updateActiveFiltersBar();
+    switchView('explorer', 'Status: ' + status);
 }
 
 function filterByAuthor(author) {
@@ -55,6 +53,8 @@ function resetAllFilters() {
     document.getElementById('filterCategorySelect').value = 'all';
     document.getElementById('filterStatusSelect').value = 'all';
     document.getElementById('filterSortSelect').value = 'autor_asc';
+    const global = document.getElementById('globalSearchInput');
+    if (global) global.value = '';
     selectedSubareas.clear();
     selectedTags.clear();
     renderSubareaChips();
