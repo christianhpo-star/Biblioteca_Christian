@@ -63,14 +63,6 @@ function removeWorkFromCollection(colId, obraId) {
     renderCollections();
 }
 
-function exportCollectionAbnt() {
-    const col = appState.colecoes.find(c => c.id === currentSelectedCollectionId);
-    if (!col) return;
-    const obras = (col.obras || []).map(id => getObraById(id)).filter(Boolean);
-    const abntList = obras.map(o => `${o.autor.toUpperCase()}. ${o.titulo}. In: Acervo Pessoal de Pesquisa (${o.paginas} p.).`).join('\n\n');
-    navigator.clipboard.writeText(abntList).then(() => alert(`Referências ABNT de ${obras.length} obras copiadas!`));
-}
-
 function openNewCollectionModal() {
     document.getElementById('newCollectionName').value = '';
     document.getElementById('newCollectionDesc').value = '';

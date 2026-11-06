@@ -69,7 +69,7 @@ export function documentModel(state, work) {
     }
     group.records.push(record);
   }
-  return { title: work.titulo, author: work.autor, reference: f.referencia || work.referencia || `${work.autor}. ${work.titulo}.`, groups, appendix: previousFields.filter(([key]) => text(f[key]).trim()).map(([key, label]) => ({ label, text: text(f[key]) })) };
+  return { title: work.titulo, author: work.autor, reference: text(f.referencia ?? work.referencia).trim() || "Referência bibliográfica não informada.", groups, appendix: previousFields.filter(([key]) => text(f[key]).trim()).map(([key, label]) => ({ label, text: text(f[key]) })) };
 }
 export function documentBlocks(model) {
   const blocks = [{ kind: "title", text: model.title }, { kind: "meta", text: model.author }, { kind: "heading", text: "Referência bibliográfica" }, { kind: "body", text: model.reference }];

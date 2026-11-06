@@ -470,7 +470,7 @@
                             <p id="collectionDetailDesc" class="template-style-36"></p>
                         </div>
                         <div class="template-style-29">
-                            <button class="btn-action-secondary" onclick="exportCollectionAbnt()">Copiar Referências ABNT</button>
+                            
                             <button class="btn-action-secondary" onclick="closeCollectionDetail()">Voltar</button>
                         </div>
                     </div>
@@ -593,139 +593,116 @@
         </div>
     </main>
 
-    <!-- MODAL: FICHA DETALHADA DA OBRA -->
+    <!-- FICHA COMPACTA DA OBRA: escrita e citações ficam no caderno de leitura. -->
     <div class="modal-overlay" id="modalWorkSheet" onclick="handleModalOverlayClick(event, 'modalWorkSheet')">
-        <div class="modal-card">
+        <div class="modal-card modal-work-card" role="dialog" aria-modal="true" aria-labelledby="modalWorkTitle">
             <div class="modal-header">
-                <div id="modalWorkBadges" class="template-style-52"></div>
-                <div class="template-style-53">
-                    <button id="modalFavoriteBtn" class="card-favorite-btn" onclick="toggleModalFavorite()" title="Favoritar">★</button>
-                    <button class="modal-close-btn" onclick="closeModal('modalWorkSheet')">✕</button>
+                <span class="modal-work-eyebrow">Ficha da obra</span>
+                <div class="modal-work-header-actions">
+                    <button type="button" id="modalFavoriteBtn" class="card-favorite-btn"
+                        onclick="toggleModalFavorite()" aria-label="Favoritar obra" aria-pressed="false">★</button>
+                    <button type="button" class="modal-close-btn" onclick="closeModal('modalWorkSheet')"
+                        aria-label="Fechar ficha">✕</button>
                 </div>
             </div>
-            <div class="modal-body">
-                <div>
-                    <div class="modal-author" id="modalWorkAuthor">AUTOR</div>
-                    <h2 class="modal-title" id="modalWorkTitle">Título da Obra</h2>
-                    <div class="template-style-54" id="modalWorkSubarea">Sub-área</div>
+            <div class="modal-body modal-work-body">
+                <div class="modal-work-identity">
+                    <p class="modal-author" id="modalWorkAuthor"></p>
+                    <h2 class="modal-title" id="modalWorkTitle"></h2>
+                    <div class="modal-work-facts">
+                        <span id="modalWorkFormat"></span>
+                        <span id="modalReadingStatusText"></span>
+                        <span id="modalWorkSubarea"></span>
+                    </div>
+                </div>
+                <div class="modal-work-actions">
+                    <button type="button" class="btn-action-primary" onclick="openFichamentoFromModal()">Abrir caderno</button>
+                    <a id="modalOpenPdfBtn" class="btn-action-secondary" href="#" target="_blank"
+                        rel="noopener noreferrer" hidden>Abrir texto</a>
                 </div>
 
-                <!-- BARRA DE AÇÕES DIRETAS -->
-                <div class="modal-action-bar">
-                    <a id="modalOpenPdfBtn" href="#" target="_blank" class="btn-action-primary template-style-55">
-                        📄 Abrir PDF no Leitor Local
-                    </a>
-                    <button class="btn-action-secondary" onclick="copyFilePathModal()">
-                        📋 Copiar link do Drive
-                    </button>
-                    <button class="btn-action-secondary" onclick="copyWorkAbntModal()">
-                        🏷️ Copiar ABNT
-                    </button>
-                    <button class="btn-action-secondary" onclick="openFichamentoFromModal()">
-                        📝 Ver Fichamento Pré-Preenchido
-                    </button>
-                    <button class="btn-action-secondary" onclick="openEditMetadataFromModal()">
-                        ✏️ Editar Metadados
-                    </button>
-                    <span id="modalFileCopiedFeedback" class="template-style-56">Copiado!</span>
-                </div>
+                <details class="modal-work-section">
+                    <summary>Dados da obra</summary>
+                    <div class="modal-work-section-content">
+                        <div id="modalWorkBadges" class="modal-work-tags"></div>
+                        <div>
+                            <h3 class="modal-work-subheading">Resumo</h3>
+                            <p id="modalWorkSummary" class="modal-work-description"></p>
+                        </div>
+                        <div>
+                            <h3 class="modal-work-subheading">Palavras-chave e conceitos</h3>
+                            <div id="modalWorkKeywords" class="tags-cloud"></div>
+                        </div>
+                        <div class="modal-work-file">
+                            <p><strong>Arquivo:</strong> <span id="modalFileName"></span></p>
+                            <p><strong>Localização:</strong> <span id="modalFilePath"></span></p>
+                            <p><strong>Páginas:</strong> <span id="modalFilePages"></span> · <span id="modalFileSize"></span></p>
+                        </div>
+                        <div class="modal-work-secondary-actions">
+                            <button type="button" id="modalCopyFilePathBtn" class="btn-action-secondary"
+                                onclick="copyFilePathModal()" hidden>Copiar link do texto</button>
+                            <button type="button" class="btn-action-secondary"
+                                onclick="openEditMetadataFromModal()">Editar metadados</button>
+                        </div>
+                        <span id="modalFileCopiedFeedback" class="modal-work-feedback" role="status" aria-live="polite"></span>
+                    </div>
+                </details>
 
-                <!-- CONTROLE DE LEITURA -->
-                <div class="reading-controls-panel">
-                    <div>
-                        <label class="form-label">Status de Leitura:</label>
-                        <select class="filter-select template-style-57" id="modalReadingStatusSelect" onchange="updateModalReadingStatus(this.value)">
-                            <option value="lido">✅ Lido (Concluído)</option>
-                            <option value="lendo">📖 Em Leitura</option>
-                            <option value="quero_ler">⏳ Quero Ler (Fila de Leitura)</option>
-                            <option value="nao_iniciado">⚪ Não Iniciado</option>
-                            <option value="reler">🔄 Reler futuramente</option>
-                        </select>
-                        <div class="template-style-58">
-                            <label class="form-label">Avaliação Pessoal:</label>
-                            <div class="star-rating" id="modalStarRating">
-                                <span class="star" onclick="setModalStarRating(1)">★</span>
-                                <span class="star" onclick="setModalStarRating(2)">★</span>
-                                <span class="star" onclick="setModalStarRating(3)">★</span>
-                                <span class="star" onclick="setModalStarRating(4)">★</span>
-                                <span class="star" onclick="setModalStarRating(5)">★</span>
+                <details class="modal-work-section">
+                    <summary>Leitura e progresso</summary>
+                    <div class="modal-work-section-content">
+                        <div class="reading-controls-panel">
+                            <div>
+                                <label class="form-label" for="modalReadingStatusSelect">Situação da leitura</label>
+                                <select class="filter-select" id="modalReadingStatusSelect"
+                                    onchange="updateModalReadingStatus(this.value)">
+                                    <option value="nao_iniciado">Não iniciada</option>
+                                    <option value="quero_ler">Quero ler</option>
+                                    <option value="lendo">Em leitura</option>
+                                    <option value="lido">Concluída</option>
+                                    <option value="reler">Reler futuramente</option>
+                                </select>
+                                <span class="form-label">Avaliação pessoal</span>
+                                <div class="star-rating" id="modalStarRating" role="group" aria-label="Avaliação pessoal">
+                                    <button type="button" class="star" aria-label="1 estrela" aria-pressed="false" onclick="setModalStarRating(1)">★</button>
+                                    <button type="button" class="star" aria-label="2 estrelas" aria-pressed="false" onclick="setModalStarRating(2)">★</button>
+                                    <button type="button" class="star" aria-label="3 estrelas" aria-pressed="false" onclick="setModalStarRating(3)">★</button>
+                                    <button type="button" class="star" aria-label="4 estrelas" aria-pressed="false" onclick="setModalStarRating(4)">★</button>
+                                    <button type="button" class="star" aria-label="5 estrelas" aria-pressed="false" onclick="setModalStarRating(5)">★</button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="form-label" for="modalPagesReadInput">Página alcançada</label>
+                                <div class="modal-work-progress">
+                                    <input type="number" id="modalPagesReadInput" min="0" onchange="updateModalPagesRead(this.value)">
+                                    <span id="modalTotalPagesLabel"></span>
+                                    <span id="modalProgressPercent"></span>
+                                </div>
+                                <div class="progress-container">
+                                    <div class="progress-bar-fill" id="modalProgressBarFill"></div>
+                                </div>
+                                <label class="form-label" for="modalReadingReasonInput">Por que estou lendo?</label>
+                                <input type="text" id="modalReadingReasonInput" class="form-input"
+                                    placeholder="Ex.: referencial teórico" onchange="saveModalReadingReason(this.value)">
                             </div>
                         </div>
                     </div>
+                </details>
 
-                    <div>
-                        <label class="form-label">Progresso de Leitura:</label>
-                        <div class="template-style-59">
-                            <input type="number" id="modalPagesReadInput" min="0" class="template-style-60" onchange="updateModalPagesRead(this.value)">
-                            <span class="template-style-61" id="modalTotalPagesLabel">de X págs</span>
-                            <span id="modalProgressPercent" class="template-style-62">100%</span>
-                        </div>
-                        <div class="progress-container template-style-63">
-                            <div class="progress-bar-fill template-style-64" id="modalProgressBarFill"></div>
-                        </div>
-                        <div class="template-style-63">
-                            <label class="form-label">Por que estou lendo este texto?</label>
-                            <input type="text" id="modalReadingReasonInput" class="form-input template-style-65" placeholder="Ex: Referencial para a tese..." onchange="saveModalReadingReason(this.value)">
-                        </div>
+                <details class="modal-work-section">
+                    <summary>Organizar</summary>
+                    <div class="modal-work-section-content">
+                        <h3 class="modal-work-subheading">Coleções de pesquisa</h3>
+                        <div id="modalWorkCollectionsContainer" class="modal-work-tags"></div>
                     </div>
-                </div>
+                </details>
 
-                <!-- COLEÇÕES ASSOCIADAS -->
-                <div>
-                    <h3 class="template-style-66">Coleções de Pesquisa</h3>
-                    <div id="modalWorkCollectionsContainer" class="template-style-67"></div>
-                </div>
-
-                <!-- RESUMO ANALÍTICO -->
-                <div>
-                    <h3 class="template-style-68">Resumo Analítico da Obra</h3>
-                    <p id="modalWorkSummary" class="template-style-69"></p>
-                </div>
-
-                <!-- PALAVRAS-CHAVE -->
-                <div>
-                    <h3 class="template-style-66">Palavras-Chave & Conceitos (Clique para filtrar)</h3>
-                    <div id="modalWorkKeywords" class="tags-cloud"></div>
-                </div>
-
-                <!-- NOTAS PESSOAIS -->
-                <div>
-                    <div class="template-style-70">
-                        <h3 class="template-style-71">Anotações Rápidas de Estudo</h3>
+                <details class="modal-work-section">
+                    <summary>Leituras relacionadas</summary>
+                    <div class="modal-work-section-content">
+                        <div id="modalRelatedWorksContainer" class="modal-work-related"></div>
                     </div>
-                    <div class="template-style-29">
-                        <input type="text" id="modalNewNoteInput" class="form-input template-style-72" placeholder="Adicionar uma reflexão ou ponto de atenção...">
-                        <button class="btn-action-primary" onclick="addModalNote()">Salvar Nota</button>
-                    </div>
-                    <div class="notes-list" id="modalNotesList"></div>
-                </div>
-
-                <!-- CITAÇÕES NOTÁVEIS -->
-                <div>
-                    <h3 class="template-style-73">Citações & Trechos Marcantes</h3>
-                    <div class="template-style-74">
-                        <textarea id="modalQuoteTextInput" class="form-textarea template-style-75" placeholder="Transcreva a citação literal..."></textarea>
-                        <div class="template-style-76">
-                            <input type="number" id="modalQuotePageInput" placeholder="Pág. nº" class="template-style-77">
-                            <input type="text" id="modalQuoteCommentInput" placeholder="Comentário pessoal / Onde usar..." class="template-style-78">
-                            <button class="btn-action-primary" onclick="addModalQuote()">Salvar Citação</button>
-                        </div>
-                    </div>
-                    <div class="notes-list" id="modalQuotesList"></div>
-                </div>
-
-                <!-- LEITURAS RELACIONADAS -->
-                <div>
-                    <h3 class="template-style-79">Leituras Relacionadas na Mesma Sub-Área / Tema</h3>
-                    <div id="modalRelatedWorksContainer" class="template-style-80"></div>
-                </div>
-
-                <!-- METADADOS TÉCNICOS -->
-                <div class="template-style-81">
-                    <div><b>Arquivo:</b> <span id="modalFileName"></span></div>
-                    <div><b>Caminho Local:</b> <code id="modalFilePath" class="template-style-82"></code></div>
-                    <div><b>Páginas:</b> <span id="modalFilePages"></span> | <b>Tamanho:</b> <span id="modalFileSize"></span></div>
-                </div>
+                </details>
             </div>
         </div>
     </div>
@@ -747,7 +724,7 @@
             <div class="modal-body">
                 <div class="fichamento-form">
                     <div class="form-group">
-                        <label class="form-label">Referência Bibliográfica (ABNT):</label>
+                        <label class="form-label">Referência bibliográfica (confira os dados da edição):</label>
                         <input type="text" id="fichamentoRefAbnt" class="form-input template-style-86">
                     </div>
                     <div class="form-group">

@@ -58,9 +58,9 @@ function renderFichamentosList() {
             document.getElementById('fichamentoModalTitle').textContent = `${obra.autor} — ${obra.titulo}`;
 
             const fich = getFichamento(obraId) || {};
-            const defaultAbnt = `${obra.autor.toUpperCase()}. ${obra.titulo}. Acervo de Pesquisa (${obra.paginas} p.).`;
+            // O usuario informa e revisa a referencia da edicao, sem dados bibliograficos inventados.
 
-            document.getElementById('fichamentoRefAbnt').value = fich.referencia || defaultAbnt;
+            document.getElementById('fichamentoRefAbnt').value = fich.referencia || '';
             document.getElementById('fichamentoSubarea').value = fich.subarea || obra.subarea || obra.categoria;
             document.getElementById('fichamentoProblema').value = fich.problema || '';
             document.getElementById('fichamentoObjetivo').value = fich.objetivo || '';
@@ -110,7 +110,7 @@ function renderFichamentosList() {
 
 **Autor:** ${obra.autor}  
 **Sub-Área:** ${sub}  
-**Referência ABNT:** ${ref}  
+**Referência bibliográfica:** ${ref || 'Não informada'}  
 **Data do Fichamento:** ${new Date().toLocaleDateString('pt-BR')}
 
 ---
