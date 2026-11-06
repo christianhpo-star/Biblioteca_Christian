@@ -1,161 +1,185 @@
 /** Filtros conceituais e renderização do acervo em cartões, lista e tabela. */
 function getAllUniqueSubareas() {
     const set = new Set();
-    getAllWorks().forEach(o => {
-        if (o.subarea) set.add(o.subarea);
-    });
-    return Array.from(set).sort();
+    getAllWorks().forEach(obra => { if (obra.subarea) set.add(String(obra.subarea)); });
+    return Array.from(set).sort((a, b) => a.localeCompare(b, 'pt-BR'));
 }
 
+/** Adaptador legado: subáreas são opções de uma única seleção, não dezenas de chips. */
 function renderSubareaChips() {
-    const container = document.getElementById('subareasChipsContainer');
+    const select = document.getElementById('filterSubareaSelect');
+    if (!select) return;
     const subareas = getAllUniqueSubareas();
-
-    container.innerHTML = subareas.map(sub => `
-        <span class="subarea-chip ${selectedSubareas.has(sub) ? 'active' : ''}" onclick="toggleSubareaFilter('${escapeJs(sub)}')">
-            ${escapeHtml(sub)}
-        </span>
-    `).join('');
+    const selected = selectedSubareas.values().next().value || 'all';
+    const all = document.createElement('option');
+    all.value = 'all';
+    all.textContent = 'Todas as subáreas';
+    const options = [all, ...subareas.map(name => {
+        const item = document.createElement('option');
+        item.value = name;
+        item.textContent = name;
+        return item;
+    })];
+    // Uma seleção removida do catálogo ainda pode ser retirada, sem desaparecimento silencioso.
+    if (selected !== 'all' && !subareas.includes(selected)) {
+        const missing = document.createElement('option');
+        missing.value = selected;
+        missing.textContent = selected + ' (não encontrada)';
+        options.push(missing);
+    }
+    select.replaceChildren(...options);
+    select.value = selected;
 }
 
+function onSubareaSelectChange(value) {
+    selectedSubareas.clear();
+    if (value && value !== 'all') selectedSubareas.add(value);
+    updateActiveFiltersBar();
+    filterCatalog();
+}
+
+/** Compatibilidade para atalhos antigos de cartão, dashboard e coleção. */
 function toggleSubareaFilter(subarea) {
-    if (selectedSubareas.has(subarea)) {
-        selectedSubareas.delete(subarea);
-    } else {
-        selectedSubareas.add(subarea);
+    onSubareaSelectChange(selectedSubareas.has(subarea) ? 'all' : subarea);
+    renderSubareaChips();
+}
+
+function toggleTagFilter(tag) {
+    if (selectedTags.has(tag)) selectedTags.delete(tag);
+    else selectedTags.add(tag);
+    updateActiveFiltersBar();
+    filterCatalog();
+}
+
+/** Painel de filtros é opcional e devolve o foco ao seu acionador. */
+function toggleExplorerFilters(show) {
+    const panel = document.getElementById('explorerFilterPanel');
+    const trigger = document.getElementById('explorerFiltersToggle');
+    if (!panel || !trigger) return;
+    const open = typeof show === 'boolean' ? show : panel.hidden;
+    panel.hidden = !open;
+    trigger.setAttribute('aria-expanded', String(open));
+    if (open) document.getElementById('filterSubareaSelect')?.focus();
+    else trigger.focus();
+}
+
+function setupExplorerFilters() {
+    if (window.libraryExplorerFiltersReady) return;
+    window.libraryExplorerFiltersReady = true;
+    document.addEventListener('keydown', event => {
+        const panel = document.getElementById('explorerFilterPanel');
+        if (event.key !== 'Escape' || !panel || panel.hidden || currentView !== 'explorer') return;
+        if (document.querySelector('.modal-overlay.open, .study-shell:not([hidden])')) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        toggleExplorerFilters(false);
+    }, true);
+}
+
+/** Resumo dos critérios com botões seguros e acessíveis, sem HTML inline de dados pessoais. */
+function updateActiveFiltersBar() {
+    const bar = document.getElementById('activeFiltersBar');
+    const list = document.getElementById('activeFilterChipsList');
+    const counter = document.getElementById('explorerFilterCount');
+    if (!bar || !list) return;
+    const category = document.getElementById('filterCategorySelect');
+    const status = document.getElementById('filterStatusSelect');
+    const entries = [];
+    for (const sub of selectedSubareas) entries.push({
+        label: 'Subárea: ' + sub,
+        remove() { selectedSubareas.clear(); renderSubareaChips(); }
+    });
+    for (const tag of selectedTags) entries.push({
+        label: 'Tag: ' + tag, remove() { selectedTags.delete(tag); }
+    });
+    if (category?.value && category.value !== 'all') entries.push({
+        label: 'Área: ' + (category.selectedOptions[0]?.textContent || category.value),
+        remove() { category.value = 'all'; }
+    });
+    if (status?.value && status.value !== 'all') entries.push({
+        label: 'Leitura: ' + (status.selectedOptions[0]?.textContent || status.value),
+        remove() { status.value = 'all'; }
+    });
+    list.replaceChildren(...entries.map(entry => {
+        const chip = document.createElement('span');
+        chip.className = 'active-filter-chip';
+        const label = document.createElement('span');
+        label.textContent = entry.label;
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'remove-chip';
+        remove.textContent = '✕';
+        remove.setAttribute('aria-label', 'Remover filtro ' + entry.label);
+        remove.addEventListener('click', () => {
+            entry.remove();
+            updateActiveFiltersBar();
+            filterCatalog();
+        });
+        chip.append(label, remove);
+        return chip;
+    }));
+    bar.hidden = entries.length === 0;
+    if (counter) {
+        counter.hidden = !entries.length;
+        counter.textContent = String(entries.length);
     }
+}
+
+function onCategorySelectChange() {
+    updateActiveFiltersBar();
+    filterCatalog();
+}
+
+function renderExplorer() {
     renderSubareaChips();
     updateActiveFiltersBar();
     filterCatalog();
 }
 
-function toggleTagFilter(tag) {
-    if (selectedTags.has(tag)) {
-        selectedTags.delete(tag);
-    } else {
-        selectedTags.add(tag);
-    }
-    updateActiveFiltersBar();
-    filterCatalog();
-}
-
-function toggleFilterLogic() {
-    filterLogic = filterLogic === 'AND' ? 'OR' : 'AND';
-    document.getElementById('logicOptAnd').classList.toggle('active', filterLogic === 'AND');
-    document.getElementById('logicOptOr').classList.toggle('active', filterLogic === 'OR');
-    filterCatalog();
-}
-
-function updateActiveFiltersBar() {
-    const bar = document.getElementById('activeFiltersBar');
-    const list = document.getElementById('activeFilterChipsList');
-
-    const hasActive = selectedSubareas.size > 0 || selectedTags.size > 0;
-    bar.style.display = hasActive ? 'flex' : 'none';
-
-    let chipsHtml = '';
-    selectedSubareas.forEach(sub => {
-        chipsHtml += `
-            <span class="active-filter-chip">
-                Sub-Área: ${escapeHtml(sub)}
-                <span class="remove-chip" onclick="toggleSubareaFilter('${escapeJs(sub)}')">✕</span>
-            </span>
-        `;
+/** Retorna obras com critérios de faceta, sem texto: compartilhável com sugestões da busca (#2). */
+function getCatalogFacetedWorks() {
+    const category = document.getElementById('filterCategorySelect')?.value || 'all';
+    const status = document.getElementById('filterStatusSelect')?.value || 'all';
+    const subarea = selectedSubareas.values().next().value;
+    const tags = [...selectedTags].map(tag => String(tag).toLocaleLowerCase('pt-BR'));
+    return getAllWorks().filter(obra => {
+        if (category !== 'all' && obra.codigo !== category) return false;
+        const leitura = getLeitura(obra.id);
+        if (status === 'favoritos' && !leitura.favorito) return false;
+        if (['lendo', 'quero_ler', 'lido', 'nao_iniciado'].includes(status) && leitura.status !== status) return false;
+        if (subarea && obra.subarea !== subarea) return false;
+        const ownTags = new Set((obra.palavras_chave || []).map(t => String(t).toLocaleLowerCase('pt-BR')));
+        return tags.every(t => ownTags.has(t));
     });
-
-    selectedTags.forEach(tag => {
-        chipsHtml += `
-            <span class="active-filter-chip">
-                Tag: ${escapeHtml(tag)}
-                <span class="remove-chip" onclick="toggleTagFilter('${escapeJs(tag)}')">✕</span>
-            </span>
-        `;
-    });
-
-    list.innerHTML = chipsHtml;
 }
 
-function onCategorySelectChange() {
-    filterCatalog();
+function normalizeExplorerQuery(value) {
+    return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .toLocaleLowerCase('pt-BR').replace(/\s+/g, ' ').trim();
 }
 
-function renderExplorer() {
-    filterCatalog();
-}
-
-// FILTRO PRINCIPAL DO ACERVO
 function filterCatalog() {
-    const query = (document.getElementById('explorerSearchInput').value || '').toLowerCase().trim();
-    const cat = document.getElementById('filterCategorySelect').value || 'all';
-    const status = document.getElementById('filterStatusSelect').value || 'all';
-    const sort = document.getElementById('filterSortSelect').value || 'autor_asc';
-
-    document.getElementById('searchClearBtn').style.display = query ? 'block' : 'none';
-
-    let filtered = getAllWorks().map(o => getObraById(o.id)).filter(o => {
-        // Categoria principal
-        if (cat !== 'all' && o.codigo !== cat) return false;
-
-        // Status de Leitura
-        const lei = getLeitura(o.id);
-        if (status === 'favoritos' && !lei.favorito) return false;
-        if (['lendo', 'quero_ler', 'lido', 'nao_iniciado'].includes(status) && lei.status !== status) return false;
-
-        // Busca Textual
-        if (query) {
-            const matchText = [
-                o.autor,
-                o.titulo,
-                o.subarea || '',
-                o.resumo || '',
-                (o.palavras_chave || []).join(' ')
-            ].join(' ').toLowerCase();
-
-            if (!matchText.includes(query)) return false;
-        }
-
-        // Filtro Multi-Seleção de Sub-Áreas e Tags (Lógica E / OU)
-        const obraTags = new Set((o.palavras_chave || []).map(t => t.toLowerCase()));
-        const obraSubarea = o.subarea || '';
-
-        const hasSubareaFilters = selectedSubareas.size > 0;
-        const hasTagFilters = selectedTags.size > 0;
-
-        if (hasSubareaFilters || hasTagFilters) {
-            if (filterLogic === 'AND') {
-                // No modo E, deve bater todas as sub-áreas selecionadas E todas as tags
-                if (hasSubareaFilters && !selectedSubareas.has(obraSubarea)) return false;
-                for (let t of selectedTags) {
-                    if (!obraTags.has(t.toLowerCase())) return false;
-                }
-            } else {
-                // No modo OU, basta bater qualquer uma das sub-áreas OU qualquer uma das tags
-                let matchAny = false;
-                if (hasSubareaFilters && selectedSubareas.has(obraSubarea)) matchAny = true;
-                if (!matchAny && hasTagFilters) {
-                    for (let t of selectedTags) {
-                        if (obraTags.has(t.toLowerCase())) { matchAny = true; break; }
-                    }
-                }
-                if (!matchAny) return false;
-            }
-        }
-
-        return true;
-    });
-
-    // Ordenação
+    const query = normalizeExplorerQuery(document.getElementById('explorerSearchInput')?.value);
+    const sort = document.getElementById('filterSortSelect')?.value || 'autor_asc';
+    const clear = document.getElementById('searchClearBtn');
+    if (clear) clear.style.display = query ? 'block' : 'none';
+    const filtered = getCatalogFacetedWorks().filter(obra => !query || normalizeExplorerQuery([
+        obra.autor, obra.titulo, obra.subarea, obra.resumo,
+        (obra.palavras_chave || []).join(' ')
+    ].join(' ')).includes(query));
     filtered.sort((a, b) => {
-        if (sort === 'autor_asc') return a.autor.localeCompare(b.autor);
-        if (sort === 'titulo_asc') return a.titulo.localeCompare(b.titulo);
-        if (sort === 'pags_desc') return b.paginas - a.paginas;
-        if (sort === 'pags_asc') return a.paginas - b.paginas;
-        if (sort === 'codigo_asc') return a.codigo.localeCompare(b.codigo);
+        if (sort === 'autor_asc') return (a.autor || '').localeCompare(b.autor || '', 'pt-BR');
+        if (sort === 'titulo_asc') return (a.titulo || '').localeCompare(b.titulo || '', 'pt-BR');
+        if (sort === 'pags_desc') return (b.paginas || 0) - (a.paginas || 0);
+        if (sort === 'pags_asc') return (a.paginas || 0) - (b.paginas || 0);
+        if (sort === 'codigo_asc') return (a.codigo || '').localeCompare(b.codigo || '', 'pt-BR');
         return 0;
     });
-
-    document.getElementById('resultsCount').textContent = `Exibindo ${filtered.length} de ${getAllWorks().length} obras`;
-
+    const total = getAllWorks().length;
+    document.getElementById('resultsCount').textContent = filtered.length
+        ? 'Exibindo ' + filtered.length + ' de ' + total + ' obras'
+        : 'Nenhuma obra corresponde aos filtros (' + total + ' no acervo)';
+    updateActiveFiltersBar();
     renderCards(filtered);
     renderList(filtered);
     renderTable(filtered);
