@@ -1,5 +1,15 @@
 # Estado — 06/11/2026
 
+## Desenvolvimento UX em revisão — ficha compacta e referências (issues #5 e #6)
+
+- Branch isolada: `codex/ux-ficha-compacta-referencias`, baseada em `codex/modularizar-biblioteca` no commit `f67f709ac33eeae8a9ed793e756c9298bdf450c6`. A PR #1 da modularização segue independente e aberta.
+- Ficha da obra reduzida a identificação, situação/favorito, **Abrir caderno** e **Abrir texto** somente com link HTTP(S) disponível. Dados da obra, leitura, coleções e relacionados são seções recolhidas. Formulários duplicados de notas e citações saíram da ficha, sem apagar conteúdo existente.
+- Botões que geravam referências ABNT incompletas foram removidos da ficha e das coleções. O editor legado e o caderno deixam de fabricar referência genérica; o documento exportado indica claramente quando a referência não foi informada. Referências existentes no estado permanecem intactas.
+- Foco do diálogo, Escape, Tab, favoritos, estrelas e links receberam revisões de acessibilidade; leituras relacionadas usam botões.
+- Testes adicionados: `tests/work-sheet.test.mjs` (regressão de comportamento e referências). **Verificações realizadas na integração:** sintaxe JavaScript dos arquivos clássicos e 12 verificações de comportamento em simulação isolada JavaScript (PASS). **Não realizados nesta sessão:** `npm run build`, `npm test`, `npm run test:browser`, teste visual por Playwright, validação com tablet e sincronização real. A execução local integral e as capturas são gates antes de considerar a PR pronta para merge.
+- Sem merge, deploy, alteração de banco/autenticação ou acesso a PDFs e dados pessoais. Issues #2–#4 e #7 continuam planejadas, sem implementação nesta branch.
+
+
 ## Atualização 0.3.0
 
 - Fluxo aprovado por registros: referência e exemplar recolhíveis, anotação livre, trecho e comentário opcionais, edição e rascunho recuperável.
