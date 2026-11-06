@@ -14,6 +14,7 @@ function initializeLibrary() {
     renderAuthors();
     renderTopics();
     renderAuditCenter();
+    setupExplorerFilters();
     if (!window.libraryShortcutsReady) { setupKeyboardShortcuts(); window.libraryShortcutsReady = true; }
 }
 
