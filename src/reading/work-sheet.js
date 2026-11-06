@@ -214,13 +214,14 @@ function renderModalRelatedWorks(currentObra) {
         return { obra: o, score };
     }).sort((a, b) => b.score - a.score).slice(0, 3);
 
-    container.innerHTML = scored.map(s => `
-        <div style="background:var(--bg-body);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:10px 12px;cursor:pointer;" onclick="openWorkSheet(${s.obra.id})">
-            <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">${escapeHtml(s.obra.autor)}</div>
-            <div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-top:2px;">${escapeHtml(s.obra.titulo)}</div>
-            <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">${s.obra.subarea || s.obra.categoria}</div>
-        </div>
-    `).join('');
+    container.innerHTML = scored.length ? scored.map(s => `
+        <button type="button" class="modal-work-related-item" onclick="openWorkSheet(${s.obra.id})">
+            <span class="modal-work-related-author">${escapeHtml(s.obra.autor || 'Autoria não informada')}</span>
+            <strong>${escapeHtml(s.obra.titulo || 'Obra sem título')}</strong>
+            <small>${escapeHtml(s.obra.subarea || s.obra.categoria || 'Sem subárea')}</small>
+        </button>
+    `).join('') :
+        '<p class="modal-work-description">Nenhuma leitura relacionada encontrada.</p>';
 }
 
 // EDITOR DE METADADOS
