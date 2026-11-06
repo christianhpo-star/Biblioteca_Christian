@@ -1,5 +1,16 @@
 # Estado — 06/11/2026
 
+## Desenvolvimento UX em revisão — filtros simples (issue #3)
+
+- Branch independente `codex/filtros-recolhidos-subarea-unica`, derivada do commit `748f4a7` da PR #8; sem alterar a branch de busca `codex/busca-autores-obras-sugestoes` encontrada em andamento.
+- Explorador abre com campo de busca existente e botão **Filtros**. O painel recolhido abriga seletor de **uma única subárea**, Área, Situação e Ordenação; antiga nuvem de chips e controle E/OU removidos da tela principal.
+- Subárea, área, situação e tags existentes se combinam com **todos os critérios exigidos**. As escolhas ativas aparecem em chips acessíveis com remoção individual e a ação Limpar filtros; os atalhos antigos por dashboard/categoria/subárea permanecem funcionais. Não foi alterado o esquema dos dados.
+- Adicionado `getCatalogFacetedWorks()` para compartilhar as restrições atuais com as sugestões da futura busca (#2) sem mostrar resultados fora dos filtros. Busca de texto no explorador agora normaliza acentos.
+- Estilos responsivos e comportamento de foco/Escape documentados. Novo arquivo `tests/filters.test.mjs` com cinco casos para execução no Node.
+- **Validação nesta sessão:** 10 verificações de sintaxe, seleção única, composição de filtros, estados vazios, consulta sem acentos e Escape em simulação isolada (PASS). **Ainda não executado:** `npm ci`, `npm run build`, `npm test`, `npm run test:browser`, QA visual no dispositivo e acessibilidade com leitor de tela, devido à indisponibilidade do checkout remoto no executor.
+- Esta alteração não inclui a busca com sugestões (#2), limite inicial de cinco obras (#4) ou leitor PDF com S Pen (#7). Sem merge, publicação ou dados reais.
+
+
 ## Desenvolvimento UX em revisão — ficha compacta e referências (issues #5 e #6)
 
 - Branch isolada: `codex/ux-ficha-compacta-referencias`, baseada em `codex/modularizar-biblioteca` no commit `f67f709ac33eeae8a9ed793e756c9298bdf450c6`. A PR #1 da modularização segue independente e aberta.
