@@ -394,3 +394,22 @@
         grid-template-columns: 1fr;
     }
 }
+
+
+.modal-work-related-item {
+    display: grid;
+    gap: 4px;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 12px;
+    background: var(--bg-body);
+    color: var(--text-primary);
+}
+.modal-work-related-item small,
+.modal-work-related-author {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
