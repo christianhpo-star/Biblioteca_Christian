@@ -69,6 +69,7 @@ function setupExplorerFilters() {
     document.addEventListener('keydown', event => {
         const panel = document.getElementById('explorerFilterPanel');
         if (event.key !== 'Escape' || !panel || panel.hidden || currentView !== 'explorer') return;
+        if (!document.getElementById('catalogSuggestions')?.hidden) return;
         if (document.querySelector('.modal-overlay.open, .study-shell:not([hidden])')) return;
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -159,14 +160,17 @@ function normalizeExplorerQuery(value) {
 }
 
 function filterCatalog() {
-    const query = normalizeExplorerQuery(document.getElementById('explorerSearchInput')?.value);
+    const query = normalizeExplorerQuery(document.getElementById('globalSearchInput')?.value);
+    const author = normalizeExplorerQuery(catalogSearchState.author);
     const sort = document.getElementById('filterSortSelect')?.value || 'autor_asc';
-    const clear = document.getElementById('searchClearBtn');
-    if (clear) clear.style.display = query ? 'block' : 'none';
-    const filtered = getCatalogFacetedWorks().filter(obra => !query || normalizeExplorerQuery([
-        obra.autor, obra.titulo, obra.subarea, obra.resumo,
-        (obra.palavras_chave || []).join(' ')
-    ].join(' ')).includes(query));
+    const filtered = getCatalogFacetedWorks().filter(obra => {
+        // Ao escolher Autor nas sugestões, filtrar pela autoria exata, não por menções no resumo.
+        if (author) return normalizeExplorerQuery(obra.autor) === author;
+        return !query || normalizeExplorerQuery([
+            obra.autor, obra.titulo, obra.subarea, obra.resumo,
+            (obra.palavras_chave || []).join(' ')
+        ].join(' ')).includes(query);
+    });
     filtered.sort((a, b) => {
         if (sort === 'autor_asc') return (a.autor || '').localeCompare(b.autor || '', 'pt-BR');
         if (sort === 'titulo_asc') return (a.titulo || '').localeCompare(b.titulo || '', 'pt-BR');
@@ -180,6 +184,7 @@ function filterCatalog() {
         ? 'Exibindo ' + filtered.length + ' de ' + total + ' obras'
         : 'Nenhuma obra corresponde aos filtros (' + total + ' no acervo)';
     updateActiveFiltersBar();
+    updateCatalogSearchSummary();
     renderCards(filtered);
     renderList(filtered);
     renderTable(filtered);
