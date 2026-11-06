@@ -144,9 +144,17 @@
 
             <div class="header-center">
                 <div class="header-search-bar">
-                    <svg class="header-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" id="globalSearchInput" placeholder="Busca global em títulos, autores, sub-áreas, resumos e tags..." oninput="handleGlobalSearch(this.value)">
-                    <span class="header-search-kbd">/</span>
+                    <svg class="header-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <label class="sr-only" for="globalSearchInput">Buscar livros e autores no acervo</label>
+                    <input type="search" id="globalSearchInput" placeholder="Buscar obras e autores…"
+                        role="combobox" aria-autocomplete="list" aria-controls="catalogSuggestions"
+                        aria-expanded="false" autocomplete="off" spellcheck="false"
+                        oninput="onCatalogSearchInput()" onkeydown="handleCatalogSearchKeydown(event)"
+                        onfocus="renderCatalogSuggestions()">
+                    <button type="button" class="catalog-search-clear" id="searchClearBtn" hidden
+                        onclick="clearCatalogSearch()" aria-label="Limpar busca">✕</button>
+                    <div id="catalogSuggestions" class="catalog-suggestions" role="listbox"
+                        aria-label="Sugestões de livros e autores" hidden></div>
                 </div>
             </div>
 
@@ -170,8 +178,7 @@
                     <h2 class="hero-title">Estação Pessoal de Pesquisa e Conhecimento</h2>
                     <p class="hero-desc">Organize seus livros e artigos em sub-áreas acadêmicas, combine múltiplos filtros conceituais, consulte fichamentos de referência para revisar e automatize a chegada de novos livros baixados.</p>
                     <div class="hero-search">
-                        <input type="text" id="heroSearchInput" placeholder="Digite um tema, sub-área, autor ou conceito (ex: currículo, história do império, enade)...">
-                        <button onclick="executeHeroSearch()">Buscar no Acervo</button>
+                        <button type="button" onclick="focusCatalogSearch()">Buscar obras e autores</button>
                     </div>
                 </div>
 
@@ -345,10 +352,8 @@
             <section class="view-pane" id="viewExplorer">
                 <div class="explorer-toolbar">
                     <div class="filter-row-primary">
-                        <div class="search-input-wrapper">
-                            <label class="sr-only" for="explorerSearchInput">Buscar obras por título, autor ou tema</label>
-                            <input type="search" id="explorerSearchInput" placeholder="Buscar título, autor ou tema..." oninput="filterCatalog()">
-                            <button type="button" class="search-clear-btn" id="searchClearBtn" aria-label="Limpar busca" onclick="clearExplorerSearch()">✕</button>
+                        <div class="explorer-search-summary">
+                            <p id="catalogSearchSummary" role="status">Use a busca principal no cabeçalho para localizar obras e autores.</p>
                         </div>
                         <button type="button" id="explorerFiltersToggle" class="btn-action-secondary explorer-filters-toggle"
                             aria-controls="explorerFilterPanel" aria-expanded="false" onclick="toggleExplorerFilters()">
