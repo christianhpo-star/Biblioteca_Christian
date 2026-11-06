@@ -404,3 +404,93 @@
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
         }
+
+
+/* Busca única: lista flutuante acessível e compatível com teclado e toque. */
+.header-center {
+    min-width: 0;
+}
+.header-search-bar {
+    isolation: isolate;
+}
+.header-search-bar .catalog-search-clear {
+    position: absolute;
+    z-index: 2;
+    right: 7px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 0;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 16px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    min-width: 32px;
+    min-height: 32px;
+}
+.catalog-search-clear[hidden],
+.catalog-suggestions[hidden] {
+    display: none !important;
+}
+.catalog-suggestions {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    z-index: 32;
+    max-height: min(65dvh, 460px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: 8px 0;
+    color: var(--text-primary);
+}
+.catalog-suggestions-heading,
+.catalog-suggestions-context {
+    padding: 8px 14px 5px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+.catalog-suggestions-heading {
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.catalog-suggestions-context {
+    font-weight: 500;
+}
+.catalog-suggestion-option {
+    display: grid;
+    gap: 2px;
+    cursor: pointer;
+    min-height: 48px;
+    padding: 10px 14px;
+}
+.catalog-suggestion-option:hover,
+.catalog-suggestion-option.active {
+    background: var(--bg-body);
+    box-shadow: inset 3px 0 var(--primary);
+}
+.catalog-suggestion-label {
+    font-size: 13.5px;
+    font-weight: 650;
+    overflow-wrap: anywhere;
+}
+.catalog-suggestion-detail,
+.catalog-suggestions-empty {
+    font-size: 12px;
+    color: var(--text-secondary);
+    overflow-wrap: anywhere;
+}
+.catalog-suggestions-empty {
+    padding: 12px 14px;
+    line-height: 1.5;
+}
+.catalog-search-clear:focus-visible,
+.header-search-bar input:focus-visible {
+    outline: 3px solid var(--border-focus);
+    outline-offset: 2px;
+}
