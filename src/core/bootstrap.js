@@ -15,6 +15,7 @@ function initializeLibrary() {
     renderTopics();
     renderAuditCenter();
     setupExplorerFilters();
+    setupCatalogSearch();
     if (!window.libraryShortcutsReady) { setupKeyboardShortcuts(); window.libraryShortcutsReady = true; }
 }
 
