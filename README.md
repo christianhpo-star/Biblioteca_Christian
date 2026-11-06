@@ -1,6 +1,6 @@
 # Biblioteca Christian
 
-Catálogo pessoal e cadernos de estudo para obras digitais e livros em papel. Fonte modular em JavaScript e CSS, sem framework. Versão inicial versionada: **0.2.0**.
+Catálogo pessoal e cadernos de estudo para obras digitais e livros em papel. Fonte modular em JavaScript e CSS, sem framework. Versão: **0.3.0**.
 
 Este repositório é público: contém **código e três obras fictícias**. PDFs, fichamentos reais, links do acervo e configurações da conta ficam fora do Git.
 
@@ -70,6 +70,10 @@ Reverter um commit recupera o código; recuperar fichamentos exige o backup dos 
 
 O fonte da sincronização Firebase existente foi preservado, com a configuração separada. `config/firebase.example.json` é fictício; gerar seu bundle não valida login, permissões ou sincronização real. Consulte [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) antes de preparar uma publicação privada.
 
-Exportar fichamento baixa um arquivo Markdown. Criar e atualizar arquivos no Google Drive continua pendente. Não foram transferidos PDFs, backups pessoais, logs nem ferramentas locais de processamento de livros para este repositório.
+O fichamento usa registros curtos: anotação, trecho literal ou ambos. A referência e os dados do exemplar ficam recolhidos; cada registro pode ser editado. Em **Ver documento**, o fichamento aparece como uma página contínua com as entradas ordenadas pela página do livro. Na mesma página, mantém a ordem de criação; registros sem página ficam ao final.
+
+O documento permite baixar **Word (.docx), PDF e Markdown**, gerados neste dispositivo, com trecho e comentário juntos. Rascunhos automáticos ficam fora do documento até usar **Guardar registro**. Conteúdo anterior é preservado, sem migração obrigatória. Licenças e fonte de exportação: [THIRD_PARTY.md](THIRD_PARTY.md).
+
+Criar e atualizar arquivos diretamente no Google Drive continua pendente. Não foram transferidos PDFs, backups pessoais, logs nem ferramentas locais de processamento de livros para este repositório.
 
 Nenhuma licença de distribuição foi escolhida automaticamente.

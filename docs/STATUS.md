@@ -1,5 +1,16 @@
 # Estado — 06/11/2026
 
+## Atualização 0.3.0
+
+- Fluxo aprovado por registros: referência e exemplar recolhíveis, anotação livre, trecho e comentário opcionais, edição e rascunho recuperável.
+- Documento contínuo por ordem de página, com downloads reais Word, PDF e Markdown. Trecho e comentário sempre juntos; registros sem página ao final.
+- Conteúdo anterior preservado por adaptadores, sem migração ou mudança de backend.
+- PASS: 11 testes de domínio/compatibilidade e 1 fluxo completo em Chromium, incluindo downloads, conteúdo do DOCX, PDF com acentos, PDF longo de cinco páginas, erro explícito para glifo sem suporte, recuperação de rascunho/backup e falha de armazenamento.
+- Conferência visual: tela desktop/celular e PDF curto/longo. DOCX validado por estrutura OOXML e conteúdo; renderização visual no Word/LibreOffice não executada, pois o renderizador não encontrou LibreOffice no ambiente.
+- Envio na mesma branch/PR, sem merge, deploy ou substituição do arquivo principal.
+
+As seções abaixo registram a base da modularização 0.2.0.
+
 ## Implementado
 
 - Fonte separado em catálogo, leitura, estudo, navegação, armazenamento e sincronização.

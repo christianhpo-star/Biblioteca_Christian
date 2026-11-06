@@ -3,7 +3,7 @@
   const esc = escapeHtml;
   const el = (id) => document.getElementById(id);
   let workId = null, returnFocus = null;
-  const fields = [["livre", "Anotações livres"], ["problema", "Problema de pesquisa"], ["objetivo", "Objetivo"], ["argumento", "Tese / argumento central"], ["conceitos", "Conceitos"], ["metodologia", "Método e fontes"], ["conclusoes", "Conclusões do autor"], ["analise", "Minha análise crítica"], ["conexoes", "Relações com minha pesquisa e outras obras"], ["perguntas", "Perguntas para retomar"]];
+
   const makeShell = (id, title) => {
     const node = document.createElement("section");
     node.id = id;
@@ -79,110 +79,10 @@
     el("newTitle").focus();
   };
   window.openStudy = (id) => {
-    workId = Number(id);
-    const o = getObraById(id);
-    if (!o) return;
-    const f = getFichamento(id) || {}, l = getLeitura(id), url = safeUrl(o.drive_url || o.uri), physical = o.formato === "fisico" || !url;
-    workspace.innerHTML = `<header class="study-top"><div><span class="study-muted">Caderno de estudo · ${physical ? "Leitura em papel" : "Leitura digital"}</span><h1>${esc(o.titulo)}</h1><span>${esc(o.autor)}</span></div><div class="study-actions"><span id="studySaveStatus" class="study-status" role="status">${appState.fichamentos[id] ? "Seu caderno salvo neste dispositivo" : "Base pré-preenchida · confira no original"}</span><button id="studyExport" class="btn-action-secondary">Exportar fichamento .md</button><button id="studyBack" class="btn-action-secondary">Voltar à biblioteca</button></div></header><div class="study-grid"><section class="study-panel study-source"><h2>${physical ? "Meu exemplar" : "Texto de referência"}</h2>${physical ? `<div class="study-paper"><strong>${esc(o.titulo)}</strong><p class="study-muted">Leia no papel e registre suas ideias no caderno ao lado.</p></div>` : `<a class="btn-action-secondary" href="${esc(url)}" target="_blank" rel="noopener noreferrer">Abrir texto em outra aba</a><p class="study-muted">A prévia depende da permissão do arquivo. Se não carregar, use o link acima.</p>${o.drive_id && /^[\w-]+$/.test(o.drive_id) ? `<iframe title="Texto da obra" src="https://drive.google.com/file/d/${o.drive_id}/preview" allow="fullscreen"></iframe>` : ""}`}
-      <label for="studyEdition">Edição, editora e ano do exemplar</label><input id="studyEdition" value="${esc(o.edicao || "")}"><label for="studyLocation">Localização do exemplar</label><input id="studyLocation" value="${esc(o.localizacao || "")}"><label for="studyPages">Total de páginas (opcional)</label><input id="studyPages" type="number" min="0" max="100000" value="${o.paginas || 0}"><label for="studyPage">Página atual do livro</label><input id="studyPage" type="number" min="0" value="${l.paginasLidas || 0}"><label for="studyReading">Situação da leitura</label><select id="studyReading"><option value="nao_iniciado">Não iniciada</option><option value="quero_ler">Quero ler</option><option value="lendo">Em leitura</option><option value="lido">Concluída</option></select><p class="study-muted">Use a paginação impressa para suas citações. As edições podem ter páginas diferentes.</p></section>
-      <section class="study-panel"><h2>Meu fichamento</h2><label for="studyRef">Referência bibliográfica</label><input id="studyRef" value="${esc(f.referencia || `${o.autor}. ${o.titulo}.`)}"><small class="study-muted">Confira os dados da edição; esta referência não foi validada automaticamente.</small>
-      ${fields.map(([key, label], i) => i === 0 ? `<label for="study_${key}">${label}</label><textarea class="study-free" id="study_${key}" placeholder="O que esta leitura faz você pensar?">${esc(f[key] || "")}</textarea>` : `<details ${f[key] ? "open" : ""}><summary>${label}</summary><label class="sr-only" for="study_${key}">${label}</label><textarea id="study_${key}">${esc(f[key] || "")}</textarea></details>`).join("")}
-      <h2>Citações e evidências</h2><div id="studyQuotes"></div><div class="study-quote-form"><label for="studyQuote">Trecho literal</label><textarea id="studyQuote">${esc(f.quoteDraft?.texto || "")}</textarea><label for="studyQuotePage">Página / intervalo</label><input id="studyQuotePage" placeholder="Ex.: 42–43" value="${esc(f.quoteDraft?.pagina || "")}"><label for="studyQuoteComment">Meu comentário / onde usar</label><textarea id="studyQuoteComment">${esc(f.quoteDraft?.comentario || "")}</textarea><button id="studyAddQuote" class="btn-action-secondary">Adicionar citação</button><p id="studyQuoteError" role="alert"></p></div><p class="study-muted">A escrita é salva neste dispositivo a cada alteração. Na versão web, acompanhe também o indicador de sincronização da conta. Exportar baixa um arquivo; não envia ao Drive.</p></section></div>`;
-    el("studyReading").value = l.status;
-    workspace.querySelectorAll("input,select,textarea").forEach((input) => {
-      input.addEventListener("input", saveStudy);
-    });
-    el("studyBack").onclick = () => {
-      if (saveStudy()) {
-        hide(workspace);
-        refresh();
-      }
-    };
-    el("studyExport").onclick = exportStudy;
-    el("studyAddQuote").onclick = () => {
-      const text = el("studyQuote").value.trim(), page = el("studyQuotePage").value.trim();
-      if (!text || !page) {
-        el("studyQuoteError").textContent = "Informe o trecho e a página para preservar a origem da citação.";
-        return;
-      }
-      const quote = { id: crypto.randomUUID(), obraId: workId, texto: text, pagina: page, comentario: el("studyQuoteComment").value.trim(), data: (/* @__PURE__ */ new Date()).toISOString() };
-      appState.citacoes.unshift(quote);
-      try {
-        persist();
-        ["studyQuote", "studyQuotePage", "studyQuoteComment", "studyQuoteError"].forEach((k) => {
-          if ("value" in el(k)) el(k).value = "";
-          else el(k).textContent = "";
-        });
-        saveStudy();
-        renderStudyQuotes();
-      } catch {
-        el("studyQuoteError").textContent = "Falha ao salvar. Copie o trecho e exporte um backup.";
-      }
-    };
-    renderStudyQuotes();
-    show(workspace);
+    workId=Number(id);
+    if(getObraById(id)) StudyNotebook.open(workspace,id,{show,hide,refresh,safeUrl});
   };
-  function renderStudyQuotes() {
-    el("studyQuotes").innerHTML = appState.citacoes.filter((q) => Number(q.obraId) === workId).map((q) => `<blockquote class="study-quote">${esc(q.texto)}<footer>p. ${esc(String(q.pagina || "não registrada"))}${q.comentario ? ` · ${esc(q.comentario)}` : ""}</footer></blockquote>`).join("") || '<p class="study-muted">Suas citações aparecerão aqui, junto da origem.</p>';
-  }
-  function saveStudy() {
-    if (workspace.hidden || !workId) return true;
-    const previous = appState.fichamentos[workId] || getFichamento(workId) || {};
-    const f = { ...previous, referencia: el("studyRef").value, subarea: getObraById(workId).subarea, dataAtualizacao: (/* @__PURE__ */ new Date()).toISOString(), revisao: "em_elaboracao" };
-    fields.forEach(([key]) => f[key] = el("study_" + key).value);
-    f.quoteDraft = { texto: el("studyQuote").value, pagina: el("studyQuotePage").value, comentario: el("studyQuoteComment").value };
-    appState.fichamentos[workId] = f;
-    appState.metaOverrides[workId] = { ...appState.metaOverrides[workId], edicao: el("studyEdition").value, localizacao: el("studyLocation").value, paginas: Math.max(0, Number(el("studyPages").value) || 0) };
-    const pages = Math.max(0, Number(el("studyPage").value) || 0), total = Number(el("studyPages").value) || 0;
-    appState.leituras[workId] = { ...getLeitura(workId), status: el("studyReading").value, paginasLidas: pages, progresso: total ? Math.min(100, Math.round(pages / total * 100)) : 0 };
-    try {
-      persist();
-      el("studySaveStatus").textContent = "Salvo neste dispositivo · " + (/* @__PURE__ */ new Date()).toLocaleTimeString("pt-BR");
-      return true;
-    } catch {
-      el("studySaveStatus").textContent = "Falha no salvamento local. Exporte sua escrita antes de sair.";
-      return false;
-    }
-  }
-  function exportStudy() {
-    saveStudy();
-    const o = getObraById(workId), f = appState.fichamentos[workId];
-    let md = `# ${o.titulo}
-
-Autor: ${o.autor}
-Referência: ${f.referencia}
-Edição: ${o.edicao || "A completar"}
-Formato: ${o.formato || "digital"}
-Atualizado: ${f.dataAtualizacao}
-
-`;
-    fields.forEach(([key, label]) => md += `## ${label}
-
-${f[key] || ""}
-
-`);
-    md += "## Citações\n\n";
-    appState.citacoes.filter((q) => Number(q.obraId) === workId).forEach((q) => md += `> ${q.texto.replace(/\n/g, "\n> ")}
-
-Página: ${q.pagina || "não registrada"}
-
-Meu comentário: ${q.comentario || ""}
-
-`);
-    if (f.quoteDraft?.texto) md += `## Citação em rascunho (a conferir)
-
-${f.quoteDraft.texto}
-
-Página: ${f.quoteDraft.pagina}
-${f.quoteDraft.comentario}
-
-`;
-    md += "## Notas anteriores da obra\n\n";
-    appState.notas.filter((n) => Number(n.obraId) === workId).forEach((n) => md += `${n.texto}
-
-`);
-    downloadFile(`fichamento_${workId}.md`, md, "text/markdown");
-  }
+  function saveStudy() { return workspace.hidden || StudyNotebook.flush(); }
   window.openFichamento = openStudy;
   window.openStudySearch = () => {
     search.innerHTML = '<div class="study-dialog"><div class="study-top"><h1>Buscar no acervo e na minha escrita</h1><button class="btn-action-secondary" id="searchBack">Voltar</button></div><label for="studySearchInput">Autor, título, conceito, trecho ou ideia</label><input class="form-input" id="studySearchInput" type="search"><p class="study-muted" id="studySearchCount" role="status"></p><div class="study-search-results" id="studySearchResults"></div></div>';
@@ -249,7 +149,7 @@ ${f.quoteDraft.comentario}
   window.addEventListener("beforeunload", (e) => {
     if (!workspace.hidden) {
       saveStudy();
-      if (el("studyQuote").value.trim()) {
+      if (StudyNotebook.hasUnsaved()) {
         e.preventDefault();
         e.returnValue = "";
       }

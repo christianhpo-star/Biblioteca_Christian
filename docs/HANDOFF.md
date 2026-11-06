@@ -1,5 +1,8 @@
 # Retomada
 
+- Atualização 0.3.0: registros compactos e documento ordenado com downloads Word/PDF/Markdown implementados, conforme DECISION-002. Domínio e UI em `src/study/`; geração com dependências fixadas e fonte OFL em `assets/fonts/`.
+- Validação atual: 11 testes de domínio e 1 fluxo Chromium; Word estruturalmente verificado, PDF curto/longo renderizado. A renderização visual do DOCX depende de LibreOffice/Word e não foi executada neste ambiente. Detalhes em VALIDATION.
+
 - Objetivo: código modular versionado para revisar mudanças antes de alterar o aplicativo principal.
 - Repositório: `christianhpo-star/Biblioteca_Christian`; branch `codex/modularizar-biblioteca`.
 - Base: `a8ca14b4d28e4203e7a3506252fb17f50ee8dae9`. O commit entregue consta da PR e do histórico Git.

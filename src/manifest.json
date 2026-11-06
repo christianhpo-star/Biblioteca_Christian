@@ -17,6 +17,8 @@
     "src/core/backup.js",
     "src/reading/progress.js",
     "src/ui/dialogs.js",
+    "src/study/document-view.js",
+    "src/study/notebook.js",
     "src/study/workspace.js",
     "src/cloud/bridge.js",
     "src/core/bootstrap.js"
@@ -29,6 +31,7 @@
     "styles/dialogs.css",
     "styles/template.css",
     "styles/cloud.css",
-    "styles/study.css"
+    "styles/study.css",
+    "styles/notebook.css"
   ]
 }

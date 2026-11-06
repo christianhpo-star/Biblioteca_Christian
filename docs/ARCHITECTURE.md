@@ -1,5 +1,13 @@
 # Arquitetura e compatibilidade
 
+## Registros e exportação na versão 0.3.0
+
+`src/study/records.mjs` é o domínio puro: adapta notas/citações existentes, ordena páginas e constrói um modelo único do documento. `model-entry.mjs` expõe esse contrato aos handlers clássicos. `notebook.js` controla entrada, edição e rascunho; `document-view.js` apresenta o documento contínuo. `export-entry.mjs` gera Word e PDF a partir dos mesmos blocos e só é carregado no navegador quando solicitado. O build incorpora a fonte ao módulo, sem requisição a serviços de fontes no uso.
+
+O contrato de nível superior do estado continua igual. Notas/citações recebem metadados opcionais de página e criação; fichamentos podem ter `registroRascunho`. `livre` e os demais campos antigos não são removidos por abrir o novo caderno. Conteúdo estruturado anterior guardado pelo usuário entra como apêndice. Base pré-preenchida fica disponível para consulta e não é confundida com novos registros pessoais.
+
+As decisões e o alcance aprovado estão em DECISION-002. A geração dos arquivos ocorre no dispositivo; não há escrita direta no Drive.
+
 ## Fonte e artefatos
 
 O HTML original continha estilos, base pessoal e funções de múltiplas responsabilidades. O novo fonte separa a estrutura em `templates/index.html`, estilos em arquivos por responsabilidade e lógica em módulos por domínio. `scripts/build.mjs` reúne as referências e copia os recursos para `dist/`. O índice gerado continua com scripts externos; os bundles de validação e integração são artefatos, não fonte.
