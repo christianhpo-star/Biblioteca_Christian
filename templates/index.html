@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca Digital de Pesquisa & Memória Acadêmica</title>
+
+
+<meta name="theme-color" content="#1e40af">
+<!-- STYLES -->
+</head>
+<body>
+    <section id="authGate" aria-labelledby="authTitle">
+      <div class="auth-card">
+        <div class="auth-icon" aria-hidden="true">▤</div>
+        <h1 id="authTitle">Sua biblioteca de pesquisa</h1>
+        <p>Livros, artigos e memória acadêmica, em todos os seus dispositivos.</p>
+        <p id="authMessage" role="status" aria-live="polite">Verificando sua conta…</p>
+        <button id="googleLogin" type="button">Entrar com Google</button>
+        <small>Acesso privado com a conta proprietária configurada</small>
+      </div>
+    </section>
+    <button id="mobileNavBackdrop" aria-label="Fechar menu" onclick="document.body.classList.remove('mobile-menu-open')"></button>
+    <aside id="cloudBar" aria-label="Conta e sincronização">
+      <div><strong id="cloudStatus" role="status" aria-live="polite">Conectando…</strong><small id="cloudAccount"></small></div>
+      <button id="cloudRetry" type="button">Sincronizar</button>
+      <button id="cloudLogout" type="button">Sair</button>
+    </aside>
+
+
+    <!-- SIDEBAR DA APLICAÇÃO -->
+    <aside class="app-sidebar" id="appSidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-brand-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+            </div>
+            <div class="sidebar-brand-text">
+                <span class="sidebar-brand-title">Biblioteca de Pesquisa</span>
+                <span class="sidebar-brand-sub">Acervo e cadernos de estudo</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <span class="nav-section-title">Principal</span>
+            <a class="nav-item active" onclick="switchView('dashboard')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <span class="nav-label">Início (Dashboard)</span>
+            </a>
+            <a class="nav-item" onclick="switchView('explorer')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <span class="nav-label">Explorar Acervo</span>
+                <span class="nav-badge" id="badgeTotalObras">0</span>
+            </a>
+
+            <span class="nav-section-title">PDFs no Google Drive</span>
+
+
+
+            <span class="nav-section-title">Minhas Leituras</span>
+            <a class="nav-item" onclick="filterByReadingStatus('lendo')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                <span class="nav-label">Em Leitura</span>
+                <span class="nav-badge" id="badgeLendo">0</span>
+            </a>
+            <a class="nav-item" onclick="filterByReadingStatus('quero_ler')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                <span class="nav-label">Quero Ler</span>
+                <span class="nav-badge" id="badgeQueroLer">0</span>
+            </a>
+            <a class="nav-item" onclick="filterByReadingStatus('lido')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                <span class="nav-label">Lidos (Concluídos)</span>
+                <span class="nav-badge" id="badgeLidos">0</span>
+            </a>
+            <a class="nav-item" onclick="filterByReadingStatus('favoritos')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                <span class="nav-label">Favoritos</span>
+                <span class="nav-badge" id="badgeFavoritos">0</span>
+            </a>
+
+            <span class="nav-section-title">Pesquisa & Memória</span>
+            <a class="nav-item" onclick="switchView('collections')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                <span class="nav-label">Coleções Temáticas</span>
+                <span class="nav-badge" id="badgeColecoes">0</span>
+            </a>
+            <a class="nav-item" onclick="switchView('fichamentos')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                <span class="nav-label">Fichamentos</span>
+                <span class="nav-badge template-style-1" id="badgeFichamentos">0</span>
+            </a>
+            <a class="nav-item" onclick="switchView('quotes')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                <span class="nav-label">Notas & Citações</span>
+                <span class="nav-badge" id="badgeNotas">0</span>
+            </a>
+
+            <span class="nav-section-title">Explorar</span>
+            <a class="nav-item" onclick="switchView('subareas')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                <span class="nav-label">Sub-Áreas Acadêmicas</span>
+            </a>
+            <a class="nav-item" onclick="switchView('authors')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span class="nav-label">Autores (A-Z)</span>
+            </a>
+            <a class="nav-item" onclick="switchView('topics')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                <span class="nav-label">Nuvens de Temas</span>
+            </a>
+
+            <span class="nav-section-title">Gestão & Automação</span>
+            <a class="nav-item" onclick="switchView('maintenance')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                <span class="nav-label">Revisão de Metadados</span>
+                <span class="nav-badge template-style-2" id="badgeRevisao">29</span>
+            </a>
+            <a class="nav-item" onclick="switchView('backup')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span class="nav-label">Backup & Automação</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="theme-toggle-btn" onclick="toggleTheme()" title="Alternar tema claro/escuro">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                <span id="themeToggleLabel">Tema Claro</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTAINER -->
+    <main class="app-main">
+        <header class="app-header">
+            <div class="header-left">
+                <button class="btn-toggle-sidebar" onclick="toggleSidebarCollapse()" title="Recolher/Expandir menu">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+                <h1 class="current-view-title" id="currentViewTitle">Início (Dashboard)</h1>
+            </div>
+
+            <div class="header-center">
+                <div class="header-search-bar">
+                    <svg class="header-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="globalSearchInput" placeholder="Busca global em títulos, autores, sub-áreas, resumos e tags..." oninput="handleGlobalSearch(this.value)">
+                    <span class="header-search-kbd">/</span>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <div class="view-mode-selector" id="viewModeSelector">
+                    <button class="btn-view-mode active" id="btnModeCards" onclick="setViewMode('cards')" title="Visualização em Cartões">▦ Cards</button>
+                    <button class="btn-view-mode" id="btnModeList" onclick="setViewMode('list')" title="Visualização em Lista Acadêmica">☰ Lista</button>
+                    <button class="btn-view-mode" id="btnModeTable" onclick="setViewMode('table')" title="Visualização em Tabela Técnica">≡ Tabela</button>
+                </div>
+                <div class="btn-backup-status" onclick="switchView('backup')" title="Dados salvos neste dispositivo e sincronizados na nuvem">
+                    Backup
+                </div>
+            </div>
+        </header>
+
+        <div class="content-container">
+
+            <!-- 1. DASHBOARD VIEW -->
+            <section class="view-pane active" id="viewDashboard">
+                <div class="dashboard-hero">
+                    <h2 class="hero-title">Estação Pessoal de Pesquisa e Conhecimento</h2>
+                    <p class="hero-desc">Organize seus livros e artigos em sub-áreas acadêmicas, combine múltiplos filtros conceituais, consulte fichamentos de referência para revisar e automatize a chegada de novos livros baixados.</p>
+                    <div class="hero-search">
+                        <input type="text" id="heroSearchInput" placeholder="Digite um tema, sub-área, autor ou conceito (ex: currículo, história do império, enade)...">
+                        <button onclick="executeHeroSearch()">Buscar no Acervo</button>
+                    </div>
+                </div>
+
+                <div class="section-box template-style-3" id="driveLibraryAccess">
+                    <h3 class="template-style-4">Seu acervo no Google Drive</h3>
+                    <p class="template-style-5">Use este catálogo para mapear obras, temas, fichamentos e estados de leitura. Acesse os PDFs nas duas pastas do Drive, inclusive no tablet.</p>
+                    <div class="template-style-6">
+
+
+                    </div>
+                    <p class="template-style-7">Os botões “Abrir PDF” abrem os arquivos no Drive. Notas, fichamentos e progresso sincronizam entre seus dispositivos. Alterar o estado de leitura não move arquivos entre as pastas do Drive.</p>
+                    <p class="template-style-8">Para anotar com a caneta no Android, abra o PDF no app Google Drive e toque em Anotar. No Samsung Notes, exporte o PDF anotado de volta para o Drive para acessá-lo em outros dispositivos. <a href="https://support.google.com/drive/answer/13207179?hl=pt-BR" target="_blank" rel="noopener noreferrer">Ajuda do Google sobre anotações em PDF ↗</a></p>
+                </div>
+
+                <!-- CARDS DE METRICAS (KPIS) -->
+                <div class="kpi-grid">
+                    <div class="kpi-card" onclick="switchView('explorer')">
+                        <div class="kpi-header">
+                            <span class="kpi-title">Acervo Total</span>
+                            <span class="kpi-icon template-style-9">📚</span>
+                        </div>
+                        <div class="kpi-value" id="kpiTotalObras">0</div>
+                        <div class="kpi-subtext">14.192 páginas indexadas</div>
+                    </div>
+                    <div class="kpi-card" onclick="switchView('subareas')">
+                        <div class="kpi-header">
+                            <span class="kpi-title">Sub-Áreas</span>
+                            <span class="kpi-icon template-style-10">📂</span>
+                        </div>
+                        <div class="kpi-value" id="kpiSubareas">19</div>
+                        <div class="kpi-subtext">Especialidades acadêmicas</div>
+                    </div>
+                    <div class="kpi-card" onclick="filterByReadingStatus('lido')">
+                        <div class="kpi-header">
+                            <span class="kpi-title">Obras Lidas</span>
+                            <span class="kpi-icon template-style-10">✅</span>
+                        </div>
+                        <div class="kpi-value" id="kpiLidos">0</div>
+                        <div class="kpi-subtext">Acervo atual catalogado</div>
+                    </div>
+                    <div class="kpi-card" onclick="filterByReadingStatus('lendo')">
+                        <div class="kpi-header">
+                            <span class="kpi-title">Em Leitura</span>
+                            <span class="kpi-icon template-style-11">📖</span>
+                        </div>
+                        <div class="kpi-value" id="kpiLendo">0</div>
+                        <div class="kpi-subtext">Obras em andamento</div>
+                    </div>
+                    <div class="kpi-card" onclick="filterByReadingStatus('favoritos')">
+                        <div class="kpi-header">
+                            <span class="kpi-title">Favoritos</span>
+                            <span class="kpi-icon template-style-12">⭐</span>
+                        </div>
+                        <div class="kpi-value" id="kpiFavoritos">0</div>
+                        <div class="kpi-subtext">Obras indispensáveis</div>
+                    </div>
+                    <div class="kpi-card" onclick="switchView('fichamentos')">
+                        <div class="kpi-header">
+                            <span class="kpi-title">Fichamentos</span>
+                            <span class="kpi-icon template-style-13">📝</span>
+                        </div>
+                        <div class="kpi-value" id="kpiFichamentos">0</div>
+                        <div class="kpi-subtext">100% pré-preenchidos</div>
+                    </div>
+                </div>
+
+                <!-- GRID PRINCIPAL DO DASHBOARD -->
+                <div class="dashboard-grid">
+                    <div class="dashboard-col-left">
+                        <!-- SUB-ÁREAS EM DESTAQUE -->
+                        <div class="section-box">
+                            <div class="section-header-row">
+                                <h3 class="section-heading">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                                    Sub-Áreas de Pesquisa
+                                </h3>
+                                <span class="section-action-link" onclick="switchView('subareas')">Ver todas (19)</span>
+                            </div>
+                            <div id="dashboardSubareasGrid" class="template-style-14"></div>
+                        </div>
+
+                        <!-- SEÇÃO: CONTINUAR LENDO -->
+                        <div class="section-box">
+                            <div class="section-header-row">
+                                <h3 class="section-heading">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                                    Em Leitura Ativa
+                                </h3>
+                                <span class="section-action-link" onclick="filterByReadingStatus('lendo')">Ver todas</span>
+                            </div>
+                            <div id="dashboardReadingNowContainer">
+                                <p class="template-style-15">Todo o acervo inicial está marcado como lido! Quando iniciar uma releitura ou ingerir novos livros, selecione <b>"Em Leitura"</b> na ficha da obra.</p>
+                            </div>
+                        </div>
+
+                        <!-- SEÇÃO: FILA DE LEITURA -->
+                        <div class="section-box">
+                            <div class="section-header-row">
+                                <h3 class="section-heading">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                                    Fila de Leitura (Próximas Leituras)
+                                </h3>
+                                <span class="section-action-link" onclick="filterByReadingStatus('quero_ler')">Gerenciar fila</span>
+                            </div>
+                            <div id="dashboardQueroLerContainer">
+                                <p class="template-style-15">Sua fila está vazia. Adicione obras à lista de <b>"Quero Ler"</b> para planejar seus estudos.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-col-right">
+                        <!-- RELEMBRE UMA LEITURA (ACTIVE RECALL) -->
+                        <div class="recall-box template-style-16">
+                            <div class="recall-badge">
+                                <span>💡</span> Relembre uma Leitura / Sugestão Acadêmica
+                            </div>
+                            <div id="recallContent">
+                                <div class="recall-quote" id="recallQuote">Carregando sugestão do acervo...</div>
+                                <div class="recall-source" id="recallSource">Autor — Título</div>
+                            </div>
+                            <button class="btn-action-secondary template-style-17" onclick="renderRandomRecall()">
+                                ⟳ Sortear Outra Obra do Acervo
+                            </button>
+                        </div>
+
+                        <!-- NUVEM DE CONCEITOS -->
+                        <div class="section-box">
+                            <div class="section-header-row">
+                                <h3 class="section-heading">Nuvem de Conceitos & Tags</h3>
+                                <span class="section-action-link" onclick="switchView('topics')">Todas as tags</span>
+                            </div>
+                            <div class="tags-cloud" id="dashboardTagsCloud"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GRANDES ÁREAS -->
+                <div class="section-header-row template-style-18">
+                    <h3 class="section-heading">Grandes Áreas do Conhecimento</h3>
+                </div>
+                <div class="categories-grid">
+                    <div class="cat-overview-card cat-card-1" onclick="filterByCategory('1')">
+                        <span class="cat-overview-code">Código 1</span>
+                        <h4 class="cat-overview-title">Educação</h4>
+                        <span class="cat-overview-meta">58 obras · Currículo, Avaliação, Formação Docente, Integral</span>
+                    </div>
+                    <div class="cat-overview-card cat-card-12" onclick="filterByCategory('1.2')">
+                        <span class="cat-overview-code">Código 1.2</span>
+                        <h4 class="cat-overview-title">Educação e História</h4>
+                        <span class="cat-overview-meta">10 obras · Historiografia Educacional e Práticas Escolares</span>
+                    </div>
+                    <div class="cat-overview-card cat-card-2" onclick="filterByCategory('2')">
+                        <span class="cat-overview-code">Código 2</span>
+                        <h4 class="cat-overview-title">História</h4>
+                        <span class="cat-overview-meta">16 obras · Fontes Primárias, Teoria e Brasil Império</span>
+                    </div>
+                    <div class="cat-overview-card cat-card-3" onclick="filterByCategory('3')">
+                        <span class="cat-overview-code">Código 3</span>
+                        <h4 class="cat-overview-title">Ciências Humanas e Sociais</h4>
+                        <span class="cat-overview-meta">13 obras · Teoria Social, Filosofia e Antropologia</span>
+                    </div>
+                    <div class="cat-overview-card cat-card-4" onclick="filterByCategory('4')">
+                        <span class="cat-overview-code">Código 4</span>
+                        <h4 class="cat-overview-title">Linguística e Literatura</h4>
+                        <span class="cat-overview-meta">29 obras · Romance de 30, Crítica Literária e Letramento</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. EXPLORADOR DO ACERVO & FILTROS FACETADOS -->
+            <section class="view-pane" id="viewExplorer">
+                <div class="explorer-toolbar">
+                    <div class="filter-row-primary">
+                        <div class="search-input-wrapper">
+                            <input type="text" id="explorerSearchInput" placeholder="Filtrar por título, autor, sub-área, resumo ou tags..." oninput="filterCatalog()">
+                            <button class="search-clear-btn" id="searchClearBtn" onclick="clearExplorerSearch()">✕</button>
+                        </div>
+                        <select class="filter-select" id="filterCategorySelect" onchange="onCategorySelectChange()">
+                            <option value="all">Todas as Grandes Áreas (5)</option>
+                            <option value="1">1 - Educação (58)</option>
+                            <option value="1.2">1.2 - Educação e História (10)</option>
+                            <option value="2">2 - História (16)</option>
+                            <option value="3">3 - Ciências Humanas e Sociais (13)</option>
+                            <option value="4">4 - Linguística e Literatura (29)</option>
+                        </select>
+                        <select class="filter-select" id="filterStatusSelect" onchange="filterCatalog()">
+                            <option value="all">Status de Leitura (Todos)</option>
+                            <option value="lido">Lidos (Concluídos)</option>
+                            <option value="lendo">Em Leitura</option>
+                            <option value="quero_ler">Quero Ler</option>
+                            <option value="nao_iniciado">Não Iniciados</option>
+                            <option value="favoritos">Favoritos</option>
+                        </select>
+                        <select class="filter-select" id="filterSortSelect" onchange="filterCatalog()">
+                            <option value="autor_asc">Autor (A → Z)</option>
+                            <option value="titulo_asc">Título (A → Z)</option>
+                            <option value="pags_desc">Páginas (Maior → Menor)</option>
+                            <option value="pags_asc">Páginas (Menor → Maior)</option>
+                            <option value="codigo_asc">Código Categoria</option>
+                        </select>
+                    </div>
+
+                    <!-- PAINEL MULTI-SELEÇÃO DE SUB-ÁREAS E TAGS -->
+                    <div class="filter-multiselect-panel">
+                        <div class="filter-multiselect-header">
+                            <span>Sub-Áreas de Pesquisa (Selecione múltiplas):</span>
+                            <div class="template-style-19">
+                                <span class="template-style-20">Combinação:</span>
+                                <div class="logic-toggle" onclick="toggleFilterLogic()">
+                                    <span class="logic-opt active" id="logicOptAnd" title="Exibir apenas textos que atendem a TODOS os filtros">E (Intersecção)</span>
+                                    <span class="logic-opt" id="logicOptOr" title="Exibir textos que atendem a QUALQUER filtro">OU (União)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="subareas-chips-container" id="subareasChipsContainer"></div>
+                    </div>
+
+                    <!-- BARRA DE FILTROS ATIVOS -->
+                    <div class="active-filters-bar template-style-21" id="activeFiltersBar">
+                        <span class="template-style-22">Filtros Ativos:</span>
+                        <div id="activeFilterChipsList" class="template-style-23"></div>
+                        <button class="btn-action-secondary template-style-24" onclick="resetAllFilters()">Limpar Todos</button>
+                    </div>
+                </div>
+
+                <div class="results-summary-bar">
+                    <span id="resultsCount">Exibindo obras do catálogo</span>
+                    <span id="resultsFilterNote"></span>
+                </div>
+
+                <!-- VISTA 1: CARDS -->
+                <div class="cards-grid" id="cardsContainer"></div>
+
+                <!-- VISTA 2: LISTA ACADÊMICA -->
+                <div class="academic-list template-style-21" id="listContainer"></div>
+
+                <!-- VISTA 3: TABELA TÉCNICA -->
+                <div class="table-responsive template-style-21" id="tableContainer">
+                    <table class="technical-table">
+                        <thead>
+                            <tr>
+                                <th>Cód</th>
+                                <th>Área & Sub-Área</th>
+                                <th>Autor</th>
+                                <th>Título da Obra</th>
+                                <th class="template-style-25">Págs</th>
+                                <th>Status</th>
+                                <th class="template-style-26">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBodyContainer"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 3. SUB-ÁREAS ACADÊMICAS -->
+            <section class="view-pane" id="viewSubareas">
+                <div class="section-header-row">
+                    <div>
+                        <h2 class="section-heading">Sub-Áreas Acadêmicas de Pesquisa</h2>
+                        <p class="template-style-27">Especialidades temáticas que organizam as obras do catálogo do acervo. Clique em qualquer sub-área para filtrar as obras correspondentes.</p>
+                    </div>
+                </div>
+                <div id="subareasFullGrid" class="template-style-28"></div>
+            </section>
+
+            <!-- 4. FICHAMENTOS ACADÊMICOS -->
+            <section class="view-pane" id="viewFichamentos">
+                <div class="section-header-row">
+                    <div>
+                        <h2 class="section-heading">Cadernos e fichamentos</h2>
+                        <p class="template-style-27">As obras do acervo original contam com fichamento analítico pré-preenchido (Problema de Pesquisa, Objetivo, Tese Central, Conceitos, Metodologia e Conclusões), para conferir no original e desenvolver com suas próprias anotações.</p>
+                    </div>
+                    <div class="template-style-29">
+                        <input type="text" id="fichamentoFilterInput" class="form-input template-style-30" placeholder="Buscar nos fichamentos..." oninput="filterFichamentos(this.value)">
+                    </div>
+                </div>
+                <div id="fichamentosList" class="template-style-31"></div>
+            </section>
+
+            <!-- 5. COLEÇÕES TEMÁTICAS -->
+            <section class="view-pane" id="viewCollections">
+                <div class="section-header-row">
+                    <div>
+                        <h2 class="section-heading">Coleções de Pesquisa</h2>
+                        <p class="template-style-27">Organize obras transversalmente por temas de pesquisa, disciplinas acadêmicas ou capítulos da sua dissertação/tese.</p>
+                    </div>
+                    <button class="btn-action-primary" onclick="openNewCollectionModal()">+ Nova Coleção</button>
+                </div>
+                <div id="collectionsGrid" class="template-style-32"></div>
+
+                <div id="collectionDetailContainer" class="template-style-33">
+                    <div class="template-style-34">
+                        <div>
+                            <h3 id="collectionDetailTitle" class="template-style-35">Título da Coleção</h3>
+                            <p id="collectionDetailDesc" class="template-style-36"></p>
+                        </div>
+                        <div class="template-style-29">
+                            <button class="btn-action-secondary" onclick="exportCollectionAbnt()">Copiar Referências ABNT</button>
+                            <button class="btn-action-secondary" onclick="closeCollectionDetail()">Voltar</button>
+                        </div>
+                    </div>
+                    <div id="collectionObrasList" class="template-style-37"></div>
+                </div>
+            </section>
+
+            <!-- 6. NOTAS E CITAÇÕES NOTÁVEIS -->
+            <section class="view-pane" id="viewQuotes">
+                <div class="section-header-row">
+                    <div>
+                        <h2 class="section-heading">Mural de Citações e Anotações</h2>
+                        <p class="template-style-27">Recupere rapidamente trechos citados com números de páginas exatos para inserir em seus artigos acadêmicos.</p>
+                    </div>
+                </div>
+                <div id="quotesFeed" class="template-style-38"></div>
+            </section>
+
+            <!-- 7. AUTORES (A-Z) -->
+            <section class="view-pane" id="viewAuthors">
+                <div class="section-header-row">
+                    <h2 class="section-heading">Índice Alfabético de Autores</h2>
+                </div>
+                <div id="authorsContainer" class="template-style-39"></div>
+            </section>
+
+            <!-- 8. NUVEM E ÍNDICE DE TEMAS -->
+            <section class="view-pane" id="viewTopics">
+                <div class="section-header-row">
+                    <h2 class="section-heading">Índice Temático de Conceitos e Palavras-Chave</h2>
+                </div>
+                <div id="allTopicsContainer" class="tags-cloud template-style-40"></div>
+            </section>
+
+            <!-- 9. REVISÃO DE METADADOS -->
+            <section class="view-pane" id="viewMaintenance">
+                <div class="section-header-row">
+                    <div>
+                        <h2 class="section-heading">Central de Auditoria e Qualidade de Metadados</h2>
+                        <p class="template-style-27">Acompanhe a maturidade bibliográfica das obras do catálogo, audite inconsistências históricas e edite metadados com sobreposição local.</p>
+                    </div>
+                </div>
+                <div class="kpi-grid template-style-41">
+                    <div class="kpi-card" onclick="filterAuditQuality('inconsistente')">
+                        <div class="kpi-header">
+                            <span class="kpi-title">Inconsistências (Auditadas)</span>
+                            <span class="kpi-icon template-style-12">⚠️</span>
+                        </div>
+                        <div class="kpi-value">5</div>
+                        <div class="kpi-subtext">Bates/Duarte, Martins, Bauer, Cury, INEP</div>
+                    </div>
+                    <div class="kpi-card" onclick="filterAuditQuality('precisa_revisao')">
+                        <div class="kpi-header">
+                            <span class="kpi-title">Precisam Revisão</span>
+                            <span class="kpi-icon template-style-42">🔍</span>
+                        </div>
+                        <div class="kpi-value">24</div>
+                        <div class="kpi-subtext">Resumos sintéticos / Lago Maranhão</div>
+                    </div>
+                    <div class="kpi-card" onclick="filterAuditQuality('completo')">
+                        <div class="kpi-header">
+                            <span class="kpi-title">Completos e Sólidos</span>
+                            <span class="kpi-icon template-style-10">✅</span>
+                        </div>
+                        <div class="kpi-value">97</div>
+                        <div class="kpi-subtext">Metadados e resumos específicos</div>
+                    </div>
+                </div>
+                <div id="auditItemsContainer" class="template-style-38"></div>
+            </section>
+
+            <!-- 10. BACKUP & AUTOMAÇÃO -->
+            <section class="view-pane" id="viewBackup">
+                <div class="section-header-row">
+                    <div>
+                        <h2 class="section-heading">Backup e gestão dos seus dados</h2>
+                        <p class="template-style-27">Exporte um backup ou importe suas notas do catálogo antigo. As alterações sincronizam entre seus dispositivos.</p>
+                    </div>
+                </div>
+
+                <!-- MARCAR TODAS COMO LIDAS -->
+                <div class="section-box template-style-43">
+                    <h3 class="template-style-44">Status do Acervo Atual</h3>
+                    <p class="template-style-45">Você pode definir todas as obras do catálogo atuais como já lidas ou redefinir seu status conforme sua rotina de estudos.</p>
+                    <button class="btn-action-primary" onclick="markAllCurrentWorksAsRead()">
+                        ✅ Marcar todas as obras atuais como "Lidas"
+                    </button>
+                </div>
+
+                <!-- EXPORTAR BACKUP -->
+                <div class="section-box template-style-43">
+                    <h3 class="template-style-46">Exportar e Salvar Dados</h3>
+                    <p class="template-style-47">Gera um arquivo JSON completo com todas as suas anotações, fichamentos, notas de leitura e coleções.</p>
+                    <div class="template-style-48">
+                        <button class="btn-action-primary" onclick="exportFullBackup()">
+                            📥 Baixar Backup Completo (JSON)
+                        </button>
+                        <button class="btn-action-secondary" onclick="exportCatalogCSV()">
+                            📊 Exportar Catálogo em CSV
+                        </button>
+                    </div>
+                </div>
+
+                <!-- RESTAURAR BACKUP -->
+                <div class="section-box template-style-43">
+                    <h3 class="template-style-46">Restaurar Backup</h3>
+                    <p class="template-style-47">Selecione um arquivo de backup (.json) exportado anteriormente para recuperar todas as suas notas e fichamentos.</p>
+                    <input type="file" id="backupFileInput" accept=".json" class="template-style-18" onchange="importBackupFile(event)">
+                </div>
+
+                <!-- ZONA DE PERIGO -->
+                <div class="section-box template-style-49">
+                    <h3 class="template-style-50">Zona de Redefinição</h3>
+                    <p class="template-style-45">Limpa os dados pessoais locais e reinicia o catálogo com os padrões de fábrica.</p>
+                    <button class="btn-action-secondary template-style-51" onclick="confirmResetStore()">
+                        ⚠️ Limpar Dados Locais
+                    </button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- MODAL: FICHA DETALHADA DA OBRA -->
+    <div class="modal-overlay" id="modalWorkSheet" onclick="handleModalOverlayClick(event, 'modalWorkSheet')">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div id="modalWorkBadges" class="template-style-52"></div>
+                <div class="template-style-53">
+                    <button id="modalFavoriteBtn" class="card-favorite-btn" onclick="toggleModalFavorite()" title="Favoritar">★</button>
+                    <button class="modal-close-btn" onclick="closeModal('modalWorkSheet')">✕</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <div class="modal-author" id="modalWorkAuthor">AUTOR</div>
+                    <h2 class="modal-title" id="modalWorkTitle">Título da Obra</h2>
+                    <div class="template-style-54" id="modalWorkSubarea">Sub-área</div>
+                </div>
+
+                <!-- BARRA DE AÇÕES DIRETAS -->
+                <div class="modal-action-bar">
+                    <a id="modalOpenPdfBtn" href="#" target="_blank" class="btn-action-primary template-style-55">
+                        📄 Abrir PDF no Leitor Local
+                    </a>
+                    <button class="btn-action-secondary" onclick="copyFilePathModal()">
+                        📋 Copiar link do Drive
+                    </button>
+                    <button class="btn-action-secondary" onclick="copyWorkAbntModal()">
+                        🏷️ Copiar ABNT
+                    </button>
+                    <button class="btn-action-secondary" onclick="openFichamentoFromModal()">
+                        📝 Ver Fichamento Pré-Preenchido
+                    </button>
+                    <button class="btn-action-secondary" onclick="openEditMetadataFromModal()">
+                        ✏️ Editar Metadados
+                    </button>
+                    <span id="modalFileCopiedFeedback" class="template-style-56">Copiado!</span>
+                </div>
+
+                <!-- CONTROLE DE LEITURA -->
+                <div class="reading-controls-panel">
+                    <div>
+                        <label class="form-label">Status de Leitura:</label>
+                        <select class="filter-select template-style-57" id="modalReadingStatusSelect" onchange="updateModalReadingStatus(this.value)">
+                            <option value="lido">✅ Lido (Concluído)</option>
+                            <option value="lendo">📖 Em Leitura</option>
+                            <option value="quero_ler">⏳ Quero Ler (Fila de Leitura)</option>
+                            <option value="nao_iniciado">⚪ Não Iniciado</option>
+                            <option value="reler">🔄 Reler futuramente</option>
+                        </select>
+                        <div class="template-style-58">
+                            <label class="form-label">Avaliação Pessoal:</label>
+                            <div class="star-rating" id="modalStarRating">
+                                <span class="star" onclick="setModalStarRating(1)">★</span>
+                                <span class="star" onclick="setModalStarRating(2)">★</span>
+                                <span class="star" onclick="setModalStarRating(3)">★</span>
+                                <span class="star" onclick="setModalStarRating(4)">★</span>
+                                <span class="star" onclick="setModalStarRating(5)">★</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="form-label">Progresso de Leitura:</label>
+                        <div class="template-style-59">
+                            <input type="number" id="modalPagesReadInput" min="0" class="template-style-60" onchange="updateModalPagesRead(this.value)">
+                            <span class="template-style-61" id="modalTotalPagesLabel">de X págs</span>
+                            <span id="modalProgressPercent" class="template-style-62">100%</span>
+                        </div>
+                        <div class="progress-container template-style-63">
+                            <div class="progress-bar-fill template-style-64" id="modalProgressBarFill"></div>
+                        </div>
+                        <div class="template-style-63">
+                            <label class="form-label">Por que estou lendo este texto?</label>
+                            <input type="text" id="modalReadingReasonInput" class="form-input template-style-65" placeholder="Ex: Referencial para a tese..." onchange="saveModalReadingReason(this.value)">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLEÇÕES ASSOCIADAS -->
+                <div>
+                    <h3 class="template-style-66">Coleções de Pesquisa</h3>
+                    <div id="modalWorkCollectionsContainer" class="template-style-67"></div>
+                </div>
+
+                <!-- RESUMO ANALÍTICO -->
+                <div>
+                    <h3 class="template-style-68">Resumo Analítico da Obra</h3>
+                    <p id="modalWorkSummary" class="template-style-69"></p>
+                </div>
+
+                <!-- PALAVRAS-CHAVE -->
+                <div>
+                    <h3 class="template-style-66">Palavras-Chave & Conceitos (Clique para filtrar)</h3>
+                    <div id="modalWorkKeywords" class="tags-cloud"></div>
+                </div>
+
+                <!-- NOTAS PESSOAIS -->
+                <div>
+                    <div class="template-style-70">
+                        <h3 class="template-style-71">Anotações Rápidas de Estudo</h3>
+                    </div>
+                    <div class="template-style-29">
+                        <input type="text" id="modalNewNoteInput" class="form-input template-style-72" placeholder="Adicionar uma reflexão ou ponto de atenção...">
+                        <button class="btn-action-primary" onclick="addModalNote()">Salvar Nota</button>
+                    </div>
+                    <div class="notes-list" id="modalNotesList"></div>
+                </div>
+
+                <!-- CITAÇÕES NOTÁVEIS -->
+                <div>
+                    <h3 class="template-style-73">Citações & Trechos Marcantes</h3>
+                    <div class="template-style-74">
+                        <textarea id="modalQuoteTextInput" class="form-textarea template-style-75" placeholder="Transcreva a citação literal..."></textarea>
+                        <div class="template-style-76">
+                            <input type="number" id="modalQuotePageInput" placeholder="Pág. nº" class="template-style-77">
+                            <input type="text" id="modalQuoteCommentInput" placeholder="Comentário pessoal / Onde usar..." class="template-style-78">
+                            <button class="btn-action-primary" onclick="addModalQuote()">Salvar Citação</button>
+                        </div>
+                    </div>
+                    <div class="notes-list" id="modalQuotesList"></div>
+                </div>
+
+                <!-- LEITURAS RELACIONADAS -->
+                <div>
+                    <h3 class="template-style-79">Leituras Relacionadas na Mesma Sub-Área / Tema</h3>
+                    <div id="modalRelatedWorksContainer" class="template-style-80"></div>
+                </div>
+
+                <!-- METADADOS TÉCNICOS -->
+                <div class="template-style-81">
+                    <div><b>Arquivo:</b> <span id="modalFileName"></span></div>
+                    <div><b>Caminho Local:</b> <code id="modalFilePath" class="template-style-82"></code></div>
+                    <div><b>Páginas:</b> <span id="modalFilePages"></span> | <b>Tamanho:</b> <span id="modalFileSize"></span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: EDITOR DE FICHAMENTO ACADÊMICO (SEM CRÍTICA PESSOAL) -->
+    <div class="modal-overlay" id="modalFichamento" onclick="handleModalOverlayClick(event, 'modalFichamento')">
+        <div class="modal-card template-style-83">
+            <div class="modal-header">
+                <div>
+                    <span class="template-style-84">Fichamento Acadêmico Estruturado</span>
+                    <h2 class="modal-title template-style-85" id="fichamentoModalTitle">Título da Obra</h2>
+                </div>
+                <div class="template-style-29">
+                    <button class="btn-action-secondary" onclick="exportCurrentFichamentoMarkdown()">📥 Exportar .MD</button>
+                    <button class="btn-action-secondary" onclick="window.print()">🖨️ Imprimir</button>
+                    <button class="modal-close-btn" onclick="closeModal('modalFichamento')">✕</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="fichamento-form">
+                    <div class="form-group">
+                        <label class="form-label">Referência Bibliográfica (ABNT):</label>
+                        <input type="text" id="fichamentoRefAbnt" class="form-input template-style-86">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Sub-Área Temática:</label>
+                        <input type="text" id="fichamentoSubarea" class="form-input template-style-86">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Problema de Pesquisa / Questão Central:</label>
+                        <textarea id="fichamentoProblema" class="form-textarea" placeholder="Qual a pergunta norteadora investigada?"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Objetivo Geral da Obra:</label>
+                        <textarea id="fichamentoObjetivo" class="form-textarea" placeholder="O que o autor se propõe a demonstrar ou analisar?"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tese / Argumento Central Defendido:</label>
+                        <textarea id="fichamentoTese" class="form-textarea template-style-87" placeholder="Qual é a principal tese defendida pelo autor?"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Conceitos e Categorias Teóricas Mobilizadas:</label>
+                        <input type="text" id="fichamentoConceitos" class="form-input" placeholder="Categorias teóricas principais...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Metodologia e Fontes Documentais:</label>
+                        <textarea id="fichamentoMetodologia" class="form-textarea" placeholder="Procedimentos metodológicos e fontes mobilizadas..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Conclusões do Autor:</label>
+                        <textarea id="fichamentoConclusoes" class="form-textarea" placeholder="Principais desfechos e conclusões alcançadas..."></textarea>
+                    </div>
+                </div>
+                <div class="template-style-88">
+                    <button class="btn-action-primary template-style-89" onclick="saveCurrentFichamento()">Salvar Alterações no Fichamento</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: EDITOR DE METADADOS -->
+    <div class="modal-overlay" id="modalEditMetadata" onclick="handleModalOverlayClick(event, 'modalEditMetadata')">
+        <div class="modal-card template-style-90">
+            <div class="modal-header">
+                <h3 class="modal-title template-style-91">Editar Metadados da Obra</h3>
+                <button class="modal-close-btn" onclick="closeModal('modalEditMetadata')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Autor:</label>
+                    <input type="text" id="editMetaAutor" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Título da Obra:</label>
+                    <input type="text" id="editMetaTitulo" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Sub-Área Temática:</label>
+                    <input type="text" id="editMetaSubarea" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Código / Categoria:</label>
+                    <select id="editMetaCodigo" class="filter-select template-style-64">
+                        <option value="1">1 - Educação</option>
+                        <option value="1.2">1.2 - Educação e História</option>
+                        <option value="2">2 - História</option>
+                        <option value="3">3 - Ciências Humanas e Sociais</option>
+                        <option value="4">4 - Linguística e Literatura</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Resumo Analítico:</label>
+                    <textarea id="editMetaResumo" class="form-textarea template-style-87"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Palavras-Chave (separadas por vírgula):</label>
+                    <input type="text" id="editMetaTags" class="form-input">
+                </div>
+                <div class="template-style-92">
+                    <button class="btn-action-secondary" onclick="closeModal('modalEditMetadata')">Cancelar</button>
+                    <button class="btn-action-primary" onclick="saveMetadataOverrides()">Salvar Modificações</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: NOVA COLEÇÃO -->
+    <div class="modal-overlay" id="modalNewCollection" onclick="handleModalOverlayClick(event, 'modalNewCollection')">
+        <div class="modal-card template-style-93">
+            <div class="modal-header">
+                <h3 class="modal-title template-style-91">Criar Nova Coleção de Pesquisa</h3>
+                <button class="modal-close-btn" onclick="closeModal('modalNewCollection')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Nome da Coleção:</label>
+                    <input type="text" id="newCollectionName" class="form-input" placeholder="Ex: Políticas Curriculares no Brasil">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Descrição / Questão de Pesquisa:</label>
+                    <textarea id="newCollectionDesc" class="form-textarea" placeholder="Descreva a finalidade ou o recorte temático desta coleção..."></textarea>
+                </div>
+                <div class="template-style-92">
+                    <button class="btn-action-secondary" onclick="closeModal('modalNewCollection')">Cancelar</button>
+                    <button class="btn-action-primary" onclick="saveNewCollection()">Criar Coleção</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DADOS EMBUTIDOS & LÓGICA DA APLICAÇÃO -->
+
+
+
+<!-- SCRIPTS -->
+</body>
+</html>

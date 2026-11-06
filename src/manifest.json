@@ -1,0 +1,37 @@
+{
+  "scripts": [
+    "src/core/state.js",
+    "src/core/utils.js",
+    "src/core/storage.js",
+    "src/catalog/repository.js",
+    "src/ui/navigation.js",
+    "src/catalog/dashboard.js",
+    "src/catalog/explorer.js",
+    "src/catalog/discovery.js",
+    "src/study/legacy-form.js",
+    "src/reading/work-sheet.js",
+    "src/catalog/metadata.js",
+    "src/catalog/filters.js",
+    "src/catalog/collections.js",
+    "src/study/quotes.js",
+    "src/core/backup.js",
+    "src/reading/progress.js",
+    "src/ui/dialogs.js",
+    "src/study/document-view.js",
+    "src/study/notebook.js",
+    "src/study/workspace.js",
+    "src/cloud/bridge.js",
+    "src/core/bootstrap.js"
+  ],
+  "styles": [
+    "styles/tokens.css",
+    "styles/shell.css",
+    "styles/dashboard.css",
+    "styles/catalog.css",
+    "styles/dialogs.css",
+    "styles/template.css",
+    "styles/cloud.css",
+    "styles/study.css",
+    "styles/notebook.css"
+  ]
+}

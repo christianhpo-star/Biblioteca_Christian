@@ -1,0 +1,45 @@
+
+    .auth-locked > :not(#authGate):not(script) { display:none !important; }
+    #authGate { min-height:100dvh; display:grid; place-items:center; background:#f8fafc; padding:24px; color:#0f172a; }
+    #authGate[hidden] { display:none; }
+    .auth-card { max-width:470px; background:white; border:1px solid #e2e8f0; border-radius:20px; padding:36px; box-shadow:0 16px 48px #0f172a0d; }
+    .auth-icon { font-size:48px; color:#1e40af; margin-bottom:20px; }
+    .auth-card h1 { font-size:28px; line-height:1.2; margin:0 0 16px; }
+    .auth-card p { color:#475569; line-height:1.6; margin-bottom:16px; }
+    .auth-card small { display:block; color:#64748b; margin-top:20px; }
+    #googleLogin { width:100%; background:#1e40af; color:white; border:0; border-radius:8px; padding:14px; font:inherit; font-weight:600; cursor:pointer; }
+    #googleLogin:disabled { opacity:.6; cursor:wait; }
+    #cloudBar { position:fixed; bottom:12px; right:12px; z-index:1200; display:flex; align-items:center; gap:10px; padding:10px 14px; border:1px solid var(--border-subtle); border-radius:12px; background:var(--bg-surface); color:var(--text-primary); box-shadow:var(--shadow-lg); max-width:calc(100vw - 24px); font-size:12px; }
+    .study-shell { padding-bottom:90px; }
+    #cloudBar small { display:block; color:var(--text-muted); font-size:11px; }
+    #cloudBar button { color:var(--primary); background:var(--bg-body); border:1px solid var(--border-subtle); padding:7px; border-radius:6px; cursor:pointer; }
+    .app-main { padding-bottom:90px; }
+    #mobileNavBackdrop { display:none; }
+    @media(max-width:900px) {
+      .app-main, body.sidebar-collapsed .app-main { margin-left:0; width:100%; min-width:0; }
+      .app-sidebar, body.sidebar-collapsed .app-sidebar { width:275px; transform:translateX(-100%); }
+      .mobile-menu-open .app-sidebar { transform:translateX(0); }
+      .mobile-menu-open #mobileNavBackdrop { display:block; position:fixed; inset:0; border:0; background:#0f172a66; z-index:35; }
+      body.sidebar-collapsed .sidebar-brand-text, body.sidebar-collapsed .nav-label { display:block; }
+      body.sidebar-collapsed .nav-section-title, body.sidebar-collapsed .nav-badge, body.sidebar-collapsed .sidebar-footer { display:block; }
+      .app-header { padding:10px 14px; height:auto; min-height:64px; gap:10px; }
+      .header-left { flex:1; min-width:0; gap:10px; }
+      .current-view-title { font-size:16px; white-space:normal; }
+      .header-center, .view-mode-selector { display:none; }
+      .header-right { gap:6px; flex-shrink:0; }
+      .header-right > button { font-size:12px; padding:8px; }
+      .content-container { padding:18px 16px; }
+      .dashboard-hero { padding:24px; }
+      .hero-title { font-size:25px; }
+      .hero-search { flex-direction:column; }
+      .hero-search input, .hero-search button { width:100%; min-width:0; }
+      .dashboard-grid, .section-box, .kpi-card { min-width:0; }
+      .kpi-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .section-box { padding:18px; }
+      .section-header-row { flex-wrap:wrap; gap:10px; }
+      .hero-desc, .section-box p, .card-title { overflow-wrap:anywhere; }
+    }
+    @media(max-width:480px) { .auth-card { padding:25px; } #cloudBar { left:12px; right:12px; } #cloudAccount { max-width:150px; overflow:hidden; text-overflow:ellipsis; } }
+    @media print { #cloudBar {display:none;} }
+
+#cloudBar[hidden]{display:none}

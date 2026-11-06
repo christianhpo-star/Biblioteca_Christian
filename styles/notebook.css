@@ -1,0 +1,36 @@
+/* The entry form is transient; the continuous document is the reading/export surface. */
+.study-notebook { max-width:940px; margin:auto; padding-bottom:48px; }
+.study-notebook [hidden] { display:none!important; }
+.study-notebook .study-top { align-items:flex-start; }
+.study-notebook h2 { font-size:19px; margin:0; }
+.study-notebook h3 { font-size:16px; }
+.study-notebook input,.study-notebook textarea,.study-notebook select { box-sizing:border-box; width:100%; padding:10px; border:1px solid var(--border-subtle); border-radius:8px; background:var(--bg-surface); color:var(--text-primary); font:inherit; }
+.study-notebook textarea { min-height:120px; resize:vertical; line-height:1.65; }
+.study-notebook .study-status { margin:12px 0; }
+.study-reference-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:20px 0 28px; align-items:start; }
+.study-reference { background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:10px; padding:14px; }
+.study-reference summary { cursor:pointer; color:var(--primary-text); }
+.study-reference label { display:block; margin:12px 0 6px; }
+.study-reference p { white-space:pre-wrap; overflow-wrap:anywhere; }
+.study-record-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin:12px 0; }
+.study-record-header label { display:flex; align-items:center; gap:8px; }
+.study-record-header input { max-width:120px; }
+.study-record-editor { margin:18px 0; padding:20px; background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:12px; }
+.study-record-editor > .study-actions { margin-top:14px; }
+.study-record-list { display:grid; gap:14px; margin:22px 0; }
+.study-record { min-width:0; background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:12px; padding:16px 20px; }
+.study-record-header > span { font-size:13px; color:var(--text-secondary); }
+.study-record-preview { cursor:pointer; overflow-wrap:anywhere; white-space:pre-wrap; }
+.study-record details:not([open]) > summary { max-height:4.8em; overflow:hidden; }
+.study-record details > summary::marker { color:var(--primary); }
+.study-record blockquote { white-space:pre-wrap; overflow-wrap:anywhere; border-left:3px solid var(--border-subtle); margin:16px 0; padding-left:16px; }
+.study-record p { white-space:pre-wrap; overflow-wrap:anywhere; margin:12px 0 0; }
+.study-document-toolbar { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin:20px 0 12px; }
+.study-document-paper { background:#fff; color:#171717; font:16px/1.7 Georgia,serif; padding:56px 62px; margin:20px auto; max-width:794px; border:1px solid var(--border-subtle); border-radius:3px; overflow-wrap:anywhere; }
+.study-document-paper h1 { font-size:26px; line-height:1.3; margin:0 0 12px; }
+.study-document-paper h2 { font-size:19px; margin:28px 0 12px; }
+.study-document-paper h3 { font-size:16px; margin:16px 0 8px; }
+.study-document-paper p,.study-document-paper blockquote { white-space:pre-wrap; margin:12px 0; }
+.study-document-paper blockquote { margin-left:22px; padding-left:14px; border-left:2px solid #ccc; }
+@media(max-width:600px) { .study-reference-row { grid-template-columns:1fr; gap:10px; } .study-record-editor,.study-record { padding:14px; } .study-document-paper { padding:26px 20px; font-size:16px; } .study-document-paper h1 { font-size:22px; } }
+@media print { .study-shell { position:static; overflow:visible; padding:0; } .study-notebook > header,.study-notebook > .study-status,.study-document-toolbar,#documentStatus,#notebookBody { display:none!important; } .study-document-paper { border:0; padding:0; max-width:none; } .study-document-paper h2,.study-document-paper h3 { break-after:avoid; } }

@@ -1,0 +1,12 @@
+{
+  "mode": "firebase",
+  "storageKey": "BIBLIOTECA_CLOUD_STATE",
+  "ownerEmail": "owner@example.invalid",
+  "databaseId": "biblioteca",
+  "firebase": {
+    "projectId": "your-project-id",
+    "appId": "your-web-app-id",
+    "apiKey": "your-public-firebase-web-api-key",
+    "authDomain": "your-project-id.firebaseapp.com"
+  }
+}

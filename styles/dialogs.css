@@ -1,0 +1,218 @@
+        /* ==========================================================================
+           MODAIS
+           ========================================================================== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            padding: 20px;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+            animation: fadeIn 0.15s ease;
+        }
+
+        .modal-card {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            max-width: 860px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-modal);
+            border: 1px solid var(--border-subtle);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            background: var(--bg-surface);
+            z-index: 2;
+        }
+
+        .modal-close-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 6px;
+            border-radius: var(--radius-sm);
+            font-size: 20px;
+            line-height: 1;
+        }
+        .modal-close-btn:hover {
+            background: var(--bg-body);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .modal-author {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+        }
+
+        .modal-title {
+            font-family: var(--font-serif);
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.35;
+        }
+
+        .modal-action-bar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            padding: 16px;
+            background: var(--bg-body);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .reading-controls-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            background: var(--bg-body);
+            border-radius: var(--radius-md);
+            padding: 18px;
+            border: 1px solid var(--border-subtle);
+        }
+
+        @media (max-width: 640px) {
+            .reading-controls-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .star-rating {
+            display: inline-flex;
+            gap: 4px;
+            font-size: 20px;
+            cursor: pointer;
+            color: #cbd5e1;
+        }
+
+        .star-rating .star.active {
+            color: #f59e0b;
+        }
+
+        .notes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .note-item {
+            background: var(--bg-body);
+            border: 1px solid var(--border-subtle);
+            padding: 12px 14px;
+            border-radius: var(--radius-md);
+            font-size: 13.5px;
+            position: relative;
+        }
+
+        .note-date {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .note-delete-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .fichamento-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .form-input, .form-textarea {
+            background: var(--bg-body);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 10px 12px;
+            color: var(--text-primary);
+            font-size: 13.5px;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            border-color: var(--border-focus);
+            background: var(--bg-surface);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+
+        .form-textarea {
+            min-height: 90px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        /* ESTILO LIMPO DE IMPRESSÃO */
+        @media print {
+            .app-sidebar, .app-header, .card-actions, .modal-action-bar, .btn-action-primary, .theme-toggle-btn, .modal-close-btn {
+                display: none !important;
+            }
+            .app-main {
+                margin-left: 0 !important;
+                width: 100% !important;
+            }
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+            }
+            .modal-card {
+                box-shadow: none !important;
+                border: none !important;
+                max-width: 100% !important;
+            }
+        }
