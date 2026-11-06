@@ -1,5 +1,15 @@
 # Retomada
 
+## Continuação atual — filtros recolhidos (06/11/2026)
+
+- Branch `codex/filtros-recolhidos-subarea-unica` baseada na PR #8, commit inicial `748f4a7`; altera **somente** a experiência de filtragem da issue #3, em PR independente e encadeada.
+- Arquivos: `templates/index.html`, `src/catalog/explorer.js`, `src/catalog/filters.js`, `src/core/bootstrap.js`, `styles/catalog.css`, `tests/filters.test.mjs`, docs.
+- Painel recolhido, seleção única de subárea e chips removíveis; categoria, status, tags e subárea combinam em AND. O metadado e o estado persistido são preservados. `getCatalogFacetedWorks()` está disponível para reaproveitamento na busca.
+- A branch `codex/busca-autores-obras-sugestoes` já continha `src/catalog/search.js` e não foi alterada: coordenar integração posteriormente, sem sobrescrever trabalho paralelo.
+- PASS em 10 verificações V8 de comportamento e sintaxe. PENDENTE: `npm ci && npm run build && npm test && npm run test:browser`, QA visual 320/390/768/1024/1440, teclado e leitor de tela. Evitar merge/deploy antes da validação.
+- Nenhuma versão instalada, banco, acervo real ou projeto Firebase foram modificados.
+
+
 ## Trabalho corrente — revisão da interface (06/11/2026)
 
 - Branch: `codex/ux-ficha-compacta-referencias`, derivada da PR #1 (`f67f709`). Escopo autorizado: **iniciar implementação** das issues #6 e #5, separadamente da PR atual; não autoriza merge/deploy nem alterar banco/Drive.

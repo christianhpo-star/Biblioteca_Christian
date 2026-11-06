@@ -346,54 +346,70 @@
                 <div class="explorer-toolbar">
                     <div class="filter-row-primary">
                         <div class="search-input-wrapper">
-                            <input type="text" id="explorerSearchInput" placeholder="Filtrar por título, autor, sub-área, resumo ou tags..." oninput="filterCatalog()">
-                            <button class="search-clear-btn" id="searchClearBtn" onclick="clearExplorerSearch()">✕</button>
+                            <label class="sr-only" for="explorerSearchInput">Buscar obras por título, autor ou tema</label>
+                            <input type="search" id="explorerSearchInput" placeholder="Buscar título, autor ou tema..." oninput="filterCatalog()">
+                            <button type="button" class="search-clear-btn" id="searchClearBtn" aria-label="Limpar busca" onclick="clearExplorerSearch()">✕</button>
                         </div>
-                        <select class="filter-select" id="filterCategorySelect" onchange="onCategorySelectChange()">
-                            <option value="all">Todas as Grandes Áreas (5)</option>
-                            <option value="1">1 - Educação (58)</option>
-                            <option value="1.2">1.2 - Educação e História (10)</option>
-                            <option value="2">2 - História (16)</option>
-                            <option value="3">3 - Ciências Humanas e Sociais (13)</option>
-                            <option value="4">4 - Linguística e Literatura (29)</option>
-                        </select>
-                        <select class="filter-select" id="filterStatusSelect" onchange="filterCatalog()">
-                            <option value="all">Status de Leitura (Todos)</option>
-                            <option value="lido">Lidos (Concluídos)</option>
-                            <option value="lendo">Em Leitura</option>
-                            <option value="quero_ler">Quero Ler</option>
-                            <option value="nao_iniciado">Não Iniciados</option>
-                            <option value="favoritos">Favoritos</option>
-                        </select>
-                        <select class="filter-select" id="filterSortSelect" onchange="filterCatalog()">
-                            <option value="autor_asc">Autor (A → Z)</option>
-                            <option value="titulo_asc">Título (A → Z)</option>
-                            <option value="pags_desc">Páginas (Maior → Menor)</option>
-                            <option value="pags_asc">Páginas (Menor → Maior)</option>
-                            <option value="codigo_asc">Código Categoria</option>
-                        </select>
+                        <button type="button" id="explorerFiltersToggle" class="btn-action-secondary explorer-filters-toggle"
+                            aria-controls="explorerFilterPanel" aria-expanded="false" onclick="toggleExplorerFilters()">
+                            Filtros <span id="explorerFilterCount" class="explorer-filter-count" hidden></span>
+                        </button>
                     </div>
 
-                    <!-- PAINEL MULTI-SELEÇÃO DE SUB-ÁREAS E TAGS -->
-                    <div class="filter-multiselect-panel">
-                        <div class="filter-multiselect-header">
-                            <span>Sub-Áreas de Pesquisa (Selecione múltiplas):</span>
-                            <div class="template-style-19">
-                                <span class="template-style-20">Combinação:</span>
-                                <div class="logic-toggle" onclick="toggleFilterLogic()">
-                                    <span class="logic-opt active" id="logicOptAnd" title="Exibir apenas textos que atendem a TODOS os filtros">E (Intersecção)</span>
-                                    <span class="logic-opt" id="logicOptOr" title="Exibir textos que atendem a QUALQUER filtro">OU (União)</span>
-                                </div>
+                    <!-- Seletores secundários somente quando o usuário solicitar. -->
+                    <section id="explorerFilterPanel" class="explorer-filter-panel" aria-label="Filtrar acervo" hidden>
+                        <div class="explorer-filter-header">
+                            <h3>Filtrar acervo</h3>
+                            <button type="button" id="explorerFiltersClose" class="btn-action-secondary"
+                                onclick="toggleExplorerFilters(false)">Fechar filtros</button>
+                        </div>
+                        <div class="explorer-filter-grid">
+                            <div class="explorer-filter-field">
+                                <label for="filterSubareaSelect">Subárea</label>
+                                <select class="filter-select" id="filterSubareaSelect" onchange="onSubareaSelectChange(this.value)">
+                                    <option value="all">Todas as subáreas</option>
+                                </select>
+                            </div>
+                            <div class="explorer-filter-field">
+                                <label for="filterCategorySelect">Área</label>
+                                <select class="filter-select" id="filterCategorySelect" onchange="onCategorySelectChange()">
+                                    <option value="all">Todas as áreas</option>
+                                    <option value="1">Educação</option>
+                                    <option value="1.2">Educação e História</option>
+                                    <option value="2">História</option>
+                                    <option value="3">Ciências Humanas e Sociais</option>
+                                    <option value="4">Linguística e Literatura</option>
+                                </select>
+                            </div>
+                            <div class="explorer-filter-field">
+                                <label for="filterStatusSelect">Situação de leitura</label>
+                                <select class="filter-select" id="filterStatusSelect" onchange="onCategorySelectChange()">
+                                    <option value="all">Todas</option>
+                                    <option value="lido">Concluídas</option>
+                                    <option value="lendo">Em leitura</option>
+                                    <option value="quero_ler">Quero ler</option>
+                                    <option value="nao_iniciado">Não iniciadas</option>
+                                    <option value="favoritos">Favoritos</option>
+                                </select>
+                            </div>
+                            <div class="explorer-filter-field">
+                                <label for="filterSortSelect">Ordenar por</label>
+                                <select class="filter-select" id="filterSortSelect" onchange="filterCatalog()">
+                                    <option value="autor_asc">Autor (A → Z)</option>
+                                    <option value="titulo_asc">Título (A → Z)</option>
+                                    <option value="pags_desc">Páginas (maior → menor)</option>
+                                    <option value="pags_asc">Páginas (menor → maior)</option>
+                                    <option value="codigo_asc">Área</option>
+                                </select>
                             </div>
                         </div>
-                        <div class="subareas-chips-container" id="subareasChipsContainer"></div>
-                    </div>
+                    </section>
 
-                    <!-- BARRA DE FILTROS ATIVOS -->
-                    <div class="active-filters-bar template-style-21" id="activeFiltersBar">
-                        <span class="template-style-22">Filtros Ativos:</span>
-                        <div id="activeFilterChipsList" class="template-style-23"></div>
-                        <button class="btn-action-secondary template-style-24" onclick="resetAllFilters()">Limpar Todos</button>
+                    <!-- Apenas as escolhas ativas aparecem; nenhuma tag é apagada do catálogo. -->
+                    <div class="active-filters-bar" id="activeFiltersBar" hidden>
+                        <span class="active-filters-title">Filtros ativos:</span>
+                        <div id="activeFilterChipsList" class="active-filters-list"></div>
+                        <button type="button" class="btn-action-secondary" onclick="resetAllFilters()">Limpar filtros</button>
                     </div>
                 </div>
 
