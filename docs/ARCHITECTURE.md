@@ -2,7 +2,7 @@
 
 ## Fonte e artefatos
 
-O HTML original continha estilos, base pessoal e funções de múltiplas responsabilidades. O novo fonte separa a estrutura em `templates/index.html`, estilos em sete arquivos e lógica em módulos por domínio. `scripts/build.mjs` reúne as referências e copia os recursos para `dist/`. O índice gerado continua com scripts externos; os bundles de validação e integração são artefatos, não fonte.
+O HTML original continha estilos, base pessoal e funções de múltiplas responsabilidades. O novo fonte separa a estrutura em `templates/index.html`, estilos em arquivos por responsabilidade e lógica em módulos por domínio. `scripts/build.mjs` reúne as referências e copia os recursos para `dist/`. O índice gerado continua com scripts externos; os bundles de validação e integração são artefatos, não fonte.
 
 O acervo demonstrativo está em `data/demo.json`. Builds locais podem usar `private/catalog.json`. A configuração de execução é externa ao fonte. `runtime.js` é gerado e contém a configuração pública e os dados selecionados para aquele build; ele não é um cofre.
 
