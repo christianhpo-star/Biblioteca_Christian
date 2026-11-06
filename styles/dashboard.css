@@ -375,3 +375,29 @@
             color: var(--text-muted);
             margin-top: auto;
         }
+
+
+/* A busca real é única no cabeçalho; o herói oferece apenas um atalho para focá-la. */
+.hero-search {
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+    max-width: none;
+}
+.hero-search button {
+    min-height: 48px;
+    padding: 12px 20px;
+    background: #ffffff;
+    color: #1e3a8a;
+    border-radius: var(--radius-full);
+    border: 2px solid #ffffff;
+    font-weight: 700;
+}
+.hero-search button:hover {
+    background: #dbeafe;
+    color: #1e3a8a;
+}
+.hero-search button:focus-visible {
+    outline: 3px solid #93c5fd;
+    outline-offset: 3px;
+}

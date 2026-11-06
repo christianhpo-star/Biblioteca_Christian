@@ -1,5 +1,14 @@
 # Retomada
 
+## Integração da busca de catálogo — revisão (06/11/2026)
+
+- Branch `codex/integrar-busca-sugestoes`, baseada na PR #9 `f8766eb` (que depende da PR #8 e da PR #1). Escopo: issue #2. Utiliza `src/catalog/search.js` preparado na branch paralela `codex/busca-autores-obras-sugestoes`, sem alterar essa origem.
+- Uma busca no cabeçalho (também mobile). O dashboard tem botão de foco, o explorador apenas resumo da consulta e filtros. Há até seis sugestões por título/autor, teclado/toque, Enter/Escape, filtro exato de autor e respeito às facetas existentes.
+- Fonte alterada: `src/catalog/search.js`, `src/catalog/explorer.js`, `src/catalog/filters.js`, `src/core/bootstrap.js`, `src/manifest.json`, `templates/index.html`, `styles/shell.css`, `styles/cloud.css`, `styles/dashboard.css`, `styles/catalog.css`; testes `tests/search.test.mjs`, `tests/filters.test.mjs`, `tests/browser.cjs`.
+- Checks: sintaxe JS + contratos estáticos e 5 validações funcionais isoladas PASS. Gates **pendentes**: `npm ci`, `npm run build`, `npm test`, `npm run test:browser`; verificar mobile 320–900 px, foco na combobox e na ficha, posição das sugestões, navegação por teclado, acessibilidade com leitor de tela, consulta vazia, status sem resultado e acervo real em ambiente privado.
+- Próximo plano UX independente: #4 (página inicial com até cinco inclusões recentes, sem datas inventadas). PDF/S Pen #7 depende de viabilidade técnica e tablet real. Não fazer merge/deploy sem validação e autorização.
+
+
 ## Continuação atual — filtros recolhidos (06/11/2026)
 
 - Branch `codex/filtros-recolhidos-subarea-unica` baseada na PR #8, commit inicial `748f4a7`; altera **somente** a experiência de filtragem da issue #3, em PR independente e encadeada.

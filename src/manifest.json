@@ -12,6 +12,7 @@
     "src/reading/work-sheet.js",
     "src/catalog/metadata.js",
     "src/catalog/filters.js",
+    "src/catalog/search.js",
     "src/catalog/collections.js",
     "src/study/quotes.js",
     "src/core/backup.js",

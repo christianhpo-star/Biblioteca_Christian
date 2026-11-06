@@ -14,6 +14,27 @@ test('registros compactos, documento ordenado, downloads reais e recuperação d
     const page=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce'});const errors=[];page.on('pageerror',e=>errors.push(e.message));
     await page.goto('http://127.0.0.1:5012');await page.locator('#authGate').waitFor({state:'hidden'});
     assert.equal(await page.locator('#badgeTotalObras').textContent(),'3');
+    // A busca do catálogo é única e atualiza sugestões enquanto a pessoa digita.
+    assert.equal(await page.locator('#globalSearchInput').count(),1);
+    assert.equal(await page.locator('#explorerSearchInput, #heroSearchInput').count(),0);
+    const catalogInput=page.locator('#globalSearchInput');
+    await catalogInput.fill('aprender');
+    await page.locator('#catalogSuggestions').waitFor({state:'visible'});
+    assert.ok((await page.locator('.catalog-suggestion-option').count())>0);
+    await catalogInput.press('ArrowDown');
+    assert.match(await catalogInput.getAttribute('aria-activedescendant'),/^catalogSuggestion/);
+    await catalogInput.press('Escape');
+    assert.equal(await page.locator('#catalogSuggestions').isHidden(),true);
+    await catalogInput.press('Enter');
+    assert.equal(await page.locator('#viewExplorer').isVisible(),true);
+    assert.equal(await page.locator('#cardsContainer .work-card').count(),1);
+    await catalogInput.fill('');
+    await catalogInput.press('Enter');
+    assert.equal(await page.locator('#viewDashboard').isVisible(),true);
+    await page.setViewportSize({width:390,height:844});
+    assert.equal(await catalogInput.isVisible(),true);
+    await page.setViewportSize({width:1440,height:1000});
+
     await page.getByRole('button',{name:'+ Adicionar obra',exact:true}).click();await page.getByLabel('Título *',{exact:true}).fill('Meu exemplar de teste');await page.getByRole('button',{name:'Adicionar e começar fichamento'}).click();
     assert.equal(await page.locator('#recordEditor').isVisible(),false);
     async function addNote(text,pageNumber){await page.locator('#recordNewNote').click();assert.equal(await page.locator('#recordLaunchers').isVisible(),false);await page.locator('#recordNote').fill(text);await page.locator('#recordPage').fill(pageNumber);await page.getByRole('button',{name:'Guardar registro',exact:true}).click();}

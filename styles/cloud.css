@@ -22,10 +22,15 @@
       .mobile-menu-open #mobileNavBackdrop { display:block; position:fixed; inset:0; border:0; background:#0f172a66; z-index:35; }
       body.sidebar-collapsed .sidebar-brand-text, body.sidebar-collapsed .nav-label { display:block; }
       body.sidebar-collapsed .nav-section-title, body.sidebar-collapsed .nav-badge, body.sidebar-collapsed .sidebar-footer { display:block; }
-      .app-header { padding:10px 14px; height:auto; min-height:64px; gap:10px; }
+      .app-header { padding:10px 14px; height:auto; min-height:64px; gap:10px; flex-wrap:wrap; }
       .header-left { flex:1; min-width:0; gap:10px; }
       .current-view-title { font-size:16px; white-space:normal; }
-      .header-center, .view-mode-selector { display:none; }
+      .view-mode-selector { display:none; }
+      .header-center { display:block; order:3; flex:1 1 100%; width:100%; max-width:none; margin:0; }
+      .header-left { order:1; }
+      .header-right { order:2; }
+      .header-search-bar input { height:44px; font-size:16px; }
+      .catalog-suggestions { max-height:50dvh; }
       .header-right { gap:6px; flex-shrink:0; }
       .header-right > button { font-size:12px; padding:8px; }
       .content-container { padding:18px 16px; }

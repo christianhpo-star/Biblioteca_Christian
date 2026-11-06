@@ -1,5 +1,17 @@
 # Estado — 06/11/2026
 
+## Implementação em revisão — busca dinâmica por obras/autores (issue #2)
+
+- Branch `codex/integrar-busca-sugestoes`, derivada da PR #9 (`f8766eba1281509f036f32821437de5a8eb093fa`). Importado e adaptado o módulo `src/catalog/search.js` da branch paralela `codex/busca-autores-obras-sugestoes` (commit `1e54fa0`); **a branch original não foi sobrescrita**.
+- Catálogo passou a ter **uma busca principal** no cabeçalho, inclusive abaixo de 900 px. O botão no início apenas foca esse campo; o campo duplicado do explorador foi removido. A busca independente “Buscar na minha escrita” foi mantida.
+- Até seis sugestões do catálogo, grupos Obras e Autores, normalização de acentos/capitalização/espaços, ordenação determinística, autora/autoria com contagem de obras, `combobox`/`listbox`, teclado (setas, Enter, Escape), fechamento ao clicar fora e abertura de ficha ou filtragem exata por autor.
+- Digitação mostra sugestões imediatamente, sem troca forçada de visão no dashboard; no explorador atualiza a lista de obras em tempo real. Ao pressionar Enter sem destaque, mostra resultados; consulta vazia volta ao dashboard se não houver filtros ativos.
+- Sugestões usam `getCatalogFacetedWorks()` da PR #9, respeitando área/subárea/situação/tags. Estado efêmero, sem novas dependências, serviço remoto, mudança no armazenamento ou dados reais.
+- `tests/search.test.mjs`: oito casos propostos para Node; `tests/filters.test.mjs` adaptado com mais um caso de autor exato; `tests/browser.cjs` inclui cenário de teclado, sugestão e busca visível em 390 px.
+- **Verificado nesta sessão:** análise de sintaxe dos JS modificados e dez contratos estáticos (PASS); cinco verificações funcionais do ranqueamento e normalização em JavaScript (PASS), além de verificações isoladas de fluxo. **Não executado via checkout real:** `npm ci`, `npm run build`, `npm test`, `npm run test:browser`, captura visual e teste com leitor de tela/tablet, pois o container não conseguiu resolver github.com. Não confundir testes adicionados com testes já executados.
+- Issue #4 (cinco obras recentes) continua futura; a busca já aceita integração com essa mudança. Sem merge, deploy, migração ou alteração de PDFs e dados pessoais.
+
+
 ## Desenvolvimento UX em revisão — filtros simples (issue #3)
 
 - Branch independente `codex/filtros-recolhidos-subarea-unica`, derivada do commit `748f4a7` da PR #8; sem alterar a branch de busca `codex/busca-autores-obras-sugestoes` encontrada em andamento.

@@ -38,6 +38,7 @@ function fixture() {
         addEventListener(key, handler) { listeners.set(key, handler); }
     };
     element('explorerFilterPanel').hidden = true;
+    element('catalogSuggestions').hidden = true;
     element('filterCategorySelect').value = 'all';
     element('filterStatusSelect').value = 'all';
     element('filterSortSelect').value = 'autor_asc';
@@ -47,6 +48,7 @@ function fixture() {
     const context = {
         document, window: {}, currentView: 'explorer',
         selectedSubareas: new Set(), selectedTags: new Set(),
+        catalogSearchState: { author: null }, updateCatalogSearchSummary() {},
         getAllWorks: () => obras, getLeitura: id => ({ status: statusById[id] }),
         renderCards: works => { displayed = works.map(w => w.id); },
         renderList() {}, renderTable() {}
@@ -86,13 +88,21 @@ test('subárea, área, leitura, tags e pesquisa combinam sem união implícita',
     f.context.selectedTags.add('escola');
     f.context.filterCatalog();
     assert.deepEqual(f.displayed, [1]);
-    f.element('explorerSearchInput').value = 'sao';
+    f.element('globalSearchInput').value = 'sao';
     f.context.filterCatalog();
     assert.deepEqual(f.displayed, []);
     assert.match(f.element('resultsCount').textContent, /Nenhuma obra/);
     f.element('filterStatusSelect').value = 'all';
     f.context.filterCatalog();
     assert.deepEqual(f.displayed, [4]); // busca sem acento
+});
+
+test('seleção de autor nas sugestões não encontra autores citados apenas no resumo', () => {
+    const f = fixture();
+    f.context.catalogSearchState.author = 'Ana';
+    f.element('globalSearchInput').value = 'Ana';
+    f.context.filterCatalog();
+    assert.deepEqual(f.displayed, [1]);
 });
 
 test('filtros ativos possuem remoção individual e o estado vazio não apaga a escolha', () => {
