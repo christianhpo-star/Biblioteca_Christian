@@ -1,0 +1,16 @@
+node_modules/
+dist/
+private/
+config/local.json
+config/firebase.json
+.env
+.env.*
+!.env.example
+*.log
+test-results/
+playwright-report/
+audit.local.json
+*.pdf
+*.sdocx
+*.sdoc
+

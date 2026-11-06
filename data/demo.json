@@ -1,0 +1,59 @@
+{
+  "obras": [
+    {
+      "id": 1,
+      "titulo": "Aprender com perguntas",
+      "autor": "EXEMPLO, Ana",
+      "codigo": "1",
+      "categoria": "Educação",
+      "subarea": "Demonstração",
+      "paginas": 100,
+      "palavras_chave": [
+        "exemplo"
+      ],
+      "resumo": "Obra fictícia para experimentar o aplicativo. Não representa uma publicação real.",
+      "caminho": "",
+      "arquivo": "",
+      "tamanho_mb": 0,
+      "metadataQuality": "completo",
+      "formato": "fisico"
+    },
+    {
+      "id": 2,
+      "titulo": "Memória e cotidiano: exercício de leitura",
+      "autor": "EXEMPLO, Bruno",
+      "codigo": "2",
+      "categoria": "História",
+      "subarea": "Demonstração",
+      "paginas": 100,
+      "palavras_chave": [
+        "exemplo"
+      ],
+      "resumo": "Obra fictícia para experimentar o aplicativo. Não representa uma publicação real.",
+      "caminho": "",
+      "arquivo": "",
+      "tamanho_mb": 0,
+      "metadataQuality": "completo",
+      "formato": "fisico"
+    },
+    {
+      "id": 3,
+      "titulo": "Caderno de conceitos: material demonstrativo",
+      "autor": "EXEMPLO, Clara",
+      "codigo": "3",
+      "categoria": "Ciências Humanas e Sociais",
+      "subarea": "Demonstração",
+      "paginas": 100,
+      "palavras_chave": [
+        "exemplo"
+      ],
+      "resumo": "Obra fictícia para experimentar o aplicativo. Não representa uma publicação real.",
+      "caminho": "",
+      "arquivo": "",
+      "tamanho_mb": 0,
+      "metadataQuality": "completo",
+      "formato": "fisico"
+    }
+  ],
+  "fichamentos": {}
+}
