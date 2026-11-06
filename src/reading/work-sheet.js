@@ -1,56 +1,81 @@
 /** Ficha da obra, progresso, notas e citações ligadas ao ID da referência. */
 function openWorkSheet(id) {
-    currentModalWorkId = id;
     const obra = getObraById(id);
     if (!obra) return;
+    currentModalWorkId = id;
+    const leitura = getLeitura(id);
 
-    const lei = getLeitura(id);
+    // Links locais e esquemas executáveis nunca são passados ao navegador como URL do texto.
+    let textUrl = '';
+    try {
+        const parsed = new URL(obra.drive_url || obra.uri || '');
+        if (['http:', 'https:'].includes(parsed.protocol)) textUrl = parsed.href;
+    } catch {
+        // Livro físico ou digital sem link acessível.
+    }
+    const statusNames = {
+        nao_iniciado: 'Não iniciada',
+        quero_ler: 'Quero ler',
+        lendo: 'Em leitura',
+        lido: 'Concluída',
+        reler: 'Reler futuramente'
+    };
 
-    document.getElementById('modalWorkAuthor').textContent = obra.autor;
-    document.getElementById('modalWorkTitle').textContent = obra.titulo;
-    document.getElementById('modalWorkSubarea').textContent = `Sub-Área: ${obra.subarea || obra.categoria}`;
-    document.getElementById('modalWorkSummary').textContent = obra.resumo;
+    document.getElementById('modalWorkAuthor').textContent = obra.autor || 'Autoria não informada';
+    document.getElementById('modalWorkTitle').textContent = obra.titulo || 'Obra sem título';
+    document.getElementById('modalWorkSubarea').textContent = obra.subarea || obra.categoria || 'Sem subárea';
+    document.getElementById('modalWorkSummary').textContent = obra.resumo?.trim() || 'Resumo ainda não registrado.';
+    document.getElementById('modalWorkFormat').textContent =
+        obra.formato === 'ambos' ? 'Papel e digital' :
+        obra.formato === 'fisico' ? 'Livro em papel' :
+        obra.formato === 'digital' || textUrl ? 'Obra digital' : 'Sem arquivo vinculado';
+    document.getElementById('modalReadingStatusText').textContent =
+        statusNames[leitura.status] || 'Situação não informada';
 
-    const badgesContainer = document.getElementById('modalWorkBadges');
-    const catClass = obra.codigo === '1.2' ? 'cat-12' : 'cat-' + obra.codigo;
-    badgesContainer.innerHTML = `
-        <span class="badge badge-${catClass}">${obra.codigo} · ${escapeHtml(obra.categoria)}</span>
-        <span class="badge badge-subarea">${escapeHtml(obra.subarea)}</span>
-        <span class="badge" style="background:var(--bg-body);color:var(--text-muted);">${obra.paginas} págs</span>
-    `;
+    const catClass = obra.codigo === '1.2' ? 'cat-12' : 'cat-' + (obra.codigo || '3');
+    document.getElementById('modalWorkBadges').innerHTML =
+        '<span class="badge badge-' + catClass + '">' +
+        escapeHtml(obra.categoria || 'Não classificada') + '</span>' +
+        (obra.subarea ? '<span class="badge badge-subarea">' + escapeHtml(obra.subarea) + '</span>' : '');
 
-    const uri = obra.uri || 'file:///' + obra.caminho.replace(/\\/g, '/');
-    document.getElementById('modalOpenPdfBtn').href = uri;
-    document.getElementById('modalOpenPdfBtn').textContent = 'Abrir PDF no Drive';
-    document.getElementById('modalOpenPdfBtn').hidden = !obra.uri;
+    const link = document.getElementById('modalOpenPdfBtn');
+    link.href = textUrl || '#';
+    link.hidden = !textUrl;
+    const copyLink = document.getElementById('modalCopyFilePathBtn');
+    copyLink.hidden = !textUrl;
+    document.getElementById('modalFileCopiedFeedback').textContent = '';
 
-    document.getElementById('modalFileName').textContent = obra.arquivo;
-    document.getElementById('modalFilePath').textContent = obra.caminho;
-    document.getElementById('modalFilePages').textContent = `${obra.paginas} páginas`;
-    document.getElementById('modalFileSize').textContent = `${obra.tamanho_mb} MB`;
+    document.getElementById('modalFileName').textContent = obra.arquivo || 'Não informado';
+    document.getElementById('modalFilePath').textContent = obra.caminho || obra.localizacao || 'Não informada';
+    document.getElementById('modalFilePages').textContent = obra.paginas ? obra.paginas + ' páginas' : 'Não informadas';
+    document.getElementById('modalFileSize').textContent = obra.tamanho_mb ? obra.tamanho_mb + ' MB' : 'Tamanho não informado';
 
-    document.getElementById('modalReadingStatusSelect').value = lei.status || 'lido';
-    document.getElementById('modalPagesReadInput').value = lei.paginasLidas || obra.paginas;
-    document.getElementById('modalTotalPagesLabel').textContent = `de ${obra.paginas} págs`;
-    document.getElementById('modalReadingReasonInput').value = lei.motivo || '';
-    updateModalProgressUI(lei.paginasLidas || obra.paginas, obra.paginas);
-    setModalStarRatingUI(lei.avaliacao || 0);
+    document.getElementById('modalReadingStatusSelect').value = leitura.status || 'nao_iniciado';
+    document.getElementById('modalPagesReadInput').value = leitura.paginasLidas ?? 0;
+    document.getElementById('modalTotalPagesLabel').textContent = 'de ' + (obra.paginas || '?') + ' págs';
+    document.getElementById('modalReadingReasonInput').value = leitura.motivo || '';
+    updateModalProgressUI(leitura.paginasLidas ?? 0, obra.paginas);
+    setModalStarRatingUI(leitura.avaliacao || 0);
 
-    const favBtn = document.getElementById('modalFavoriteBtn');
-    favBtn.classList.toggle('favorited', !!lei.favorito);
+    const fav = document.getElementById('modalFavoriteBtn');
+    fav.classList.toggle('favorited', Boolean(leitura.favorito));
+    fav.setAttribute('aria-pressed', String(Boolean(leitura.favorito)));
+    fav.setAttribute('aria-label', leitura.favorito ? 'Remover dos favoritos' : 'Adicionar aos favoritos');
 
-    const kwContainer = document.getElementById('modalWorkKeywords');
-    kwContainer.innerHTML = (obra.palavras_chave || []).map(k => `
-        <span class="tag-pill" onclick="toggleTagFilter('${escapeJs(k)}'); closeModal('modalWorkSheet'); switchView('explorer');">
-            ${escapeHtml(k)}
-        </span>
-    `).join('');
+    const keywords = document.getElementById('modalWorkKeywords');
+    keywords.innerHTML = (obra.palavras_chave || []).map(k =>
+        '<button type="button" class="tag-pill" onclick="toggleTagFilter(\'' +
+        escapeJs(k) + '\'); closeModal(\'modalWorkSheet\'); switchView(\'explorer\');">' +
+        escapeHtml(k) + '</button>'
+    ).join('') || '<p class="modal-work-description">Nenhuma palavra-chave cadastrada.</p>';
 
     renderModalCollectionsCheckboxes();
-    renderModalNotes();
-    renderModalQuotes();
     renderModalRelatedWorks(obra);
 
+    // Cada abertura começa pela identificação e ações essenciais; seções permanecem recolhidas.
+    const modal = document.getElementById('modalWorkSheet');
+    modal.querySelectorAll('.modal-work-section').forEach(section => { section.open = false; });
+    modal.querySelector('.modal-card').scrollTop = 0;
     openModal('modalWorkSheet');
 }
 
@@ -63,7 +88,7 @@ function updateModalProgressUI(read, total) {
 function updateModalPagesRead(val) {
     const obra = getObraById(currentModalWorkId);
     if (!obra) return;
-    const read = Math.max(0, Math.min(obra.paginas, parseInt(val) || 0));
+    const read = Math.max(0, Math.min(obra.paginas || 0, parseInt(val, 10) || 0));
     appState.leituras[currentModalWorkId] = {
         ...getLeitura(currentModalWorkId),
         paginasLidas: read,
@@ -80,6 +105,8 @@ function updateModalReadingStatus(status) {
         status: status,
         ultimaLeitura: new Date().toISOString()
     };
+    const names = { nao_iniciado: 'Não iniciada', quero_ler: 'Quero ler', lendo: 'Em leitura', lido: 'Concluída', reler: 'Reler futuramente' };
+    document.getElementById('modalReadingStatusText').textContent = names[status] || 'Situação não informada';
     saveAppState();
     filterCatalog();
 }
@@ -97,6 +124,7 @@ function setModalStarRatingUI(rating) {
     const stars = document.querySelectorAll('#modalStarRating .star');
     stars.forEach((s, idx) => {
         s.classList.toggle('active', idx < rating);
+        s.setAttribute('aria-pressed', String(idx + 1 === rating));
     });
 }
 
@@ -112,31 +140,30 @@ function toggleModalFavorite() {
     const lei = getLeitura(currentModalWorkId);
     const next = !lei.favorito;
     appState.leituras[currentModalWorkId] = { ...lei, favorito: next };
-    document.getElementById('modalFavoriteBtn').classList.toggle('favorited', next);
+    const btn = document.getElementById('modalFavoriteBtn');
+    btn.classList.toggle('favorited', next);
+    btn.setAttribute('aria-pressed', String(next));
+    btn.setAttribute('aria-label', next ? 'Remover dos favoritos' : 'Adicionar aos favoritos');
     saveAppState();
     filterCatalog();
 }
 
 function copyFilePathModal() {
     const obra = getObraById(currentModalWorkId);
-    if (!obra) return;
-    navigator.clipboard.writeText(obra.drive_url || obra.uri).then(() => {
-        const fb = document.getElementById('modalFileCopiedFeedback');
-        fb.textContent = 'Caminho copiado!';
-        fb.style.display = 'inline';
-        setTimeout(() => fb.style.display = 'none', 2000);
-    });
-}
-
-function copyWorkAbntModal() {
-    const obra = getObraById(currentModalWorkId);
-    if (!obra) return;
-    const abnt = `${obra.autor.toUpperCase()}. ${obra.titulo}. Acervo de Pesquisa (${obra.paginas} p.).`;
-    navigator.clipboard.writeText(abnt).then(() => {
-        const fb = document.getElementById('modalFileCopiedFeedback');
-        fb.textContent = 'ABNT copiado!';
-        fb.style.display = 'inline';
-        setTimeout(() => fb.style.display = 'none', 2000);
+    const textUrl = obra?.drive_url || obra?.uri;
+    const feedback = document.getElementById('modalFileCopiedFeedback');
+    if (!textUrl) {
+        feedback.textContent = 'Esta obra não tem link disponível.';
+        return;
+    }
+    if (!navigator.clipboard?.writeText) {
+        feedback.textContent = 'Não foi possível copiar. Abra o texto e copie o endereço no navegador.';
+        return;
+    }
+    navigator.clipboard.writeText(textUrl).then(() => {
+        feedback.textContent = 'Link copiado.';
+    }).catch(() => {
+        feedback.textContent = 'Não foi possível copiar. Abra o texto e copie o endereço no navegador.';
     });
 }
 
@@ -170,90 +197,7 @@ function toggleWorkInCollection(colId, obraId, isChecked) {
     saveAppState();
 }
 
-function addModalNote() {
-    const input = document.getElementById('modalNewNoteInput');
-    const txt = input.value.trim();
-    if (!txt) return;
-
-    appState.notas.unshift({
-        id: 'note_' + Date.now(),
-        obraId: currentModalWorkId,
-        texto: txt,
-        data: new Date().toLocaleDateString('pt-BR')
-    });
-
-    input.value = '';
-    saveAppState();
-    renderModalNotes();
-}
-
-function deleteModalNote(id) {
-    appState.notas = appState.notas.filter(n => n.id !== id);
-    saveAppState();
-    renderModalNotes();
-}
-
-function renderModalNotes() {
-    const container = document.getElementById('modalNotesList');
-    const notes = appState.notas.filter(n => n.obraId === currentModalWorkId);
-    if (notes.length === 0) {
-        container.innerHTML = `<p style="font-size:12px;color:var(--text-muted);padding:4px 0;">Nenhuma anotação registrada ainda.</p>`;
-        return;
-    }
-    container.innerHTML = notes.map(n => `
-        <div class="note-item">
-            <div>${escapeHtml(n.texto)}</div>
-            <div class="note-date">Registrado em ${n.data}</div>
-            <button class="note-delete-btn" onclick="deleteModalNote('${n.id}')">Excluir</button>
-        </div>
-    `).join('');
-}
-
-function addModalQuote() {
-    const text = document.getElementById('modalQuoteTextInput').value.trim();
-    const page = document.getElementById('modalQuotePageInput').value.trim();
-    const comment = document.getElementById('modalQuoteCommentInput').value.trim();
-    if (!text) return;
-
-    appState.citacoes.unshift({
-        id: 'quote_' + Date.now(),
-        obraId: currentModalWorkId,
-        texto: text,
-        pagina: page || null,
-        comentario: comment,
-        data: new Date().toLocaleDateString('pt-BR')
-    });
-
-    document.getElementById('modalQuoteTextInput').value = '';
-    document.getElementById('modalQuotePageInput').value = '';
-    document.getElementById('modalQuoteCommentInput').value = '';
-    saveAppState();
-    renderModalQuotes();
-}
-
-function deleteModalQuote(id) {
-    appState.citacoes = appState.citacoes.filter(c => c.id !== id);
-    saveAppState();
-    renderModalQuotes();
-}
-
-function renderModalQuotes() {
-    const container = document.getElementById('modalQuotesList');
-    const quotes = appState.citacoes.filter(c => c.obraId === currentModalWorkId);
-    if (quotes.length === 0) {
-        container.innerHTML = `<p style="font-size:12px;color:var(--text-muted);padding:4px 0;">Nenhuma citação destacada ainda.</p>`;
-        return;
-    }
-    container.innerHTML = quotes.map(c => `
-        <div class="note-item" style="border-left:3px solid var(--primary);">
-            <div style="font-family:var(--font-serif);font-style:italic;">“${escapeHtml(c.texto)}”</div>
-            <div style="font-size:12px;font-weight:600;margin-top:4px;color:var(--text-secondary);">
-                ${c.pagina ? 'Página ' + c.pagina : 'Sem página'} ${c.comentario ? '— ' + escapeHtml(c.comentario) : ''}
-            </div>
-            <button class="note-delete-btn" onclick="deleteModalQuote('${c.id}')">Excluir</button>
-        </div>
-    `).join('');
-}
+// Notas e trechos são criados e editados somente no caderno; registros antigos permanecem no estado.
 
 function renderModalRelatedWorks(currentObra) {
     const container = document.getElementById('modalRelatedWorksContainer');
