@@ -41,4 +41,3 @@ const shell = ['./', './index.html', './runtime.js', './validation.js', ...manif
 const sw = `const CACHE='biblioteca-modular-v1';\nconst SHELL=${JSON.stringify(shell)};\n` + (await readFile(resolve(root,'templates/sw.js'),'utf8')).replace(/^const CACHE[^\n]*\nconst SHELL[^\n]*\n/,'').replace("!SHELL.includes(url.pathname)", "!SHELL.some(path => new URL(path, self.registration.scope).pathname === url.pathname)");
 await output('sw.js', sw);
 console.log(`Build ${config.mode}: ${relative(root, dist)}, ${data.obras.length} obras locais; configuração ${args.config || 'demo'}.`);
-

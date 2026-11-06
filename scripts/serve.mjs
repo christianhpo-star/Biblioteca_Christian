@@ -17,4 +17,3 @@ http.createServer(async (req,res)=>{
     res.end(await readFile(file));
   } catch {res.writeHead(404);res.end();}
 }).listen(port,'127.0.0.1',()=>console.log(`Prévia local: http://127.0.0.1:${port}`));
-
