@@ -97,6 +97,14 @@ test('subárea, área, leitura, tags e pesquisa combinam sem união implícita',
     assert.deepEqual(f.displayed, [4]); // busca sem acento
 });
 
+test('seleção de autor nas sugestões não encontra autores citados apenas no resumo', () => {
+    const f = fixture();
+    f.context.catalogSearchState.author = 'Ana';
+    f.element('globalSearchInput').value = 'Ana';
+    f.context.filterCatalog();
+    assert.deepEqual(f.displayed, [1]);
+});
+
 test('filtros ativos possuem remoção individual e o estado vazio não apaga a escolha', () => {
     const f = fixture();
     f.context.onSubareaSelectChange('Não cadastrada');
