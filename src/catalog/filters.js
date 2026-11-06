@@ -26,35 +26,37 @@ function filterByReadingStatus(status) {
     switchView('explorer', 'Status: ' + status);
 }
 
+/** Exibe a lista do autor escolhido, preservando os filtros ativos. */
 function filterByAuthor(author) {
-    switchView('explorer', 'Autor: ' + author);
-    document.getElementById('explorerSearchInput').value = author;
-    filterCatalog();
+    showWorksByAuthor(author);
 }
 
 function clearExplorerSearch() {
-    document.getElementById('explorerSearchInput').value = '';
-    filterCatalog();
+    clearCatalogSearch();
 }
 
-function handleGlobalSearch(val) {
-    switchView('explorer', 'Busca no Acervo');
-    document.getElementById('explorerSearchInput').value = val;
-    filterCatalog();
+/** Compatibilidade com atalhos legados que enviam uma pesquisa pronta. */
+function handleGlobalSearch(value) {
+    const input = document.getElementById('globalSearchInput');
+    if (!input) return;
+    input.value = value;
+    onCatalogSearchInput();
+    submitCatalogSearch();
 }
 
 function executeHeroSearch() {
-    const q = document.getElementById('heroSearchInput').value.trim();
-    handleGlobalSearch(q);
+    focusCatalogSearch();
 }
 
 function resetAllFilters() {
-    document.getElementById('explorerSearchInput').value = '';
+    const input = document.getElementById('globalSearchInput');
+    if (input) input.value = '';
+    catalogSearchState.author = null;
+    closeCatalogSuggestions();
     document.getElementById('filterCategorySelect').value = 'all';
     document.getElementById('filterStatusSelect').value = 'all';
     document.getElementById('filterSortSelect').value = 'autor_asc';
-    const global = document.getElementById('globalSearchInput');
-    if (global) global.value = '';
+    updateCatalogSearchSummary();
     selectedSubareas.clear();
     selectedTags.clear();
     renderSubareaChips();
