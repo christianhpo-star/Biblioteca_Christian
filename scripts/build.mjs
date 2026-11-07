@@ -45,6 +45,6 @@ await copyFile(resolve(root,'assets/fonts/OFL.txt'),resolve(dist,'NotoSans-OFL.t
 await copyFile(resolve(root,'THIRD_PARTY.md'),resolve(dist,'THIRD_PARTY.md'));
 // Cache the exact external resource graph. Authentication, PDFs and Firestore are never cached here.
 const shell = ['./', './index.html', './runtime.js', './validation.js', './study-model.js', './document-export.js', ...manifest.scripts.map(p=>'./'+p), ...manifest.styles.map(p=>'./'+p), ...pdfJsAssets.map(p=>'./'+p), './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png', ...(config.mode==='firebase'?['./cloud.js']:[])];
-const sw = `const CACHE='biblioteca-records-v2';\nconst SHELL=${JSON.stringify(shell)};\n` + (await readFile(resolve(root,'templates/sw.js'),'utf8')).replace(/^const CACHE[^\n]*\nconst SHELL[^\n]*\n/,'').replace("!SHELL.includes(url.pathname)", "!SHELL.some(path => new URL(path, self.registration.scope).pathname === url.pathname)");
+const sw = `const CACHE='biblioteca-records-v3-pdfjs';\nconst SHELL=${JSON.stringify(shell)};\n` + (await readFile(resolve(root,'templates/sw.js'),'utf8')).replace(/^const CACHE[^\n]*\nconst SHELL[^\n]*\n/,'').replace("!SHELL.includes(url.pathname)", "!SHELL.some(path => new URL(path, self.registration.scope).pathname === url.pathname)");
 await output('sw.js', sw);
 console.log(`Build ${config.mode}: ${relative(root, dist)}, ${data.obras.length} obras locais; configuração ${args.config || 'demo'}.`);
