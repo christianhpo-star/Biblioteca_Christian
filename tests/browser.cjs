@@ -11,7 +11,11 @@ test('registros compactos, documento ordenado, downloads reais e recuperação d
   try {
     for(let i=0;i<50;i++){try{if((await fetch('http://127.0.0.1:5012')).ok)break;}catch{}await new Promise(r=>setTimeout(r,100));}
     browser=await chromium.launch({headless:true});
-    const page=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce'});const errors=[];page.on('pageerror',e=>errors.push(e.message));
+    const page=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce'});const errors=[];
+    const consoleErrors=[],failedRequests=[];
+    page.on('pageerror',e=>errors.push(e.message));
+    page.on('console',msg=>{if(msg.type()==='error')consoleErrors.push(msg.text());});
+    page.on('requestfailed',r=>failedRequests.push(r.url()+' '+r.failure()?.errorText));
     await page.goto('http://127.0.0.1:5012');await page.locator('#authGate').waitFor({state:'hidden'});
     assert.equal(await page.locator('#badgeTotalObras').textContent(),'3');
     // Abertura mostra três obras legadas sem inventar recência; o acervo completo continua acessível.
