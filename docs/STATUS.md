@@ -1,5 +1,14 @@
 # Estado — 06/11/2026
 
+## QA automatizado do PDF E1 concluído — 07/11/2026
+
+- **GitHub Actions PASS**: [execução 42334160948](https://github.com/christianhpo-star/Biblioteca_Christian/actions/runs/42334160948), commit `25def8d0a5583cee339449605adab796f9d39229` da branch `codex/pdf-e1-integrated-pen-pages`, sem deploy.
+- `npm ci` e build com PDF.js 6.5.438 e worker locais: PASS. `npm test`: **55 testes, 55 aprovados, 0 falhas**. `npm run test:browser`: **1 fluxo completo, aprovado**. `scripts/prepare-tablet-preview.mjs`: PASS no guard de dados sintéticos sem Firebase/Drive privado. `scripts/verify-tablet-preview.mjs`: PASS nos viewports 1024×768 e 390×844, duas páginas geradas com dados fictícios, SVG com pen simulado, touch sem tinta, zoom e fallback externo. Guard de conteúdo privado: PASS.
+- O primeiro browser test havia falhado com MIME `.mjs` incorreto do servidor (`application/octet-stream` com `nosniff`); corrigido em `scripts/serve.mjs` para `text/javascript`, validado pela execução acima. Cache de serviço atualizado.
+- **Não comprovado**: rejeição da palma e precisão/latência da S Pen no Samsung real. O ambiente público do GitHub Pages **ainda publica o E0**, não o E1. PR #14 aberta como rascunho; nenhum merge ou deploy desta versão executado.
+- Screenshots foram gerados durante o teste de navegador, mas não foram submetidos à revisão visual humana nesta sessão. O QA presencial no tablet continua necessário antes de afirmar equivalência com Samsung Notes.
+
+
 ## E1 em desenvolvimento — PDF.js com tinta temporária por página (07/11/2026)
 
 - Relato confirmado no Samsung: quadro separado de diagnóstico S Pen funciona; PDF embutido em iframe não aparece; fallback Google PDF abre, mas não permite à Biblioteca separar caneta e dedo. O leitor E0 não está homologado para Android.
