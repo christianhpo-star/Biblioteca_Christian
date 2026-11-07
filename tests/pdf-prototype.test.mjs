@@ -162,6 +162,18 @@ test('substituir arquivo revoga o blob anterior, sem persistir conteúdo', async
     assert.equal(f.get('pdfPrototypeNewTab').href, f.created[1].url);
 });
 
+test('arquivo inválido após PDF anterior limpa a visualização sem engano', async () => {
+    const f = fixture();
+    f.window.openPdfPrototype();
+    await f.pick(f.makeFile('bom.pdf', '%PDF-1.5\narquivo'));
+    assert.equal(f.created.length, 1);
+    await f.pick(f.makeFile('ruim.pdf', 'não é um PDF'));
+    assert.equal(f.get('pdfPrototypeFrame').hidden, true);
+    assert.equal(f.get('pdfPrototypeNewTab').hidden, true);
+    assert.deepEqual(f.revoked, [f.created[0].url]);
+    assert.match(f.get('pdfPrototypeStatus').textContent, /nao parece ser um PDF/);
+});
+
 test('S Pen desenha no diagnóstico, toque não desenha e cancelamento é registrado', () => {
     const f = fixture();
     f.window.openPdfPrototype();
