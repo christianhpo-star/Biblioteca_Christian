@@ -36,6 +36,9 @@ function fixture(available = books) {
   }
   element('globalSearchInput').hidden = false;
   element('catalogSearchSummary').hidden = false;
+  // Real select elements start at the explicit "all" option, not an empty string.
+  element('filterCategorySelect').value = 'all';
+  element('filterStatusSelect').value = 'all';
   const ctx = {
     document: {
       getElementById: element,
