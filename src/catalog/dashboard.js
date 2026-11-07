@@ -133,6 +133,12 @@ function openFullCatalogFromHome() {
     switchView('explorer', 'Todo o acervo');
 }
 
+/** Voltar à amostra inicial limpa a pesquisa, sem tocar no estado salvo. */
+function returnHomeFromCatalog() {
+    resetAllFilters();
+    switchView('dashboard');
+}
+
 function renderDashboard() {
     renderHomePreview();
     renderDashboardSubareas();
