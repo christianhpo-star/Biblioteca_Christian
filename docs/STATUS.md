@@ -1,6 +1,10 @@
 # Estado — 06/11/2026
 
-## Verificação da prévia pública — publicação em andamento
+## Prévia pública publicada e verificada
+
+- **URL HTTPS real:** https://christianhpo-star.github.io/Biblioteca_Christian/ — HTTP 200, verificada pelo script contra a publicação, em 1024×768 e 390×844.
+- **Execução de publicação aprovada:** [42332359060](https://github.com/christianhpo-star/Biblioteca_Christian/actions/runs/42332359060), SHA `87fd2673e05aa976e614087e6a17eae261ba94af`, branch `codex/tablet-e0-public-preview`. Jobs de validação e deploy concluídos com `success`.
+- PASS no site real: somente três obras fictícias, busca, filtros, abertura do PDF sintético de duas páginas, fallback em outra aba, retorno, revogação do blob, preservação do estado e ausência de uploads. Nenhum erro JavaScript nem recurso JS/CSS ausente nos cenários testados. Relatório e capturas locais em `test-results/tablet-preview-live.*` e `test-results/tablet-preview-live-*.png` (não versionados).
 
 - Checkout de revisão isolado a partir de `99415db16d2cdf3fd86b226b8572e963aab38df1`; checkout principal e demais PRs preservados. Destino de publicação: `codex/tablet-e0-public-preview`, PR #13, sem merge.
 - Reproduzidas as quatro falhas da execução [42331503144](https://github.com/christianhpo-star/Biblioteca_Christian/actions/runs/42331503144). Corrigidas as fixtures: ficha carrega sua dependência real `repository.js`; seletores da busca começam na opção `all`, como no HTML. Nenhum teste removido ou desativado; leitor E0 inalterado.
@@ -8,7 +12,7 @@
 - Novo gate `scripts/verify-tablet-preview.mjs`: artefato final em 1024×768 e 390×844, três obras fictícias, busca/filtros, PDF sintético de duas páginas, fallback em outra aba com iframe ocultado, retorno, revogação da URL blob, estado preservado, ausência de uploads, erros JS ou JS/CSS ausentes. Capturas locais conferidas; o Chromium completo renderizou o PDF. A simulação não comprova funcionamento Android ou S Pen física.
 - Pages já estava habilitado via Actions. O ambiente permitia apenas `main`; após autorização específica do proprietário, acrescentada **somente** a branch `codex/tablet-e0-public-preview`, preservando a regra `main` e as demais proteções.
 - O artefato contém somente a demonstração sintética. Não foram importados PDFs, fichamentos, links privados, backups ou credenciais; Firebase/Drive de produção não foram configurados.
-- **Ainda não declarar publicado:** acompanhar a nova execução Actions, verificar a URL HTTPS real e completar as evidências abaixo após o deploy. A PR #13 continua draft, aberta e sem merge; validação física no Samsung pendente.
+- A PR #13 continua draft, aberta e sem merge. A demonstração foi publicada, mas S Pen física, latência, navegação Android e rejeição da palma seguem pendentes de teste no Samsung. O diagnóstico desenha em quadro separado e não anota páginas do PDF.
 
 ## Preparação de publicação controlada — demonstração E0 no tablet (sem deploy confirmado)
 

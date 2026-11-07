@@ -2,11 +2,14 @@
 
 ## Verificação executável da prévia pública
 
+- **Publicação real concluída:** https://christianhpo-star.github.io/Biblioteca_Christian/ . Execução [42332359060](https://github.com/christianhpo-star/Biblioteca_Christian/actions/runs/42332359060), SHA `87fd2673e05aa976e614087e6a17eae261ba94af`, branch `codex/tablet-e0-public-preview`, validação e deploy `success`.
+- Verificação HTTPS pós-deploy PASS em 1024×768 e 390×844: runtime idêntico às três obras fictícias, busca/filtros, PDF sintético exibido no Chromium completo, fallback em nova aba com iframe ocultado, retorno/limpeza blob, sem uploads, sem erros JS e sem assets JS/CSS ausentes.
+
 - Node 22.23.4: instalação, build demo, 50 testes Node e fluxo Playwright passaram. As quatro falhas antigas eram nas fixtures (dependência de data da ficha e defaults dos filtros); foram corrigidas sem alterar o leitor nem eliminar testes.
 - Executar `node scripts/verify-tablet-preview.mjs` depois do build final/`prepare-tablet-preview.mjs`. Verifica o artefato preparado em tablet/celular e um PDF gerado em memória, inclusive fallback e limpeza. Usa Chromium completo (`channel: chromium`), pois headless-shell pode baixar PDFs em vez de exibir.
 - Para repetir contra a publicação: `node scripts/verify-tablet-preview.mjs --url=https://christianhpo-star.github.io/Biblioteca_Christian/`. Relatórios/capturas ficam em `test-results/`, ignorados pelo Git, somente com dados sintéticos.
 - Pages usa Actions; ambiente `github-pages` permite `main` e exclusivamente `codex/tablet-e0-public-preview`, após autorização administrativa específica do proprietário. Não remover ou ampliar proteções.
-- Próximo passo: concluir Actions nesta branch, confirmar URL/recursos reais e registrar execução/SHA. PR #13 permanece draft e nenhuma PR deve ser mesclada. S Pen, latência, palma e gestos Android exigem tablet físico.
+- Próximo passo: testar Chrome Android/Samsung Internet no tablet físico. PR #13 permanece draft e nenhuma PR deve ser mesclada. S Pen, latência, palma e gestos Android não foram homologados. Este registro é uma atualização documental posterior à primeira publicação; novos pushes continuam passando por todos os gates do workflow.
 
 ## Publicação de teste Samsung — prévia GitHub Pages (06/11/2026)
 

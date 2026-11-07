@@ -8,6 +8,8 @@ Configuração de build: config/tablet-preview.json
 Catálogo permitido: data/demo.json (três obras EXEMPLO, nenhuma referência real)
 Verificação obrigatória: scripts/prepare-tablet-preview.mjs
 
+**Publicação concluída e verificada:** https://christianhpo-star.github.io/Biblioteca_Christian/ . Evidência inicial: [Actions 42332359060](https://github.com/christianhpo-star/Biblioteca_Christian/actions/runs/42332359060), commit `87fd2673e05aa976e614087e6a17eae261ba94af`. HTTP 200 e fluxo de PDF/fallback conferidos por Playwright em tablet/celular. Apenas dados fictícios; a validação física da S Pen ainda depende do Samsung.
+
 ## 1. Habilitar GitHub Pages
 
 Uma pessoa com permissão administrativa no repositório deve:
@@ -18,7 +20,7 @@ Uma pessoa com permissão administrativa no repositório deve:
 4. Voltar a https://github.com/christianhpo-star/Biblioteca_Christian/actions e procurar o workflow **Tablet E0 — demonstração pública e testes**.
 5. Conferir a execução gerada ao enviar a branch. Se o primeiro workflow falhou porque Pages ainda não estava habilitado, usar **Re-run all jobs** nessa execução, ou fazer um novo commit na branch. Como o YAML está numa branch que não é a default, o botão manual workflow_dispatch pode não aparecer na lista até estar na default.
 
-**Endereço previsto, não verificado:** https://christianhpo-star.github.io/Biblioteca_Christian/ . O endereço só deve ser compartilhado como ativo depois que GitHub Actions mostrar deployment concluído e o link abrir com sucesso.
+**Endereço ativo:** https://christianhpo-star.github.io/Biblioteca_Christian/ . Pages já está habilitado por Actions. Com autorização específica do proprietário, o ambiente permite `main` e somente a branch de demonstração `codex/tablet-e0-public-preview`; as demais proteções foram mantidas.
 
 Se a ação de deploy disser que o site não foi configurado, verificar a opção **Source: GitHub Actions**. Se houver regra de proteção no ambiente github-pages que permite somente a main, não enfraquecer a proteção sem avaliar; usar ambiente/estratégia apropriados com autorização específica.
 
