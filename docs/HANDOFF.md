@@ -1,5 +1,13 @@
 # Retomada
 
+## Resultado de CI PDF E1 — 07/11/2026
+
+- PR #14 (`codex/pdf-e1-integrated-pen-pages`) em revisão, sem deploy/merge. `docs/PDF_E1_IMPLEMENTATION.md` reúne limitações e roteiro de teste.
+- Workflow [42334160948](https://github.com/christianhpo-star/Biblioteca_Christian/actions/runs/42334160948) **success** no SHA `25def8d0`: 55/55 Node, navegador Playwright 1/1, guard sintético e verificação 390/1024 px PASS. Arquivos PDF.js e worker locais incluídos.
+- Causa e correção do primeiro timeout: `scripts/serve.mjs` precisava servir `.mjs` como `text/javascript` com `nosniff`. O leitor agora pinta PDF em canvas no Chromium.
+- Pendências: aprovação de publicação do E1 na demo pública, teste real no Samsung Chrome/Samsung Internet/PWA com dedo/S Pen/palma, QA visual humano e, futuramente, solução de persistência/autosave/exportação. A URL pública atual ainda é E0; não prometer E1 disponível lá.
+
+
 ## PDF E1 — renderização integrada / escrita provisória (07/11/2026)
 
 - Base: `codex/tablet-e0-public-preview` @ `f689dfa4`; branch nova `codex/pdf-e1-integrated-pen-pages`, planejada como PR sobre a demonstração. Sem merge/deploy.
