@@ -69,7 +69,7 @@ Falhas de desenvolvimento corrigidas antes desse PASS:
    inicialização do leitor. A ação foi mantida no menu, e todos os IDs usados pelos
    listeners foram conferidos.
 
-As capturas geradas automaticamente **não substituem a inspeção visual e o teste físico**.
+As capturas sintéticas da primeira execução foram inspecionadas em 390 e 1024 px. A de 390 px revelou a barra deslocada horizontalmente após selecionar Formas; CSS foi compactado para manter as ferramentas acessíveis e a verificação passou a medir a largura visível da barra. **Isso não substitui teste físico no Samsung.**
 A branch não está publicada no GitHub Pages; o site público atual continua E1.1.
 
 ## Como homologar no Samsung, quando a demo E2 for publicada
