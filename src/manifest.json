@@ -11,6 +11,7 @@
     "src/study/legacy-form.js",
     "src/reading/work-sheet.js",
     "src/reading/pdf-prototype.js",
+    "src/reading/ink-shapes.js",
     "src/reading/pdf-pages.js",
     "src/catalog/metadata.js",
     "src/catalog/filters.js",
