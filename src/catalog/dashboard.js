@@ -40,8 +40,101 @@ function markAllCurrentWorksAsRead() {
     filterCatalog();
 }
 
-// GESTÃO DE SUB-ÁREAS & CHIPS MULTI-SELEÇÃO
+/**
+ * Abertura leve do acervo: até cinco cartões, todos acionáveis pelo teclado.
+ * "Recentes" se aplica apenas a registros com adicionadoEm válido.
+ */
+function renderHomePreview() {
+    const container = document.getElementById('dashboardHomeBooks');
+    const title = document.getElementById('dashboardHomeTitle');
+    const hint = document.getElementById('dashboardHomeHint');
+    if (!container || !title || !hint) return;
+
+    const selection = selectHomeWorks();
+    const shown = selection.recent.length + selection.undated.length;
+    title.textContent = selection.recent.length ? 'Últimas inclusões' : 'Do seu acervo';
+    hint.textContent = !selection.total
+        ? 'Ainda não há obras cadastradas.'
+        : 'Mostrando ' + shown + ' de ' + selection.total + ' obras.' +
+          (selection.undated.length ? ' Livros sem data registrada aparecem em ordem alfabética.' : '');
+    container.replaceChildren();
+
+    if (!selection.total) {
+        const paragraph = document.createElement('p');
+        paragraph.className = 'home-books-empty';
+        paragraph.textContent = 'Adicione sua primeira obra para começar a organizar as leituras.';
+        const add = document.createElement('button');
+        add.type = 'button';
+        add.className = 'btn-action-primary';
+        add.textContent = 'Adicionar primeira obra';
+        add.addEventListener('click', () => openNewWork());
+        container.append(paragraph, add);
+        return;
+    }
+
+    const formatLabels = { fisico: 'Livro em papel', digital: 'Digital', ambos: 'Papel e digital' };
+    const statusLabels = {
+        nao_iniciado: 'Não iniciada', quero_ler: 'Quero ler', lendo: 'Em leitura',
+        lido: 'Concluída', reler: 'Reler futuramente'
+    };
+    const makeText = (tag, klass, value) => {
+        const el = document.createElement(tag);
+        el.className = klass;
+        el.textContent = value;
+        return el;
+    };
+
+    function appendGroup(label, works, hasDate) {
+        if (!works.length) return;
+        const section = document.createElement('section');
+        section.className = 'home-books-group';
+        section.setAttribute('aria-label', label);
+        const heading = makeText('h4', 'home-books-group-heading', label);
+        const grid = document.createElement('div');
+        grid.className = 'home-books-grid';
+
+        for (const obra of works) {
+            const card = document.createElement('button');
+            card.type = 'button';
+            card.className = 'home-book-card';
+            card.setAttribute('aria-label', 'Abrir ficha: ' + (obra.titulo || 'Obra sem título'));
+            card.append(
+                makeText('span', 'home-book-author', obra.autor || 'Autoria não informada'),
+                makeText('strong', 'home-book-title', obra.titulo || 'Obra sem título')
+            );
+
+            const metadata = document.createElement('span');
+            metadata.className = 'home-book-meta';
+            const format = formatLabels[obra.formato] || (obra.uri ? 'Digital' : 'Formato não informado');
+            metadata.append(
+                makeText('span', 'home-book-pill', format),
+                makeText('span', 'home-book-pill', statusLabels[getLeitura(obra.id).status] || 'Situação não informada')
+            );
+            card.append(metadata);
+            if (hasDate) {
+                const timestamp = getWorkAddedAtTimestamp(obra);
+                card.append(makeText('span', 'home-book-added',
+                    'Incluída em ' + new Date(timestamp).toLocaleDateString('pt-BR')));
+            }
+            card.addEventListener('click', () => openWorkSheet(obra.id));
+            grid.append(card);
+        }
+        section.append(heading, grid);
+        container.append(section);
+    }
+
+    appendGroup('Adicionados recentemente', selection.recent, true);
+    appendGroup('Do seu acervo — inclusão sem data registrada', selection.undated, false);
+}
+
+/** "Ver todo o acervo" limpa apenas filtros efêmeros, sem alterar os livros. */
+function openFullCatalogFromHome() {
+    resetAllFilters();
+    switchView('explorer', 'Todo o acervo');
+}
+
 function renderDashboard() {
+    renderHomePreview();
     renderDashboardSubareas();
     renderReadingNowSection();
     renderQueroLerSection();
