@@ -1,0 +1,171 @@
+/* Laboratório E0: deliberadamente isolado do visualizador principal. */
+.pdf-prototype {
+    position: fixed;
+    inset: 0;
+    z-index: 2200;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    background: var(--bg-body);
+    color: var(--text-primary);
+}
+.pdf-prototype[hidden],
+.pdf-prototype [hidden] { display: none !important; }
+.pdf-prototype-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+    background: var(--bg-surface);
+}
+.pdf-prototype-title-group { min-width: 0; flex: 1 1 180px; }
+.pdf-prototype-title-group h2 {
+    font-size: 16px;
+    line-height: 1.35;
+    font-weight: 700;
+    margin: 0;
+}
+.pdf-prototype-work {
+    color: var(--text-secondary);
+    font-size: 12px;
+    margin: 3px 0 0;
+    overflow-wrap: anywhere;
+}
+.pdf-prototype-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    align-items: center;
+}
+.pdf-prototype-actions > button,
+.pdf-prototype-actions > a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    font-size: 12px;
+    text-decoration: none;
+}
+.pdf-prototype-status {
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    background: var(--bg-surface);
+    font-size: 12px;
+    line-height: 1.5;
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+.pdf-prototype-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+}
+.pdf-prototype-viewer {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 260px;
+    position: relative;
+    background: #2e3440;
+}
+.pdf-prototype-viewer iframe {
+    display: block;
+    border: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 260px;
+    background: #f9fafb;
+}
+.pdf-prototype-empty {
+    align-self: center;
+    width: min(640px, calc(100% - 32px));
+    padding: 24px;
+    margin: auto;
+    border: 1px solid #64748b;
+    border-radius: 12px;
+    color: #f8fafc;
+    text-align: center;
+    line-height: 1.6;
+    font-size: 14px;
+}
+.pdf-prototype-empty p { margin: 8px 0; }
+.pdf-prototype-pen {
+    flex: 0 0 auto;
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border-subtle);
+}
+.pdf-prototype-pen > summary {
+    padding: 11px 16px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 13px;
+}
+.pdf-prototype-pen-body {
+    padding: 12px 16px 16px;
+    display: grid;
+    gap: 10px;
+}
+.pdf-prototype-pen-body > p {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0;
+}
+.pdf-prototype-pen canvas {
+    display: block;
+    width: 100%;
+    height: 180px;
+    max-width: 900px;
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    background: #fff;
+    touch-action: none; /* somente na area de diagnóstico, nao no PDF */
+}
+.pdf-prototype-pen-tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+}
+.pdf-prototype-pen-tools label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.pdf-prototype-pen-tools button { min-height: 40px; }
+.pdf-prototype-pen-status {
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+.pdf-prototype-disclaimer {
+    flex: 0 0 auto;
+    padding: 7px 16px;
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 11px;
+    line-height: 1.45;
+    border-top: 1px solid var(--border-subtle);
+    background: var(--bg-surface);
+}
+.pdf-prototype :focus-visible {
+    outline: 3px solid var(--border-focus);
+    outline-offset: 2px;
+}
+@media (max-width: 700px) {
+    .pdf-prototype-toolbar { padding: 8px 10px; }
+    .pdf-prototype-title-group { flex: 1 1 100%; }
+    .pdf-prototype-actions { width: 100%; }
+    .pdf-prototype-actions > button,
+    .pdf-prototype-actions > a { flex: 1 1 auto; }
+    .pdf-prototype-status,
+    .pdf-prototype-disclaimer { padding-left: 10px; padding-right: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .pdf-prototype * { scroll-behavior: auto !important; }
+}
