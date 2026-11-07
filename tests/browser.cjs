@@ -74,7 +74,7 @@ test('registros compactos, documento ordenado, downloads reais e recuperação d
     const currentState=await page.evaluate(()=>window.libraryBridge.getState());
     const manual=Object.values(currentState.metaOverrides).find(item=>item.catalogManual);
     assert.ok(manual);
-    assert.match(manual.adicionadoEm,/^\\d{4}-\\d{2}-\\d{2}T/);
+    assert.match(manual.adicionadoEm,/^\d{4}-\d{2}-\d{2}T/);
     assert.equal(await page.locator('#dashboardHomeBooks .home-book-card').count(),4);
     assert.equal(await page.locator('#dashboardHomeTitle').textContent(),'Últimas inclusões');
     const backup={state:currentState};await page.evaluate(()=>switchView('backup'));await page.locator('#backupFileInput').setInputFiles({name:'backup.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(backup))});await page.waitForLoadState('load');await page.waitForFunction(()=>document.getElementById('badgeTotalObras').textContent==='4');assert.deepEqual(errors,[]);
