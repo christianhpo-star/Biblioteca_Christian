@@ -324,8 +324,11 @@
         } catch (error) {
             if (gen !== state.generation || version !== record.version) return;
             if (error?.name !== 'RenderingCancelledException') {
-                record.error.textContent = 'Não foi possível renderizar a página ' + record.index + '.';
+                const reason = String(error?.message || 'falha de renderização');
+                record.error.textContent = 'Não foi possível renderizar a página ' +
+                    record.index + ': ' + reason;
                 record.error.hidden = false;
+                safeStatus('Falha de renderização: ' + reason);
             }
         } finally {
             record.rendering = false;
