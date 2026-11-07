@@ -100,17 +100,37 @@
         return error <= 0.19;
     }
 
+    function ellipsePoints(box, count=32) {
+        const cx=(box.minX+box.maxX)/2, cy=(box.minY+box.maxY)/2;
+        const rx=(box.maxX-box.minX)/2, ry=(box.maxY-box.minY)/2;
+        return Array.from({length:count+1}, (_,i)=>({
+            x:cx+rx*Math.cos(2*Math.PI*i/count),
+            y:cy+ry*Math.sin(2*Math.PI*i/count)
+        }));
+    }
+
+    function polygonPoints(box,kind) {
+        if (kind==='triangle') {
+            return [{x:(box.minX+box.maxX)/2,y:box.minY},
+                {x:box.maxX,y:box.maxY},{x:box.minX,y:box.maxY},
+                {x:(box.minX+box.maxX)/2,y:box.minY}];
+        }
+        return [{x:box.minX,y:box.minY},{x:box.maxX,y:box.minY},
+            {x:box.maxX,y:box.maxY},{x:box.minX,y:box.maxY},
+            {x:box.minX,y:box.minY}];
+    }
+
     function transform(rawPoints, preference='auto') {
         const points = clean(rawPoints);
-        if (!points.length) return {kind:'freehand', d:''};
-        if (points.length === 1) return {kind:'freehand', d:strokePath(points)};
+        if (!points.length) return {kind:'freehand', d:'', points:[]};
+        if (points.length === 1) return {kind:'freehand', d:strokePath(points), points};
         const box = bounds(points), width = box.maxX-box.minX, height=box.maxY-box.minY;
         const diag = hypot(width,height);
         const first=points[0],last=points[points.length-1];
         const pathLength=length(points);
         if (preference === 'line' || (preference === 'auto' &&
             lineConfidence(points,diag,pathLength))) {
-            return {kind:'line', d:strokePath([first,last])};
+            return {kind:'line', d:strokePath([first,last]), points:[first,last]};
         }
 
         const closed = hypot(first.x-last.x,first.y-last.y) <= max(12,diag*0.23);
@@ -118,14 +138,14 @@
             pathLength>=diag*2.15 && closed;
         if (preference === 'rect' || (preference === 'auto' && canClose &&
             rectangleConfidence(points,box))) {
-            return {kind:'rect', d:rectPath(box)};
+            return {kind:'rect', d:rectPath(box), points:polygonPoints(box,'rect')};
         }
         if (preference === 'ellipse' || (preference === 'auto' && canClose &&
             ellipseConfidence(points,box))) {
-            return {kind:'ellipse', d:ellipsePath(box)};
+            return {kind:'ellipse', d:ellipsePath(box), points:ellipsePoints(box)};
         }
-        if (preference === 'triangle') return {kind:'triangle', d:trianglePath(box)};
-        return {kind:'freehand', d:strokePath(points)};
+        if (preference === 'triangle') return {kind:'triangle', d:trianglePath(box), points:polygonPoints(box,'triangle')};
+        return {kind:'freehand', d:strokePath(points), points};
     }
 
     // Apenas geometria; a cor, a largura e o histórico pertencem ao leitor.
