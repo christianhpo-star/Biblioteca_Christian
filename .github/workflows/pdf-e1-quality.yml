@@ -46,8 +46,11 @@ jobs:
       - name: Validar canvas integrado e tinta temporaria
         run: node scripts/verify-tablet-preview.mjs
 
-      - name: Conferir ausencia de dados pessoais no diff
+      - name: Conferir ausencia de dados pessoais no commit
         run: |
-          git diff --name-only origin/codex/tablet-e0-public-preview...HEAD
           test ! -d private
-          test ! -d .env
+          test ! -f .env
+          if git ls-files | grep -E '^(.env|private/|dist/|.*[.]pdf$)'; then
+            echo "Arquivos privados ou gerados rastreados no Git" >&2
+            exit 1
+          fi
