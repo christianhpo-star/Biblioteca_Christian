@@ -1,5 +1,16 @@
 # Estado — 06/11/2026
 
+## Preparação de publicação controlada — demonstração E0 no tablet (sem deploy confirmado)
+
+- O usuário solicitou disponibilizar o projeto na internet para testar no Samsung. Escopo desta autorização: **prévia pública com dados sintéticos, isolada**; não é autorização para publicar acervo real, substituir produção, migrar dados, mudar autenticação ou mesclar PRs.
+- Branch `codex/tablet-e0-public-preview` derivada da PR #12, commit base `25cceb4c7fb403df67e7de35f120480460631673`, sem alterar as branches anteriores.
+- Hospedagem escolhida para teste: **GitHub Pages por GitHub Actions**, com build público apenas de `data/demo.json` (três obras fictícias), `config/tablet-preview.json` (modo local e chave exclusiva), validação em `scripts/prepare-tablet-preview.mjs` e texto de aviso no artefato gerado.
+- Gatilho de publicação: workflow restrito à branch de demonstração; build, suíte Node, teste Playwright e guard de privacidade **precisam passar** antes do deploy. A pasta `dist/` continua fora do Git.
+- O repositório era público e `has_pages=false` na consulta em 06/11/2026. A integração GitHub disponível não oferece alteração de configuração administrativa de Pages; o responsável deverá escolher **Settings → Pages → Source: GitHub Actions**. **Não afirmar que existe URL ativa até confirmação.**
+- Teste de tablet documentado em `docs/TABLET_PUBLIC_PREVIEW.md`. O laboratório E0 continua sem anotações sobre o PDF, sem arquivos privados e sem gravação de traços; não declarar compatibilidade S Pen/palma antes de teste físico.
+- Sem merge e sem configuração do Firebase pessoal. Avaliar resultado da execução de Actions e disponibilidade pública antes de declarar publicado.
+
+
 ## E0 em revisão — protótipo de leitura PDF local e diagnóstico S Pen (issue #7)
 
 - Branch `codex/pdf-e0-prototipo-local-pen`, derivada de `codex/inicio-cinco-obras-recentes`, commit `339e7d511f925ab5439e648f4ad5b5779cb72789` (PR #11). PRs #1, #8–#11 seguem abertas; sem merge/deploy.
