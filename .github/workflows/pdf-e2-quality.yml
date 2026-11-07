@@ -49,6 +49,15 @@ jobs:
       - name: Validar leitor e forma na tela compacta
         run: node scripts/verify-tablet-preview.mjs
 
+      - name: Capturas sinteticas do layout em tablet e celular
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pdf-e2-interface-sintetica
+          path: test-results/tablet-preview-local-*.png
+          retention-days: 3
+          if-no-files-found: warn
+
       - name: Verificar ausencia de PDFs ou dados pessoais no commit
         run: |
           test ! -d private
