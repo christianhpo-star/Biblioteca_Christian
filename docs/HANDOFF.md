@@ -1,5 +1,14 @@
 # Retomada
 
+## Próxima revisão — entrada do acervo com cinco obras (06/11/2026)
+
+- Branch `codex/inicio-cinco-obras-recentes`, baseada na PR #10 (`190c19c`), após PRs #9, #8, #1. Scope: issue #4, sem merge/deploy/alteração de dados reais.
+- `src/catalog/repository.js`: `getWorkAddedAtTimestamp`, `selectHomeWorks` — data ISO confiável, desempate estável, fallback alfabético sem datas inventadas. `src/catalog/dashboard.js`: até cinco botões de obra, Ver todo o acervo, retorno ao início. `templates/index.html` e `styles/dashboard.css`: prévia e demais indicadores em `<details>`. `src/study/workspace.js` grava `adicionadoEm` ao cadastrar. `src/catalog/metadata.js` preserva campos do registro manual ao editar. `src/reading/work-sheet.js` mostra data conhecida/ausente.
+- Adicionados dez testes em `tests/home.test.mjs` e novo cenário em `tests/browser.cjs`. Realizadas 25 verificações JS isoladas PASS; **suítes Node/Playwright e QA visual não executados** por ausência de checkout via DNS; nunca interpretar isso como testes do navegador aprovados.
+- Para executor local: `npm ci && npm run build && npm test && npm run test:browser`. Conferir screenshot e foco em 320, 390, 768, 1024 e 1440 px; fluxo acervo 0–4, >5, data igual, datas desconhecidas; adicionar obra, editar título, reabrir e restaurar backup sintético; verificar conflitos com filtros e busca; testar modo Firebase autenticado em ambiente autorizado, sem dados reais na PR.
+- A próxima issue aberta é a #7 (leitor PDF com S Pen); iniciar pela viabilidade de PDF privado, anotações vetoriais, persistência segura e teste real no tablet antes de escolher dependência ou acessar o Drive.
+
+
 ## Integração da busca de catálogo — revisão (06/11/2026)
 
 - Branch `codex/integrar-busca-sugestoes`, baseada na PR #9 `f8766eb` (que depende da PR #8 e da PR #1). Escopo: issue #2. Utiliza `src/catalog/search.js` preparado na branch paralela `codex/busca-autores-obras-sugestoes`, sem alterar essa origem.
