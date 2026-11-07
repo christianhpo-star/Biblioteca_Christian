@@ -73,6 +73,15 @@
     function rectangleConfidence(points, box) {
         const width = box.maxX-box.minX, height = box.maxY-box.minY;
         const tolerance = max(3, min(width, height) * 0.13);
+        // Uma elipse chega perto das quatro bordas, mas não de seus cantos.
+        // Exigir passagem por cada canto evita converter círculos em retângulos.
+        const corners = [
+            {x:box.minX,y:box.minY},{x:box.maxX,y:box.minY},
+            {x:box.maxX,y:box.maxY},{x:box.minX,y:box.maxY}
+        ];
+        const cornerTolerance = max(5, min(width,height) * 0.17);
+        if (!corners.every(corner => points.some(point =>
+            hypot(point.x-corner.x,point.y-corner.y) <= cornerTolerance))) return false;
         const sideCounts = [0,0,0,0];
         let nearEdge = 0;
         for (const p of points) {
