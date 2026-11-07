@@ -169,3 +169,118 @@
 @media (prefers-reduced-motion: reduce) {
     .pdf-prototype * { scroll-behavior: auto !important; }
 }
+
+
+/* E1: paginas PDF.js locais com anotacoes efemeras vetoriais por pagina. */
+.pdf-prototype-viewer {
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+.pdf-prototype-reading-tools {
+    flex: 0 0 auto;
+    min-height: 46px;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 9px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    border-bottom: 1px solid var(--border-subtle);
+    background: var(--bg-surface);
+}
+.pdf-prototype-reading-tools button {
+    min-height: 36px;
+    border-radius: 7px;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-body);
+    color: var(--text-primary);
+    white-space: nowrap;
+    padding: 6px 10px;
+    cursor: pointer;
+}
+.pdf-prototype-reading-tools button[aria-pressed="true"] {
+    border-color: var(--primary);
+    background: #dbeafe;
+    color: #1e40af;
+    font-weight: 700;
+}
+.pdf-reading-tool-divider {
+    width: 1px;
+    height: 24px;
+    background: var(--border-subtle);
+    flex: 0 0 1px;
+}
+.pdf-prototype-reading-tools output,
+.pdf-page-indicator {
+    font-size: 12px;
+    white-space: nowrap;
+    color: var(--text-secondary);
+    padding: 3px 5px;
+}
+.pdf-prototype-pages {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    overflow: auto;
+    overscroll-behavior: contain;
+    background: #363b43;
+    touch-action: pan-y;
+    scroll-behavior: auto;
+}
+.pdf-rendered-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: max-content;
+    max-width: none;
+    margin: 16px auto 20px;
+    background: transparent;
+    box-sizing: content-box;
+    position: relative;
+}
+.pdf-page-stage {
+    position: relative;
+    background: white;
+    box-shadow: 0 2px 12px rgb(0 0 0 / 0.28);
+}
+.pdf-page-canvas {
+    display: block;
+    background: white;
+}
+.pdf-page-ink {
+    position: absolute;
+    inset: 0;
+    display: block;
+    touch-action: none; /* caneta sem cancelamento por scroll; dedos navegam via PointerEvent */
+    cursor: crosshair;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+}
+.pdf-page-error {
+    margin: 6px 0 0;
+    padding: 8px;
+    max-width: 75vw;
+    border: 1px solid #fecaca;
+    background: #fef2f2;
+    color: #991b1b;
+    font-size: 12px;
+}
+.pdf-page-loading .pdf-page-stage::after {
+    content: "Carregando página…";
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    padding: 6px 10px;
+    background: rgb(255 255 255 / 0.9);
+    color: #374151;
+    font-size: 12px;
+    pointer-events: none;
+}
+@media (max-width: 700px) {
+    .pdf-prototype-reading-tools { padding: 5px 7px; gap: 5px; }
+    .pdf-prototype-reading-tools button { min-height: 42px; }
+    .pdf-rendered-page { margin: 10px auto 14px; }
+}
