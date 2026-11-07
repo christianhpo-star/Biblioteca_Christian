@@ -52,7 +52,7 @@ assert.ok(html.includes('id="pdfPrototype"'), 'O experimento E0 deve estar inclu
 assert.ok(html.includes('id="dashboardHomeBooks"'), 'O dashboard das PRs anteriores deve existir');
 const banner = [
     '<section class="tablet-preview-banner" role="note" aria-label="Aviso de ambiente de testes">',
-    '<strong>Ambiente público de testes — dados fictícios.</strong> ',
+    '<strong>Ambiente público de testes — PDF E1.1 (cache atualizado).</strong> ',
     'Não registre informações pessoais. PDFs escolhidos no dispositivo não são enviados pelo protótipo. ',
     '<button type="button" onclick="openPdfPrototype()">Abrir teste de PDF e S Pen</button>',
     '</section>'
