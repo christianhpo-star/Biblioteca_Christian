@@ -1,0 +1,59 @@
+name: PDF E2 - leitor imersivo e formas da S Pen
+
+on:
+  push:
+    branches:
+      - codex/pdf-e2-immersive-shapes
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pdf-e2-quality
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Build, formas, UX e Chromium (sem publicar)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout apenas da branch E2
+        uses: actions/checkout@v4
+
+      - name: Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Instalar lockfile
+        run: npm ci
+
+      - name: Compilar demo com obras ficticias
+        run: npm run build -- --config=config/tablet-preview.json --catalog=data/demo.json
+
+      - name: Testes Node (inclui reconhecimento de formas)
+        run: npm test
+
+      - name: Preparar Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Testes completos Playwright
+        run: npm run test:browser
+
+      - name: Validar artefato publico com dados sinteticos
+        run: node scripts/prepare-tablet-preview.mjs
+
+      - name: Validar leitor e forma na tela compacta
+        run: node scripts/verify-tablet-preview.mjs
+
+      - name: Verificar ausencia de PDFs ou dados pessoais no commit
+        run: |
+          test ! -d private
+          test ! -f .env
+          if git ls-files | grep -E '^(.env|private/|dist/|.*[.]pdf$)'; then
+            echo "Artefatos privados nao podem ser versionados." >&2
+            exit 1
+          fi
