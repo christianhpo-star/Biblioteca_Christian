@@ -1,0 +1,74 @@
+name: Tablet E0 - demonstracao publica e testes
+
+on:
+  push:
+    branches:
+      - codex/tablet-e0-public-preview
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tablet-e0-public-pages
+  cancel-in-progress: false
+
+jobs:
+  build-and-verify:
+    name: Validar e montar demo sintetica
+    if: github.repository == 'christianhpo-star/Biblioteca_Christian' && github.ref == 'refs/heads/codex/tablet-e0-public-preview'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout apenas desta branch
+        uses: actions/checkout@v4
+
+      - name: Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Instalar dependencias do lockfile
+        run: npm ci
+
+      - name: Build de teste com catalogo sintetico
+        run: npm run build -- --config=config/tablet-preview.json --catalog=data/demo.json
+
+      - name: Testes de unidade e regressao
+        run: npm test
+
+      - name: Preparar Chromium Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Teste real de navegador automatizado
+        run: npm run test:browser
+
+      - name: Reconstruir a demo apos os testes
+        run: npm run build -- --config=config/tablet-preview.json --catalog=data/demo.json
+
+      - name: Impedir dados privados e preparar Pages
+        run: node scripts/prepare-tablet-preview.mjs
+
+      - name: Configurar artifact GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Guardar somente o site compilado
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    name: Publicar somente apos validacao
+    needs: build-and-verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publicar demonstracao sem dados reais
+        id: deployment
+        uses: actions/deploy-pages@v4
