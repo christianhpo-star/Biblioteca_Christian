@@ -63,7 +63,8 @@
       const duplicate = getAllWorks().some((o) => o.titulo.trim().toLocaleLowerCase("pt-BR") === title.toLocaleLowerCase("pt-BR"));
       if (duplicate && !confirm("Já existe uma obra com esse título. Cadastrar outra edição?")) return;
       const id = Date.now() * 1e3 + crypto.getRandomValues(new Uint16Array(1))[0] % 1e3;
-      const work = { id, catalogManual: true, titulo: title, autor: el("newAuthor").value.trim() || "Autoria a completar", formato: el("newFormat").value, paginas: Number(el("newPages").value) || 0, edicao: el("newEdition").value.trim(), localizacao: el("newLocation").value.trim(), subarea: el("newTheme").value.trim(), codigo: "3", categoria: "Ciências Humanas e Sociais", palavras_chave: [], resumo: "", arquivo: "", caminho: "", tamanho_mb: 0, uri: safeUrl(el("newUrl").value), metadataQuality: "revisar" };
+      // A data é registrada apenas quando uma nova obra é cadastrada; não retroagir para o acervo antigo.
+      const work = { id, catalogManual: true, adicionadoEm: new Date().toISOString(), titulo: title, autor: el("newAuthor").value.trim() || "Autoria a completar", formato: el("newFormat").value, paginas: Number(el("newPages").value) || 0, edicao: el("newEdition").value.trim(), localizacao: el("newLocation").value.trim(), subarea: el("newTheme").value.trim(), codigo: "3", categoria: "Ciências Humanas e Sociais", palavras_chave: [], resumo: "", arquivo: "", caminho: "", tamanho_mb: 0, uri: safeUrl(el("newUrl").value), metadataQuality: "revisar" };
       appState.metaOverrides[id] = work;
       appState.leituras[id] = { status: "nao_iniciado", paginasLidas: 0, progresso: 0, favorito: false, avaliacao: 0, motivo: "" };
       try {
