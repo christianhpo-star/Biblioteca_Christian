@@ -1,5 +1,26 @@
 # Estado — 06/11/2026
 
+## QA automatizado do PDF E1 concluído — 07/11/2026
+
+- **GitHub Actions PASS**: [execução 42334160948](https://github.com/christianhpo-star/Biblioteca_Christian/actions/runs/42334160948), commit `25def8d0a5583cee339449605adab796f9d39229` da branch `codex/pdf-e1-integrated-pen-pages`, sem deploy.
+- `npm ci` e build com PDF.js 6.5.438 e worker locais: PASS. `npm test`: **55 testes, 55 aprovados, 0 falhas**. `npm run test:browser`: **1 fluxo completo, aprovado**. `scripts/prepare-tablet-preview.mjs`: PASS no guard de dados sintéticos sem Firebase/Drive privado. `scripts/verify-tablet-preview.mjs`: PASS nos viewports 1024×768 e 390×844, duas páginas geradas com dados fictícios, SVG com pen simulado, touch sem tinta, zoom e fallback externo. Guard de conteúdo privado: PASS.
+- O primeiro browser test havia falhado com MIME `.mjs` incorreto do servidor (`application/octet-stream` com `nosniff`); corrigido em `scripts/serve.mjs` para `text/javascript`, validado pela execução acima. Cache de serviço atualizado.
+- **Não comprovado**: rejeição da palma e precisão/latência da S Pen no Samsung real. O ambiente público do GitHub Pages **ainda publica o E0**, não o E1. PR #14 aberta como rascunho; nenhum merge ou deploy desta versão executado.
+- Screenshots foram gerados durante o teste de navegador, mas não foram submetidos à revisão visual humana nesta sessão. O QA presencial no tablet continua necessário antes de afirmar equivalência com Samsung Notes.
+
+
+## E1 em desenvolvimento — PDF.js com tinta temporária por página (07/11/2026)
+
+- Relato confirmado no Samsung: quadro separado de diagnóstico S Pen funciona; PDF embutido em iframe não aparece; fallback Google PDF abre, mas não permite à Biblioteca separar caneta e dedo. O leitor E0 não está homologado para Android.
+- Branch de implementação `codex/pdf-e1-integrated-pen-pages`, criada a partir do commit `f689dfa4faeb062364265b42f1d7edc8162ff7c7` da PR #13, sem alterar a branch de publicação ou a `main`.
+- Novo renderizador `src/reading/pdf-pages.js`: PDF local por página com PDF.js 6.5.438 e worker da mesma origem, sem iframe; tela móvel com toolbar de caneta/marca-texto/borracha/desfazer/zoom; S Pen desenha num SVG vinculado à página e dedo usa rolagem/pinça. Até seis canvases pintados simultaneamente; riscos só na memória e apagados ao sair.
+- `scripts/vendor-pdfjs.mjs` obtém pacote npm de versão fixa na compilação e copia os dois arquivos precompilados, licença, sem CDN no navegador; `scripts/build.mjs` inclui os arquivos no cache do service worker. `scripts/serve.mjs` corrigido para servir `.mjs` com JavaScript MIME (o bloqueio causou falha no primeiro teste de Chromium).
+- Mantidos seleção local, fallback `Ver PDF em outra aba`, link Drive externo, diagnóstico separado e dados fictícios. Nenhum upload, mudança Firebase, persistência de traços, migração, exportação ou edição do PDF real. Limite de teste: PDFs de até 50 MB e 500 páginas.
+- Testes adaptados em `tests/pdf-prototype.test.mjs`, `tests/pdf-pages.test.mjs`, `tests/browser.cjs`, `scripts/verify-tablet-preview.mjs`. Workflow `.github/workflows/pdf-e1-quality.yml` executa build e testes na branch **sem deploy**. `docs/PDF_E1_IMPLEMENTATION.md` descreve roteiro de homologação no Samsung.
+- **Verificação real inicial:** GitHub Actions run 42333943652 — build e testes Node PASS; primeiro teste de navegador FAIL por timeout de página, investigado e encontrado problema de MIME para `.mjs` no servidor de desenvolvimento. Correção gravada; acompanhar novas execuções e não declarar Chromium/tablet validados antes de PASS real.
+- A demonstração pública anterior no GitHub Pages permanece E0. A branch E1 não foi publicada nem mesclada. Autorização de publicação de uma nova versão ainda depende de verificação e aceite.
+
+
 ## Prévia pública publicada e verificada
 
 - **URL HTTPS real:** https://christianhpo-star.github.io/Biblioteca_Christian/ — HTTP 200, verificada pelo script contra a publicação, em 1024×768 e 390×844.

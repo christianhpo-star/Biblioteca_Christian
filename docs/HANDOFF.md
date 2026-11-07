@@ -1,5 +1,23 @@
 # Retomada
 
+## Resultado de CI PDF E1 — 07/11/2026
+
+- PR #14 (`codex/pdf-e1-integrated-pen-pages`) em revisão, sem deploy/merge. `docs/PDF_E1_IMPLEMENTATION.md` reúne limitações e roteiro de teste.
+- Workflow [42334160948](https://github.com/christianhpo-star/Biblioteca_Christian/actions/runs/42334160948) **success** no SHA `25def8d0`: 55/55 Node, navegador Playwright 1/1, guard sintético e verificação 390/1024 px PASS. Arquivos PDF.js e worker locais incluídos.
+- Causa e correção do primeiro timeout: `scripts/serve.mjs` precisava servir `.mjs` como `text/javascript` com `nosniff`. O leitor agora pinta PDF em canvas no Chromium.
+- Pendências: aprovação de publicação do E1 na demo pública, teste real no Samsung Chrome/Samsung Internet/PWA com dedo/S Pen/palma, QA visual humano e, futuramente, solução de persistência/autosave/exportação. A URL pública atual ainda é E0; não prometer E1 disponível lá.
+
+
+## PDF E1 — renderização integrada / escrita provisória (07/11/2026)
+
+- Base: `codex/tablet-e0-public-preview` @ `f689dfa4`; branch nova `codex/pdf-e1-integrated-pen-pages`, planejada como PR sobre a demonstração. Sem merge/deploy.
+- Problema E0 real: caneta funciona na área isolada, mas iframe PDF falha no tablet; Google PDF externo não diferencia ponteiros.
+- `src/reading/pdf-pages.js` renderiza páginas PDF via PDF.js local com overlay SVG efêmero. S Pen desenha, dedo rola/pinça, toolbar permite caneta, destaque, borracha, desfazer e zoom; não salva nem sincroniza.
+- `scripts/vendor-pdfjs.mjs` baixa exclusivamente em build npm versionado 6.5.438, copiando lib/worker/licença para `dist/vendor/pdfjs/`; `scripts/serve.mjs` precisa oferecer `.mjs` como `text/javascript`; corrigido. Cache SW passou para v3 para evitar E0 residual.
+- Os testes Node e build passaram na primeira action (42333943652); o teste de Chromium falhou antes de corrigir MIME. Verificar última action da branch, logs e corrigir se necessário; nunca dispensar testes. Teste físico Samsung permanece pendente.
+- `docs/PDF_E1_IMPLEMENTATION.md` inclui arquitetura, escopo, roteiro QA e limites. Antes de publicação, exigir `npm ci`, build, `npm test`, `npm run test:browser`, guard e verificação da demo com PDFs sintéticos, aprovação explícita para atualizar Pages e confirmação de URL ativa.
+
+
 ## Verificação executável da prévia pública
 
 - **Publicação real concluída:** https://christianhpo-star.github.io/Biblioteca_Christian/ . Execução [42332359060](https://github.com/christianhpo-star/Biblioteca_Christian/actions/runs/42332359060), SHA `87fd2673e05aa976e614087e6a17eae261ba94af`, branch `codex/tablet-e0-public-preview`, validação e deploy `success`.

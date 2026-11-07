@@ -1,0 +1,56 @@
+name: PDF E1 - validar leitor integrado sem publicar
+
+on:
+  push:
+    branches:
+      - codex/pdf-e1-integrated-pen-pages
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pdf-e1-validation
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Build, testes e PDF.js no browser
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Instalar dependencias existentes
+        run: npm ci
+
+      - name: Compilar demo sintetica com PDF.js local
+        run: npm run build -- --config=config/tablet-preview.json --catalog=data/demo.json
+
+      - name: Testes Node
+        run: npm test
+
+      - name: Preparar Chromium completo
+        run: npx playwright install --with-deps chromium
+
+      - name: Testes de navegador
+        run: npm run test:browser
+
+      - name: Validar limites da demo publica
+        run: node scripts/prepare-tablet-preview.mjs
+
+      - name: Validar canvas integrado e tinta temporaria
+        run: node scripts/verify-tablet-preview.mjs
+
+      - name: Conferir ausencia de dados pessoais no commit
+        run: |
+          test ! -d private
+          test ! -f .env
+          if git ls-files | grep -E '^(.env|private/|dist/|.*[.]pdf$)'; then
+            echo "Arquivos privados ou gerados rastreados no Git" >&2
+            exit 1
+          fi

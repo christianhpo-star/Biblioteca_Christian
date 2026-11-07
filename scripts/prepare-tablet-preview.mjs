@@ -32,6 +32,11 @@ assert.equal(JSON.stringify(sandbox.window.LIBRARY_CONFIG), JSON.stringify(confi
 assert.equal(JSON.stringify(sandbox.window.LIBRARY_DATA), JSON.stringify(demo));
 assert.equal(sandbox.window.LIBRARY_CONFIG.mode, 'local', 'Firebase não pode entrar na demo');
 assert.ok(!existsSync('dist/cloud.js'), 'Bundle de acesso ao Firebase é proibido na demo');
+assert.ok(existsSync('dist/vendor/pdfjs/pdf.min.mjs'), 'Falta PDF.js local para Android');
+assert.ok(existsSync('dist/vendor/pdfjs/pdf.worker.min.mjs'), 'Falta worker local de PDF.js');
+assert.ok(existsSync('dist/vendor/pdfjs/LICENSE'), 'Licença da biblioteca não foi copiada');
+assert.ok(!runtime.includes('https://cdnjs') && !runtime.includes('https://unpkg'),
+    'Prévia não deve baixar biblioteca de CDN externo');
 
 const manifest = await readJson('dist/manifest.webmanifest');
 manifest.id = './';
@@ -47,7 +52,7 @@ assert.ok(html.includes('id="pdfPrototype"'), 'O experimento E0 deve estar inclu
 assert.ok(html.includes('id="dashboardHomeBooks"'), 'O dashboard das PRs anteriores deve existir');
 const banner = [
     '<section class="tablet-preview-banner" role="note" aria-label="Aviso de ambiente de testes">',
-    '<strong>Ambiente público de testes — dados fictícios.</strong> ',
+    '<strong>Ambiente público de testes — PDF E1.1 (cache atualizado).</strong> ',
     'Não registre informações pessoais. PDFs escolhidos no dispositivo não são enviados pelo protótipo. ',
     '<button type="button" onclick="openPdfPrototype()">Abrir teste de PDF e S Pen</button>',
     '</section>'

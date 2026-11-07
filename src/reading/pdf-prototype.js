@@ -1,5 +1,5 @@
 /**
- * Prototipo E0: usa somente o visualizador nativo para arquivos PDF locais.
+ * Prototipo E1: visualiza páginas com PDF.js, mantendo fallback externo.
  * O experimento com PointerEvent ocorre fora das paginas: nao anota PDFs,
  * nao envia arquivos ao Drive e nao grava estado ou amostras da caneta.
  */
@@ -41,6 +41,8 @@
 
     /** Blob de arquivo escolhido e usado somente durante esta sessao de leitura. */
     function releaseLocalPdf() {
+        // Sem visualizador PDF nativo embutido: descarte das paginas e tinta volátil.
+        window.PdfPagePrototype?.destroy();
         frame.removeAttribute('src');
         frame.hidden = true;
         empty.hidden = false;
@@ -80,6 +82,10 @@
             .map(element => ({ element, inert: element.inert }));
         inactiveBackground.forEach(({ element }) => { element.inert = true; });
         get('pdfPrototypeWork').textContent = work?.titulo || 'Documento local de teste';
+        // Indicador textual: permite detectar versões misturadas no WebView do tablet.
+        get('pdfPrototypeEngine').textContent = window.PdfPagePrototype?.load
+            ? 'Motor: PDF.js integrado — E1.1'
+            : 'Leitor incompleto: atualize esta página no navegador';
         const url = safeWebUrl(work?.drive_url || work?.uri || '');
         originLink.hidden = !url;
         if (url) originLink.href = url;
@@ -124,8 +130,8 @@
 
     /**
      * A assinatura PDF e verificada sem ler o arquivo inteiro.
-     * O plugin nativo controla suas proprias paginas e zoom; "load" de iframe
-     * nao comprova que o conteudo e legivel em todos os navegadores.
+     * A renderizacao interna ocorre por PDF.js, sem iframe ou plugin Android.
+     * O blob fica disponivel somente para o fallback "Ver em outra aba".
      */
     async function inspectSelectedFile(file) {
         if (!file) return;
@@ -148,16 +154,23 @@
             const nextUrl = URL.createObjectURL(file);
             releaseLocalPdf();
             blobUrl = nextUrl;
-            frame.src = blobUrl;
-            frame.hidden = false;
-            empty.hidden = true;
             localLink.href = blobUrl;
             localLink.hidden = false;
-            status.textContent = 'PDF local selecionado: ' + file.name +
-                '. Se o navegador nao exibir as paginas, use Ver PDF em outra aba.';
-        } catch {
+            status.textContent = 'Renderizando o PDF local por páginas. Nenhum dado será enviado.';
+            if (!window.PdfPagePrototype?.load) {
+                throw new Error('Módulo de páginas PDF indisponível.');
+            }
+            await window.PdfPagePrototype.load(file);
+            if (request !== requestId || shell.hidden) return;
+            // O PDF interno é desenhado em canvas; iframe permanece sempre desativado.
+            frame.hidden = true;
+        } catch (error) {
             if (request === requestId && !shell.hidden) {
-                status.textContent = 'Nao foi possivel ler este arquivo. Escolha outro PDF salvo no dispositivo.';
+                window.PdfPagePrototype?.destroy();
+                empty.hidden = false;
+                status.textContent = 'Não foi possível abrir o PDF dentro da Biblioteca: ' +
+                    (error?.message || 'erro desconhecido') +
+                    '. Use Ver PDF em outra aba ou escolha outro PDF.';
             }
         }
     }

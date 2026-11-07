@@ -1,7 +1,9 @@
 /** Assemble external scripts/styles from the manifest. Personal data never enters source. */
-import {readFile, writeFile, mkdir, copyFile} from 'node:fs/promises';
+import {readFile, writeFile, mkdir, copyFile, rm} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
 import {dirname, resolve, relative} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {preparePdfJsAssets} from './vendor-pdfjs.mjs';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const args = Object.fromEntries(process.argv.slice(2).map(arg => arg.replace(/^--/, '').split('=')));
 const readJson = async file => JSON.parse(await readFile(resolve(root, file), 'utf8'));
@@ -14,11 +16,24 @@ if (!Array.isArray(data.obras) || !data.fichamentos || typeof data.fichamentos !
 const manifest = await readJson('src/manifest.json');
 const {build: bundle} = await import('esbuild');
 const dist = resolve(root, 'dist');
+// Clean builds prevent old unversioned scripts from leaking into a release artifact.
+await rm(dist, {recursive:true, force:true});
 await mkdir(dist, {recursive:true});
+// PDF.js e worker fazem parte do proprio site: o tablet nao depende do plugin PDF do Android.
+const pdfJsAssets = await preparePdfJsAssets(root, dist);
 async function output(path, content) { const dest = resolve(dist, path); await mkdir(dirname(dest), {recursive:true}); await writeFile(dest, content); }
+// Fingerprint each classic script and stylesheet by its contents. Browsers and
+// embedded Android viewers must never reuse an older pdf-prototype.js against
+// a newer index.html. Physical asset filenames avoid query-cache ambiguity.
+const fingerprinted = new Map();
 for (const path of [...manifest.scripts, ...manifest.styles]) {
-  await mkdir(dirname(resolve(dist, path)), {recursive:true});
-  await copyFile(resolve(root, path), resolve(dist, path));
+  const bytes = await readFile(resolve(root, path));
+  const digest = createHash('sha256').update(bytes).digest('hex').slice(0, 12);
+  const versioned = path.replace(/(\.[^./]+)$/, '.' + digest + '$1');
+  if (versioned === path) throw Error('Arquivo sem extensao para versionar: ' + path);
+  fingerprinted.set(path, versioned);
+  await mkdir(dirname(resolve(dist, versioned)), {recursive:true});
+  await writeFile(resolve(dist, versioned), bytes);
 }
 // Escape '<' even though these payloads are external scripts, to retain safe embedding semantics.
 const json = value => JSON.stringify(value).replace(/</g, '\\u003c');
@@ -33,15 +48,15 @@ if (config.mode === 'firebase') {
   scripts.push('cloud.js');
   template = template.replace('<body>', '<body class="auth-locked">');
 }
-const styles = manifest.styles.map(path => `<link rel="stylesheet" href="${path}">`).join('\n');
-const scriptTags = scripts.map(path => `<script src="${path}" defer></script>`).join('\n');
+const styles = manifest.styles.map(path => `<link rel="stylesheet" href="${fingerprinted.get(path)}">`).join('\n');
+const scriptTags = scripts.map(path => `<script src="${fingerprinted.get(path) || path}" defer></script>`).join('\n');
 template = template.replace('<!-- STYLES -->', styles).replace('<!-- SCRIPTS -->', scriptTags);
 await output('index.html', template);
 for (const name of ['icon.svg','icon-192.png','icon-512.png','manifest.webmanifest']) await copyFile(resolve(root,'templates',name),resolve(dist,name));
 await copyFile(resolve(root,'assets/fonts/OFL.txt'),resolve(dist,'NotoSans-OFL.txt'));
 await copyFile(resolve(root,'THIRD_PARTY.md'),resolve(dist,'THIRD_PARTY.md'));
 // Cache the exact external resource graph. Authentication, PDFs and Firestore are never cached here.
-const shell = ['./', './index.html', './runtime.js', './validation.js', './study-model.js', './document-export.js', ...manifest.scripts.map(p=>'./'+p), ...manifest.styles.map(p=>'./'+p), './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png', ...(config.mode==='firebase'?['./cloud.js']:[])];
-const sw = `const CACHE='biblioteca-records-v2';\nconst SHELL=${JSON.stringify(shell)};\n` + (await readFile(resolve(root,'templates/sw.js'),'utf8')).replace(/^const CACHE[^\n]*\nconst SHELL[^\n]*\n/,'').replace("!SHELL.includes(url.pathname)", "!SHELL.some(path => new URL(path, self.registration.scope).pathname === url.pathname)");
+const shell = ['./', './index.html', './runtime.js', './validation.js', './study-model.js', './document-export.js', ...manifest.scripts.map(p=>'./'+fingerprinted.get(p)), ...manifest.styles.map(p=>'./'+fingerprinted.get(p)), ...pdfJsAssets.map(p=>'./'+p), './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png', ...(config.mode==='firebase'?['./cloud.js']:[])];
+const sw = `const CACHE='biblioteca-records-v4-hashed-assets';\nconst SHELL=${JSON.stringify(shell)};\n` + (await readFile(resolve(root,'templates/sw.js'),'utf8')).replace(/^const CACHE[^\n]*\nconst SHELL[^\n]*\n/,'').replace("!SHELL.includes(url.pathname)", "!SHELL.some(path => new URL(path, self.registration.scope).pathname === url.pathname)");
 await output('sw.js', sw);
 console.log(`Build ${config.mode}: ${relative(root, dist)}, ${data.obras.length} obras locais; configuração ${args.config || 'demo'}.`);

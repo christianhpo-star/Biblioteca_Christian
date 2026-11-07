@@ -11,7 +11,11 @@ test('registros compactos, documento ordenado, downloads reais e recuperação d
   try {
     for(let i=0;i<50;i++){try{if((await fetch('http://127.0.0.1:5012')).ok)break;}catch{}await new Promise(r=>setTimeout(r,100));}
     browser=await chromium.launch({headless:true});
-    const page=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce'});const errors=[];page.on('pageerror',e=>errors.push(e.message));
+    const page=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce'});const errors=[];
+    const consoleErrors=[],failedRequests=[];
+    page.on('pageerror',e=>errors.push(e.message));
+    page.on('console',msg=>{if(msg.type()==='error')consoleErrors.push(msg.text());});
+    page.on('requestfailed',r=>failedRequests.push(r.url()+' '+r.failure()?.errorText));
     await page.goto('http://127.0.0.1:5012');await page.locator('#authGate').waitFor({state:'hidden'});
     assert.equal(await page.locator('#badgeTotalObras').textContent(),'3');
     // Abertura mostra três obras legadas sem inventar recência; o acervo completo continua acessível.
@@ -31,14 +35,50 @@ test('registros compactos, documento ordenado, downloads reais e recuperação d
     assert.equal(await page.locator('#pdfPrototype').isVisible(),true);
     const syntheticPdf=await PDFDocument.create();
     syntheticPdf.addPage([320,480]);
+    syntheticPdf.addPage([320,480]);
     await page.locator('#pdfPrototypeFile').setInputFiles({
       name:'documento-sintetico.pdf',
       mimeType:'application/pdf',
       buffer:Buffer.from(await syntheticPdf.save())
     });
-    await page.waitForFunction(()=>document.getElementById('pdfPrototypeFrame')?.src.startsWith('blob:'));
-    assert.equal(await page.locator('#pdfPrototypeFrame').isVisible(),true);
+    try {
+      await page.waitForFunction(()=>{
+        const canvas=document.querySelector('#pdfPrototypePages .pdf-page-canvas');
+        return canvas && canvas.width>0 && canvas.height>0 &&
+          !canvas.closest('.pdf-rendered-page').classList.contains('pdf-page-loading');
+      },null,{timeout:20000});
+    } catch(error) {
+      const diag=await page.evaluate(()=>({
+        status:document.getElementById('pdfPrototypeStatus')?.textContent,
+        error:document.querySelector('.pdf-page-error')?.textContent,
+        pages:document.querySelectorAll('.pdf-rendered-page').length,
+        canvas:document.querySelector('.pdf-page-canvas')?.width,
+        readerLoaded:typeof window.PdfPagePrototype?.load,
+        modules:[...document.scripts].map(s=>s.src).filter(s=>/pdf/.test(s))
+      }));
+      console.error('PDF E1 DIAGNOSTICO',JSON.stringify({diag,errors,consoleErrors,failedRequests}));
+      throw error;
+    }
+    assert.equal(await page.locator('.pdf-rendered-page').count(),2);
+    assert.equal(await page.locator('#pdfPrototypeFrame').isHidden(),true);
     assert.equal(await page.locator('#pdfPrototypeNewTab').isVisible(),true);
+    const svg=page.locator('.pdf-page-ink').first();
+    const rect=await svg.boundingBox();
+    const pen=(type,id,dx,dy)=>({pointerType:type,pointerId:id,
+      pressure:0.6,clientX:rect.x+dx,clientY:rect.y+dy});
+    await svg.dispatchEvent('pointerdown',pen('pen',21,30,35));
+    await svg.dispatchEvent('pointermove',pen('pen',21,85,75));
+    await svg.dispatchEvent('pointerup',pen('pen',21,85,75));
+    assert.equal(await svg.locator('path').count(),1);
+    await svg.dispatchEvent('pointerdown',pen('touch',22,35,40));
+    await svg.dispatchEvent('pointermove',pen('touch',22,55,65));
+    await svg.dispatchEvent('pointerup',pen('touch',22,55,65));
+    assert.equal(await svg.locator('path').count(),1);
+    await page.locator('#pdfZoomIn').click();
+    assert.equal(await page.locator('#pdfZoomLabel').textContent(),'120%');
+    assert.equal(await svg.locator('path').count(),1);
+    await page.locator('#pdfInkUndo').click();
+    assert.equal(await svg.locator('path').count(),0);
     await page.locator('.pdf-prototype-pen > summary').click();
     await page.locator('#pdfPrototypeCanvas').dispatchEvent('pointerdown',{
       pointerId:81,pointerType:'pen',pressure:0.5,clientX:10,clientY:20
@@ -47,6 +87,7 @@ test('registros compactos, documento ordenado, downloads reais e recuperação d
     await page.locator('#pdfPrototypeClose').click();
     assert.equal(await page.locator('#pdfPrototype').isHidden(),true);
     assert.equal(await page.locator('#pdfPrototypeFrame').getAttribute('src'),null);
+    assert.equal(await page.locator('#pdfPrototypePages').isHidden(),true);
     assert.equal(await page.evaluate(()=>JSON.stringify(window.libraryBridge.getState())),beforePdf);
     await page.locator('.dashboard-advanced > summary').click();
 

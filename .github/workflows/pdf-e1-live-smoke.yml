@@ -1,0 +1,60 @@
+name: PDF E1 - comprovar site publico HTTPS
+
+on:
+  push:
+    branches:
+      - codex/pdf-e1-integrated-pen-pages
+    paths:
+      - .github/workflows/pdf-e1-live-smoke.yml
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Validar site publico sem publicar
+    if: github.repository == 'christianhpo-star/Biblioteca_Christian'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exato do commit E1 publicado
+        uses: actions/checkout@v4
+        with:
+          ref: d1de3980dbd17e08720abd1f033137027a67abba
+          persist-credentials: false
+
+      - name: Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Dependencias de teste
+        run: npm ci
+
+      - name: Chromium completo
+        run: npx playwright install --with-deps chromium
+
+      - name: Validar HTTPS e comportamento real do site E1
+        run: node scripts/verify-tablet-preview.mjs --url=https://christianhpo-star.github.io/Biblioteca_Christian/
+
+      - name: Verificar versão E1.1 e scripts com hash na hospedagem pública
+        run: |
+          node --input-type=module <<'JS'
+          const base = 'https://christianhpo-star.github.io/Biblioteca_Christian/';
+          const res = await fetch(base, {cache:'no-store'});
+          if (!res.ok) throw Error('Site indisponivel: HTTP ' + res.status);
+          const html = await res.text();
+          if (!html.includes('PDF E1.1 (cache atualizado)')) throw Error('HTML E1.1 nao publicado');
+          const urls = [...html.matchAll(/src="(src\/reading\/pdf-(?:prototype|pages)\.[a-f0-9]{12}\.js)"/g)].map(m=>m[1]);
+          if (urls.length !== 2) throw Error('Scripts de PDF sem nomes com hash: ' + JSON.stringify(urls));
+          for (const path of urls) {
+            const result = await fetch(new URL(path, base), {cache:'no-store'});
+            if (!result.ok) throw Error('Modulo versionado indisponivel: ' + path);
+            const contents = await result.text();
+            if (path.includes('pdf-prototype.') && !contents.includes('Motor: PDF.js integrado')) {
+              throw Error('Script do leitor E1.1 nao foi entregue');
+            }
+          }
+          console.log('LIVE E1.1 PASS: HTML, PDF.js e ambos os scripts de PDF versionados');
+          JS
