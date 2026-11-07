@@ -20,7 +20,7 @@ jobs:
       - name: Checkout exato do commit E1 publicado
         uses: actions/checkout@v4
         with:
-          ref: a8f4c55c44ac6165cfda50b2821b4858dde1c0b3
+          ref: d1de3980dbd17e08720abd1f033137027a67abba
           persist-credentials: false
 
       - name: Node 22
@@ -37,3 +37,24 @@ jobs:
 
       - name: Validar HTTPS e comportamento real do site E1
         run: node scripts/verify-tablet-preview.mjs --url=https://christianhpo-star.github.io/Biblioteca_Christian/
+
+      - name: Verificar versão E1.1 e scripts com hash na hospedagem pública
+        run: |
+          node --input-type=module <<'JS'
+          const base = 'https://christianhpo-star.github.io/Biblioteca_Christian/';
+          const res = await fetch(base, {cache:'no-store'});
+          if (!res.ok) throw Error('Site indisponivel: HTTP ' + res.status);
+          const html = await res.text();
+          if (!html.includes('PDF E1.1 (cache atualizado)')) throw Error('HTML E1.1 nao publicado');
+          const urls = [...html.matchAll(/src="(src\/reading\/pdf-(?:prototype|pages)\.[a-f0-9]{12}\.js)"/g)].map(m=>m[1]);
+          if (urls.length !== 2) throw Error('Scripts de PDF sem nomes com hash: ' + JSON.stringify(urls));
+          for (const path of urls) {
+            const result = await fetch(new URL(path, base), {cache:'no-store'});
+            if (!result.ok) throw Error('Modulo versionado indisponivel: ' + path);
+            const contents = await result.text();
+            if (path.includes('pdf-prototype.') && !contents.includes('Motor: PDF.js integrado')) {
+              throw Error('Script do leitor E1.1 nao foi entregue');
+            }
+          }
+          console.log('LIVE E1.1 PASS: HTML, PDF.js e ambos os scripts de PDF versionados');
+          JS
