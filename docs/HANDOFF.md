@@ -1,5 +1,13 @@
 # Retomada
 
+## Verificação executável da prévia pública
+
+- Node 22.23.4: instalação, build demo, 50 testes Node e fluxo Playwright passaram. As quatro falhas antigas eram nas fixtures (dependência de data da ficha e defaults dos filtros); foram corrigidas sem alterar o leitor nem eliminar testes.
+- Executar `node scripts/verify-tablet-preview.mjs` depois do build final/`prepare-tablet-preview.mjs`. Verifica o artefato preparado em tablet/celular e um PDF gerado em memória, inclusive fallback e limpeza. Usa Chromium completo (`channel: chromium`), pois headless-shell pode baixar PDFs em vez de exibir.
+- Para repetir contra a publicação: `node scripts/verify-tablet-preview.mjs --url=https://christianhpo-star.github.io/Biblioteca_Christian/`. Relatórios/capturas ficam em `test-results/`, ignorados pelo Git, somente com dados sintéticos.
+- Pages usa Actions; ambiente `github-pages` permite `main` e exclusivamente `codex/tablet-e0-public-preview`, após autorização administrativa específica do proprietário. Não remover ou ampliar proteções.
+- Próximo passo: concluir Actions nesta branch, confirmar URL/recursos reais e registrar execução/SHA. PR #13 permanece draft e nenhuma PR deve ser mesclada. S Pen, latência, palma e gestos Android exigem tablet físico.
+
 ## Publicação de teste Samsung — prévia GitHub Pages (06/11/2026)
 
 - Branch `codex/tablet-e0-public-preview` baseada na PR #12, com workflow de GitHub Pages restrito à branch e configuração local com catálogo `data/demo.json` fictício.

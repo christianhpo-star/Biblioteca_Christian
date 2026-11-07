@@ -1,5 +1,15 @@
 # Estado — 06/11/2026
 
+## Verificação da prévia pública — publicação em andamento
+
+- Checkout de revisão isolado a partir de `99415db16d2cdf3fd86b226b8572e963aab38df1`; checkout principal e demais PRs preservados. Destino de publicação: `codex/tablet-e0-public-preview`, PR #13, sem merge.
+- Reproduzidas as quatro falhas da execução [42331503144](https://github.com/christianhpo-star/Biblioteca_Christian/actions/runs/42331503144). Corrigidas as fixtures: ficha carrega sua dependência real `repository.js`; seletores da busca começam na opção `all`, como no HTML. Nenhum teste removido ou desativado; leitor E0 inalterado.
+- PASS local com Node **22.23.4**: `npm ci`, build com `config/tablet-preview.json`/`data/demo.json`, **50 testes Node**, instalação Chromium, **1 fluxo completo de navegador**, reconstrução e guard de privacidade.
+- Novo gate `scripts/verify-tablet-preview.mjs`: artefato final em 1024×768 e 390×844, três obras fictícias, busca/filtros, PDF sintético de duas páginas, fallback em outra aba com iframe ocultado, retorno, revogação da URL blob, estado preservado, ausência de uploads, erros JS ou JS/CSS ausentes. Capturas locais conferidas; o Chromium completo renderizou o PDF. A simulação não comprova funcionamento Android ou S Pen física.
+- Pages já estava habilitado via Actions. O ambiente permitia apenas `main`; após autorização específica do proprietário, acrescentada **somente** a branch `codex/tablet-e0-public-preview`, preservando a regra `main` e as demais proteções.
+- O artefato contém somente a demonstração sintética. Não foram importados PDFs, fichamentos, links privados, backups ou credenciais; Firebase/Drive de produção não foram configurados.
+- **Ainda não declarar publicado:** acompanhar a nova execução Actions, verificar a URL HTTPS real e completar as evidências abaixo após o deploy. A PR #13 continua draft, aberta e sem merge; validação física no Samsung pendente.
+
 ## Preparação de publicação controlada — demonstração E0 no tablet (sem deploy confirmado)
 
 - O usuário solicitou disponibilizar o projeto na internet para testar no Samsung. Escopo desta autorização: **prévia pública com dados sintéticos, isolada**; não é autorização para publicar acervo real, substituir produção, migrar dados, mudar autenticação ou mesclar PRs.

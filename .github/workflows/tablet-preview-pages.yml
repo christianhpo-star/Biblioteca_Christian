@@ -49,6 +49,9 @@ jobs:
       - name: Impedir dados privados e preparar Pages
         run: node scripts/prepare-tablet-preview.mjs
 
+      - name: Testar artefato final em tablet e celular com fallback PDF
+        run: node scripts/verify-tablet-preview.mjs
+
       - name: Configurar artifact GitHub Pages
         uses: actions/configure-pages@v5
 

@@ -5,6 +5,7 @@ import vm from 'node:vm';
 import { documentModel } from '../src/study/records.mjs';
 
 const source = readFileSync(new URL('../src/reading/work-sheet.js', import.meta.url), 'utf8');
+const repositorySource = readFileSync(new URL('../src/catalog/repository.js', import.meta.url), 'utf8');
 const html = readFileSync(new URL('../templates/index.html', import.meta.url), 'utf8');
 
 function fixture(uri = '') {
@@ -37,18 +38,20 @@ function fixture(uri = '') {
   };
   const appState = {
     leituras: { 1: { status: 'nao_iniciado', paginasLidas: 0, favorito: false, avaliacao: 0, motivo: '' } },
-    colecoes: []
+    colecoes: [], metaOverrides: {}, fichamentos: {}
   };
   let opened = 0, saved = 0;
   const context = {
     document: { getElementById: node, querySelectorAll: () => stars },
     getObraById: () => work, getLeitura: (id) => appState.leituras[id],
-    getAllWorks: () => [work], appState, URL,
+    getAllWorks: () => [work], appState, URL, OBRAS_BASE: [work], FICHAMENTOS_BASE: {},
     escapeHtml: (v) => String(v ?? ''), escapeJs: (v) => String(v ?? ''),
     openModal: () => { opened += 1; }, saveAppState: () => { saved += 1; },
     filterCatalog() {}
   };
   vm.createContext(context);
+  // Load the same repository dependency that precedes the worksheet in the manifest.
+  vm.runInContext(repositorySource, context);
   vm.runInContext(source, context);
   return { node, work, appState, sections, card, run: (code) => vm.runInContext(code, context), opened: () => opened, saved: () => saved };
 }
@@ -60,6 +63,7 @@ test('a ficha abre recolhida e um livro sem link não promete abrir PDF', () => 
   assert.equal(ui.node('modalCopyFilePathBtn').hidden, true);
   assert.equal(ui.node('modalPagesReadInput').value, 0);
   assert.equal(ui.node('modalWorkSummary').textContent, 'Resumo ainda não registrado.');
+  assert.equal(ui.node('modalWorkAddedAt').textContent, 'Data de inclusão não registrada');
   assert.ok(ui.sections.every((s) => !s.open));
   assert.equal(ui.card.scrollTop, 0);
   assert.equal(ui.opened(), 1);
