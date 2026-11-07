@@ -37,6 +37,18 @@ function getWorkAddedAtTimestamp(obra) {
       !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?(?:Z|[+-]\d{2}:\d{2})$/.test(raw)) {
     return null;
   }
+  // Date.parse aceita algumas datas inexistentes fazendo ajuste automático.
+  // Validar componentes evita declarar como "recente" uma data malformada.
+  const year = Number(raw.slice(0, 4));
+  const month = Number(raw.slice(5, 7));
+  const day = Number(raw.slice(8, 10));
+  const hour = Number(raw.slice(11, 13));
+  const minute = Number(raw.slice(14, 16));
+  const second = Number(raw.slice(17, 19));
+  const leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+  const days = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  if (month < 1 || month > 12 || day < 1 || day > days[month - 1] ||
+      hour > 23 || minute > 59 || second > 59) return null;
   const timestamp = Date.parse(raw);
   return Number.isFinite(timestamp) ? timestamp : null;
 }
