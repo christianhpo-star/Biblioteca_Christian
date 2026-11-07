@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
+import { validateState } from '../src/cloud/sync-core.mjs';
 
 const read = path => readFileSync(new URL('../' + path, import.meta.url), 'utf8');
 const repository = read('src/catalog/repository.js');
@@ -110,6 +111,18 @@ test('metadados editados preservam cadastro manual, data original, formato e lin
     assert.equal(ctx.getAllWorks().length, 1);
     assert.equal(ctx.getAllWorks()[0].titulo, 'Título editado');
     assert.equal(ctx.selectHomeWorks().recent.length, 1);
+});
+
+test('backup e contrato de sincronização preservam o campo opcional adicionadoEm', () => {
+    const state = {
+        leituras: {}, notas: [], citacoes: [], fichamentos: {}, colecoes: [],
+        metaOverrides: { 77: { catalogManual: true, adicionadoEm: recent } },
+        config: {}
+    };
+    const validated = validateState(state);
+    const restored = JSON.parse(JSON.stringify(validated));
+    assert.equal(restored.metaOverrides[77].adicionadoEm, recent);
+    assert.equal(restored.metaOverrides[77].catalogManual, true);
 });
 
 function fakeDocument() {
