@@ -900,13 +900,30 @@
             Escolha um PDF local. Nenhum arquivo é enviado ou salvo.
         </p>
         <div class="pdf-prototype-body">
-            <div class="pdf-prototype-viewer">
-                <div id="pdfPrototypeEmpty" class="pdf-prototype-empty">
-                    <p>Escolha um PDF armazenado no tablet ou computador para experimentar o modo de leitura.</p>
-                    <p>Rolagem, páginas e zoom dependem do visualizador nativo do navegador. Se ele não abrir,
-                        use “Ver PDF em outra aba”.</p>
+            <div class="pdf-prototype-viewer" id="pdfPrototypeViewer">
+                <div id="pdfPrototypeTools" class="pdf-prototype-reading-tools" role="toolbar"
+                    aria-label="Ferramentas do leitor e das anotações temporárias" hidden>
+                    <button type="button" id="pdfInkPen" aria-pressed="true">Caneta</button>
+                    <button type="button" id="pdfInkHighlight" aria-pressed="false">Marca-texto</button>
+                    <button type="button" id="pdfInkErase" aria-pressed="false">Borracha</button>
+                    <button type="button" id="pdfInkUndo">Desfazer</button>
+                    <button type="button" id="pdfInkClear">Limpar riscos</button>
+                    <span class="pdf-reading-tool-divider" aria-hidden="true"></span>
+                    <button type="button" id="pdfZoomOut" aria-label="Diminuir zoom">−</button>
+                    <output id="pdfZoomLabel" aria-live="off">100%</output>
+                    <button type="button" id="pdfZoomIn" aria-label="Aumentar zoom">+</button>
+                    <span id="pdfPageIndicator" class="pdf-page-indicator" aria-live="polite"></span>
                 </div>
-                <iframe id="pdfPrototypeFrame" title="Visualização experimental do PDF local"
+                <div id="pdfPrototypeEmpty" class="pdf-prototype-empty">
+                    <p>Escolha um PDF salvo no dispositivo para visualizá-lo dentro da Biblioteca.</p>
+                    <p>O dedo navega e amplia; a S Pen escreve temporariamente sobre as páginas.
+                        Nenhuma anotação é salva nesta versão de teste.</p>
+                </div>
+                <div id="pdfPrototypePages" class="pdf-prototype-pages"
+                    aria-label="Páginas renderizadas do PDF; dedo para navegar e caneta para escrever"
+                    tabindex="0" hidden></div>
+                <!-- Elemento legado mantido invisível para compatibilidade; PDF interno usa canvas. -->
+                <iframe id="pdfPrototypeFrame" title="Visualizador legado desativado"
                     referrerpolicy="no-referrer" hidden></iframe>
             </div>
             <details class="pdf-prototype-pen">
@@ -927,7 +944,7 @@
             </details>
         </div>
         <p class="pdf-prototype-disclaimer">
-            Protótipo E0: não permite escrever sobre as páginas, não salva traços e não altera o Drive.
+            Protótipo E1: a S Pen escreve sobre as páginas, mas os traços são descartados ao sair; nenhum PDF ou risco é salvo no Drive.
             Para PDFs privados, use “Abrir original no navegador” ou escolha uma cópia local.
         </p>
     </section>
