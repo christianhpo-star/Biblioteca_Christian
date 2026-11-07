@@ -203,8 +203,8 @@
                     <h3 class="template-style-4">Seu acervo no Google Drive</h3>
                     <p class="template-style-5">Use este catálogo para mapear obras, temas, fichamentos e estados de leitura. Acesse os PDFs nas duas pastas do Drive, inclusive no tablet.</p>
                     <div class="template-style-6">
-
-
+                        <button type="button" class="btn-action-secondary"
+                            onclick="openPdfPrototype()">Testar leitor de PDF local</button>
                     </div>
                     <p class="template-style-7">Os botões “Abrir PDF” abrem os arquivos no Drive. Notas, fichamentos e progresso sincronizam entre seus dispositivos. Alterar o estado de leitura não move arquivos entre as pastas do Drive.</p>
                     <p class="template-style-8">Para anotar com a caneta no Android, abra o PDF no app Google Drive e toque em Anotar. No Samsung Notes, exporte o PDF anotado de volta para o Drive para acessá-lo em outros dispositivos. <a href="https://support.google.com/drive/answer/13207179?hl=pt-BR" target="_blank" rel="noopener noreferrer">Ajuda do Google sobre anotações em PDF ↗</a></p>
@@ -685,6 +685,8 @@
                                 onclick="copyFilePathModal()" hidden>Copiar link do texto</button>
                             <button type="button" class="btn-action-secondary"
                                 onclick="openEditMetadataFromModal()">Editar metadados</button>
+                            <button type="button" id="modalPdfPrototypeBtn" class="btn-action-secondary"
+                                onclick="openPdfPrototypeFromModal()" hidden>Testar leitura de PDF</button>
                         </div>
                         <span id="modalFileCopiedFeedback" class="modal-work-feedback" role="status" aria-live="polite"></span>
                     </div>
@@ -874,6 +876,61 @@
             </div>
         </div>
     </div>
+
+    <!-- E0: laboratório de leitura PDF e eventos da caneta. Não guarda PDFs nem traços. -->
+    <section id="pdfPrototype" class="pdf-prototype" role="dialog" aria-modal="true"
+        aria-labelledby="pdfPrototypeTitle" hidden>
+        <header class="pdf-prototype-toolbar">
+            <div class="pdf-prototype-title-group">
+                <h2 id="pdfPrototypeTitle">Leitor PDF — teste no tablet</h2>
+                <p id="pdfPrototypeWork" class="pdf-prototype-work"></p>
+            </div>
+            <div class="pdf-prototype-actions">
+                <button type="button" id="pdfPrototypePick" class="btn-action-primary">Escolher PDF deste dispositivo</button>
+                <input type="file" id="pdfPrototypeFile" accept=".pdf,application/pdf"
+                    aria-label="Selecionar PDF salvo no dispositivo" hidden>
+                <a id="pdfPrototypeExternal" class="btn-action-secondary" href="#"
+                    target="_blank" rel="noopener noreferrer" hidden>Abrir original no navegador</a>
+                <a id="pdfPrototypeNewTab" class="btn-action-secondary" href="#"
+                    target="_blank" rel="noopener noreferrer" hidden>Ver PDF em outra aba</a>
+                <button type="button" class="btn-action-secondary" id="pdfPrototypeClose">Voltar</button>
+            </div>
+        </header>
+        <p id="pdfPrototypeStatus" class="pdf-prototype-status" role="status" aria-live="polite">
+            Escolha um PDF local. Nenhum arquivo é enviado ou salvo.
+        </p>
+        <div class="pdf-prototype-body">
+            <div class="pdf-prototype-viewer">
+                <div id="pdfPrototypeEmpty" class="pdf-prototype-empty">
+                    <p>Escolha um PDF armazenado no tablet ou computador para experimentar o modo de leitura.</p>
+                    <p>Rolagem, páginas e zoom dependem do visualizador nativo do navegador. Se ele não abrir,
+                        use “Ver PDF em outra aba”.</p>
+                </div>
+                <iframe id="pdfPrototypeFrame" title="Visualização experimental do PDF local"
+                    referrerpolicy="no-referrer" hidden></iframe>
+            </div>
+            <details class="pdf-prototype-pen">
+                <summary>Testar S Pen e toque (área separada do PDF)</summary>
+                <div class="pdf-prototype-pen-body">
+                    <p>Desenhe nesta área com a S Pen, depois toque nela com o dedo e apoie a palma.
+                        O diagnóstico mostra como o navegador identifica esses contatos; não comprova rejeição da palma.</p>
+                    <canvas id="pdfPrototypeCanvas" width="900" height="230"
+                        aria-label="Área para testar eventos da S Pen. Os traços não são salvos."></canvas>
+                    <div class="pdf-prototype-pen-tools">
+                        <label><input id="pdfPrototypeMouse" type="checkbox"> Permitir desenhar com mouse (teste no computador)</label>
+                        <button id="pdfPrototypeClear" type="button" class="btn-action-secondary">Limpar teste</button>
+                    </div>
+                    <p id="pdfPrototypePenStatus" class="pdf-prototype-pen-status" role="status" aria-live="polite">
+                        Sem contato detectado neste teste.
+                    </p>
+                </div>
+            </details>
+        </div>
+        <p class="pdf-prototype-disclaimer">
+            Protótipo E0: não permite escrever sobre as páginas, não salva traços e não altera o Drive.
+            Para PDFs privados, use “Abrir original no navegador” ou escolha uma cópia local.
+        </p>
+    </section>
 
     <!-- DADOS EMBUTIDOS & LÓGICA DA APLICAÇÃO -->
 
