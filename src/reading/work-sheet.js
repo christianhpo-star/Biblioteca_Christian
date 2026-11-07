@@ -45,6 +45,10 @@ function openWorkSheet(id) {
     copyLink.hidden = !textUrl;
     document.getElementById('modalFileCopiedFeedback').textContent = '';
 
+    const addedTimestamp = getWorkAddedAtTimestamp(obra);
+    document.getElementById('modalWorkAddedAt').textContent = addedTimestamp === null
+        ? 'Data de inclusão não registrada'
+        : new Date(addedTimestamp).toLocaleDateString('pt-BR');
     document.getElementById('modalFileName').textContent = obra.arquivo || 'Não informado';
     document.getElementById('modalFilePath').textContent = obra.caminho || obra.localizacao || 'Não informada';
     document.getElementById('modalFilePages').textContent = obra.paginas ? obra.paginas + ' páginas' : 'Não informadas';

@@ -14,6 +14,16 @@ test('registros compactos, documento ordenado, downloads reais e recuperação d
     const page=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce'});const errors=[];page.on('pageerror',e=>errors.push(e.message));
     await page.goto('http://127.0.0.1:5012');await page.locator('#authGate').waitFor({state:'hidden'});
     assert.equal(await page.locator('#badgeTotalObras').textContent(),'3');
+    // Abertura mostra três obras legadas sem inventar recência; o acervo completo continua acessível.
+    assert.equal(await page.locator('#dashboardHomeBooks .home-book-card').count(),3);
+    assert.equal(await page.locator('#dashboardHomeTitle').textContent(),'Do seu acervo');
+    assert.equal(await page.locator('.dashboard-advanced').evaluate(el=>el.open),false);
+    await page.getByRole('button',{name:'Ver todo o acervo'}).click();
+    assert.equal(await page.locator('#viewExplorer').isVisible(),true);
+    assert.equal(await page.locator('#cardsContainer .work-card').count(),3);
+    await page.getByRole('button',{name:'Voltar ao início'}).click();
+    assert.equal(await page.locator('#viewDashboard').isVisible(),true);
+
     // A busca do catálogo é única e atualiza sugestões enquanto a pessoa digita.
     assert.equal(await page.locator('#globalSearchInput').count(),1);
     assert.equal(await page.locator('#explorerSearchInput, #heroSearchInput').count(),0);
@@ -60,6 +70,13 @@ test('registros compactos, documento ordenado, downloads reais e recuperação d
     await page.screenshot({path:'test-results/records-mobile.png',animations:'disabled'});
     // A quota error must keep the user's input visible and block closing until it can be saved.
     await page.locator('#recordNewNote').click();await page.evaluate(()=>{window.realSetItem=Storage.prototype.setItem;Storage.prototype.setItem=()=>{throw new DOMException('Quota','QuotaExceededError');};});await page.locator('#recordNote').fill('Escrita preservada na falha');await page.locator('#recordClose').click();assert.equal(await page.locator('#recordEditor').isVisible(),true);assert.equal(await page.locator('#recordNote').inputValue(),'Escrita preservada na falha');await page.evaluate(()=>Storage.prototype.setItem=window.realSetItem);await page.getByRole('button',{name:'Guardar registro',exact:true}).click();
-    await page.locator('#studyBack').click();const backup=await page.evaluate(()=>({state:window.libraryBridge.getState()}));await page.evaluate(()=>switchView('backup'));await page.locator('#backupFileInput').setInputFiles({name:'backup.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(backup))});await page.waitForLoadState('load');await page.waitForFunction(()=>document.getElementById('badgeTotalObras').textContent==='4');assert.deepEqual(errors,[]);
+    await page.locator('#studyBack').click();
+    const currentState=await page.evaluate(()=>window.libraryBridge.getState());
+    const manual=Object.values(currentState.metaOverrides).find(item=>item.catalogManual);
+    assert.ok(manual);
+    assert.match(manual.adicionadoEm,/^\d{4}-\d{2}-\d{2}T/);
+    assert.equal(await page.locator('#dashboardHomeBooks .home-book-card').count(),4);
+    assert.equal(await page.locator('#dashboardHomeTitle').textContent(),'Últimas inclusões');
+    const backup={state:currentState};await page.evaluate(()=>switchView('backup'));await page.locator('#backupFileInput').setInputFiles({name:'backup.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(backup))});await page.waitForLoadState('load');await page.waitForFunction(()=>document.getElementById('badgeTotalObras').textContent==='4');assert.deepEqual(errors,[]);
   }finally{await browser?.close();server.kill();}
 });

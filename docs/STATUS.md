@@ -1,5 +1,17 @@
 # Estado — 06/11/2026
 
+## Implementação em revisão — cinco obras na entrada (issue #4)
+
+- Branch isolada `codex/inicio-cinco-obras-recentes` baseada em `codex/integrar-busca-sugestoes`, commit `190c19c1ee8bc77e049a1f7e60ee14a4dc37c6ca` (PR #10). Não foi alterada nenhuma das branches de PRs anteriores.
+- **Página inicial:** mostra até cinco cartões com título, autor, formato e situação, abertos por botão acessível; **Ver todo o acervo** limpa somente filtros de interface e abre o explorador com todas as obras, que também permite **Voltar ao início**. O dashboard anterior (indicadores, categorias, fila, Drive) segue disponível em seção **Indicadores e organização da biblioteca** inicialmente fechada.
+- `getWorkAddedAtTimestamp` reconhece somente timestamp ISO válido explicitamente em `adicionadoEm`. `selectHomeWorks` ordena novas inclusões por data decrescente; empates por título/autor/ID; obras sem data são complemento alfabético no grupo **Do seu acervo — inclusão sem data registrada**. Nunca deduzir data por ID, arquivo, leitura ou ordem de importação.
+- Novos cadastros físicos/digitais gravam `adicionadoEm: new Date().toISOString()`. A edição bibliográfica agora usa spread dos metadados anteriores, preservando `catalogManual`, `adicionadoEm`, `formato`, localização e link; isso evita que obras manuais desapareçam após editar. A ficha mostra a data ou **Data de inclusão não registrada**. Nenhuma obra existente recebeu carimbo inventado.
+- Importação HTML em `scripts/import-local.mjs` continua copiando os objetos JSON de origem sem atribuir datas. Backup e validador de sincronização aceitam o campo opcional dentro de `metaOverrides`, sem nova coleção, migração ou mudança de backend. CSV não sofreu mudança de contrato.
+- Estilos de cinco cartões e layout móvel em `styles/dashboard.css`. Casos adicionados: `tests/home.test.mjs` (dez cenários para Node, incluindo backup) e `tests/browser.cjs` estendido para prévia inicial, navegação ao acervo completo e cadastro novo.
+- **Validação efetivamente executada nesta integração:** 25 verificações em JS com os arquivos recuperados da branch (sintaxe dos JS, seleção, datas válidas/inválidas, empates, preservação de edição, renderização em DOM fictício e navegação) — PASS. **Não executados:** `npm ci`, `npm run build`, `npm test`, `npm run test:browser`, screenshots/QA visual 320–1440, leitor de tela, tablet ou sincronização autenticada. `git ls-remote` no container falhou por DNS de github.com.
+- Sem merge, deploy, alteração da versão em produção, acervo real ou arquivos privados. Leitor com PDF/S Pen da issue #7 segue para investigação de viabilidade e testes no Samsung real.
+
+
 ## Implementação em revisão — busca dinâmica por obras/autores (issue #2)
 
 - Branch `codex/integrar-busca-sugestoes`, derivada da PR #9 (`f8766eba1281509f036f32821437de5a8eb093fa`). Importado e adaptado o módulo `src/catalog/search.js` da branch paralela `codex/busca-autores-obras-sugestoes` (commit `1e54fa0`); **a branch original não foi sobrescrita**.

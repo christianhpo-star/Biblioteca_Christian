@@ -24,3 +24,57 @@ function getFichamento(id) {
   const saved = appState.fichamentos[id];
   return base || saved ? { ...base || {}, ...saved || {} } : null;
 }
+
+
+/**
+ * Reconhece apenas um instante ISO explicitamente armazenado em adicionadoEm.
+ * IDs, ordem de importação, data do arquivo e últimas leituras não comprovam inclusão.
+ * Datas ausentes ou inválidas não são interpretadas como "recentes".
+ */
+function getWorkAddedAtTimestamp(obra) {
+  const raw = obra && obra.adicionadoEm;
+  if (typeof raw !== "string" ||
+      !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?(?:Z|[+-]\d{2}:\d{2})$/.test(raw)) {
+    return null;
+  }
+  // Date.parse aceita algumas datas inexistentes fazendo ajuste automático.
+  // Validar componentes evita declarar como "recente" uma data malformada.
+  const year = Number(raw.slice(0, 4));
+  const month = Number(raw.slice(5, 7));
+  const day = Number(raw.slice(8, 10));
+  const hour = Number(raw.slice(11, 13));
+  const minute = Number(raw.slice(14, 16));
+  const second = Number(raw.slice(17, 19));
+  const leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+  const days = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  if (month < 1 || month > 12 || day < 1 || day > days[month - 1] ||
+      hour > 23 || minute > 59 || second > 59) return null;
+  const timestamp = Date.parse(raw);
+  return Number.isFinite(timestamp) ? timestamp : null;
+}
+
+/** Critério estável para obras legadas sem data e empates de inclusão. */
+function compareHomeWorkLabels(a, b) {
+  return String(a.titulo || "").localeCompare(String(b.titulo || ""), "pt-BR") ||
+    String(a.autor || "").localeCompare(String(b.autor || ""), "pt-BR") ||
+    String(a.id ?? "").localeCompare(String(b.id ?? ""), "pt-BR");
+}
+
+/**
+ * Escolhe até cinco referências: inclusões efetivamente datadas primeiro,
+ * e depois obras sem data em ordem alfabética. Não altera o catálogo.
+ */
+function selectHomeWorks(works = getAllWorks(), limit = 5) {
+  const maximum = Math.max(0, Math.min(5, Number.isFinite(limit) ? Math.floor(limit) : 5));
+  const recent = [], legacy = [];
+  for (const work of works) {
+    const timestamp = getWorkAddedAtTimestamp(work);
+    if (timestamp === null) legacy.push(work);
+    else recent.push({ work, timestamp });
+  }
+  recent.sort((a, b) => (b.timestamp - a.timestamp) || compareHomeWorkLabels(a.work, b.work));
+  legacy.sort(compareHomeWorkLabels);
+  const dated = recent.slice(0, maximum).map(entry => entry.work);
+  const undated = legacy.slice(0, maximum - dated.length);
+  return { recent: dated, undated, total: works.length };
+}

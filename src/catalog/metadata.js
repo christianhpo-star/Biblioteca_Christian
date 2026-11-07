@@ -37,7 +37,10 @@ function saveMetadataOverrides() {
         '4': 'Linguística e Literatura'
     };
 
+    // Preserva catalogManual, adicionadoEm, formato, URI e outras propriedades do exemplar.
+    // Sobrescrever o objeto inteiro fazia obras manuais sumirem após uma edição.
     appState.metaOverrides[currentModalWorkId] = {
+        ...(appState.metaOverrides[currentModalWorkId] || {}),
         autor: autor,
         titulo: titulo,
         subarea: subarea,
@@ -52,6 +55,8 @@ function saveMetadataOverrides() {
     closeModal('modalEditMetadata');
     alert('Metadados atualizados com sucesso na biblioteca!');
     filterCatalog();
+    renderDashboard();
+    renderSubareaChips();
     renderAuditCenter();
 }
 
