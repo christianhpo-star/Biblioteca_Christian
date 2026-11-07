@@ -1,5 +1,16 @@
 # Estado — 06/11/2026
 
+## Leitor PDF E2 em revisão — modo imersivo e formas S Pen (07/11/2026)
+
+- Branch `codex/pdf-e2-immersive-shapes`, derivada da PR #14 sobre `codex/pdf-e1-integrated-pen-pages`. Projeto público `Biblioteca_Christian`, sem merge/deploy nem alterações nos PDFs pessoais.
+- Com base no teste de leitura E1.1 do usuário no Samsung, a UI do leitor foi refeita com PDF como área principal, cabeçalho compacto, botão de três pontos, página atual e dock flutuante inferior com ícones. O quadro de diagnóstico fica escondido por padrão, acessível pelo menu.
+- Modo **Formas**: opções Auto (corrige gestos confiáveis), Reta, Retângulo, Elipse e Triângulo; o traço é transformado ao tirar a S Pen da tela. `src/reading/ink-shapes.js` contém a geometria pura, o `pdf-pages.js` vincula forma/contorno a cada página, mantém tinta no zoom e suporta **Desfazer/Refazer**. A borracha trabalha nos pontos da forma corrigida.
+- A seleção de PDF local, fallback externo e a distinção pen/touch do E1 permanecem. Não há persistência: todos os riscos são temporários e descartados ao sair/trocar PDF. PDF e dados privados não são enviados.
+- UX responsiva e acessibilidade: foco visível, barra escondível e reabertura, `aria-pressed` para ferramentas, seletor de formas e menu de opções. Verificar ergonomia, pressão e rejeição de palma no tablet real; automação não comprova esse comportamento.
+- QA: [run 42336779898](https://github.com/christianhpo-star/Biblioteca_Christian/actions/runs/42336779898) **PASS** com 68/68 Node, Playwright 1/1, verificação sintética em 390 e 1024 px e guard de privacidade. Ciclos anteriores identificaram e corrigiram reconhecimento incorreto de círculo e ausência do botão `pdfInkClear`. Capturas sintéticas passam a ficar disponíveis como artefato de CI para inspeção visual.
+- Documentação e roteiro em `docs/PDF_E2_IMMERSIVE.md`. Este trabalho **não foi publicado** em GitHub Pages; a demonstração pública ainda é E1.1.
+
+
 ## QA automatizado do PDF E1 concluído — 07/11/2026
 
 - **GitHub Actions PASS**: [execução 42334160948](https://github.com/christianhpo-star/Biblioteca_Christian/actions/runs/42334160948), commit `25def8d0a5583cee339449605adab796f9d39229` da branch `codex/pdf-e1-integrated-pen-pages`, sem deploy.
