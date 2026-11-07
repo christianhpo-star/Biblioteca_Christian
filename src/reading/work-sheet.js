@@ -43,6 +43,9 @@ function openWorkSheet(id) {
     link.hidden = !textUrl;
     const copyLink = document.getElementById('modalCopyFilePathBtn');
     copyLink.hidden = !textUrl;
+    // O laboratório E0 escolhe um PDF local; arquivos Drive privados nunca são carregados diretamente.
+    const labButton = document.getElementById('modalPdfPrototypeBtn');
+    labButton.hidden = !textUrl && !['digital', 'ambos'].includes(obra.formato);
     document.getElementById('modalFileCopiedFeedback').textContent = '';
 
     const addedTimestamp = getWorkAddedAtTimestamp(obra);
