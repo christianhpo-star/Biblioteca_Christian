@@ -41,11 +41,24 @@ test('registros compactos, documento ordenado, downloads reais e recuperação d
       mimeType:'application/pdf',
       buffer:Buffer.from(await syntheticPdf.save())
     });
-    await page.waitForFunction(()=>{
-      const canvas=document.querySelector('#pdfPrototypePages .pdf-page-canvas');
-      return canvas && canvas.width>0 && canvas.height>0 &&
-        !canvas.closest('.pdf-rendered-page').classList.contains('pdf-page-loading');
-    },{timeout:20000});
+    try {
+      await page.waitForFunction(()=>{
+        const canvas=document.querySelector('#pdfPrototypePages .pdf-page-canvas');
+        return canvas && canvas.width>0 && canvas.height>0 &&
+          !canvas.closest('.pdf-rendered-page').classList.contains('pdf-page-loading');
+      },null,{timeout:20000});
+    } catch(error) {
+      const diag=await page.evaluate(()=>({
+        status:document.getElementById('pdfPrototypeStatus')?.textContent,
+        error:document.querySelector('.pdf-page-error')?.textContent,
+        pages:document.querySelectorAll('.pdf-rendered-page').length,
+        canvas:document.querySelector('.pdf-page-canvas')?.width,
+        readerLoaded:typeof window.PdfPagePrototype?.load,
+        modules:[...document.scripts].map(s=>s.src).filter(s=>/pdf/.test(s))
+      }));
+      console.error('PDF E1 DIAGNOSTICO',JSON.stringify({diag,errors,consoleErrors,failedRequests}));
+      throw error;
+    }
     assert.equal(await page.locator('.pdf-rendered-page').count(),2);
     assert.equal(await page.locator('#pdfPrototypeFrame').isHidden(),true);
     assert.equal(await page.locator('#pdfPrototypeNewTab').isVisible(),true);
