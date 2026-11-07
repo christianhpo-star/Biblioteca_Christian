@@ -104,7 +104,7 @@ test('PDF sintético renderiza duas páginas internas e usa worker da mesma orig
     assert.equal(f.get('pdfPrototypePages').hidden,false);
     assert.equal(f.get('pdfPrototypeTools').hidden,false);
     assert.ok(f.status.rendered>=1);
-    assert.equal(f.get('pdfPrototypeFrame'),undefined); // iframe não é acessado pelo renderer
+    assert.equal(source.includes('pdfPrototypeFrame'),false); // iframe não é acessado pelo renderer
     assert.equal(f.fakeLib.GlobalWorkerOptions.workerSrc,
         'https://example.org/Biblioteca_Christian/vendor/pdfjs/pdf.worker.min.mjs');
     assert.match(f.get('pdfPrototypeStatus').textContent,/2 páginas/);
