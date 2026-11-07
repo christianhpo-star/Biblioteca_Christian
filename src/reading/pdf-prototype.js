@@ -115,9 +115,11 @@
         shell.hidden = true;
         releaseBackground();
         activeWorkId = null;
-        if (returnToWork && getObraById(returnToWork)) openWorkSheet(returnToWork);
-        else if (returnFocus?.isConnected && typeof returnFocus.focus === 'function') returnFocus.focus();
+        // Restaurar antes de reabrir a ficha: a origem de foco dela nao pode ser
+        // um botao que acabou de ser escondido dentro do prototipo.
+        if (returnFocus?.isConnected && typeof returnFocus.focus === 'function') returnFocus.focus();
         returnFocus = null;
+        if (returnToWork && getObraById(returnToWork)) openWorkSheet(returnToWork);
     }
 
     /**
