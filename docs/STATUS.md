@@ -1,5 +1,16 @@
 # Estado — 06/11/2026
 
+## E0 em revisão — protótipo de leitura PDF local e diagnóstico S Pen (issue #7)
+
+- Branch `codex/pdf-e0-prototipo-local-pen`, derivada de `codex/inicio-cinco-obras-recentes`, commit `339e7d511f925ab5439e648f4ad5b5779cb72789` (PR #11). PRs #1, #8–#11 seguem abertas; sem merge/deploy.
+- Protótipo **experimental** e isolado: escolher PDF local, visualizar em iframe com o motor nativo do navegador, abrir em outra aba como fallback; link HTTP(S) do Drive aparece somente como alternativa externa. **Não busca PDFs privados, não os envia, não grava arquivos ou traços**.
+- Diagnóstico em canvas separado das páginas: conta ponteiro pen/touch/mouse e cancelamentos, mostra pressão reportada, desenha apenas com pen (mouse opcional); comportamento não garante rejeição da palma nem escrita sobre o PDF.
+- `src/reading/pdf-prototype.js`, `styles/pdf-prototype.css`, `templates/index.html`, `src/manifest.json`, `src/reading/work-sheet.js`. Ação discreta na ficha da obra (digital ou com link) e botão na área avançada do início, mantendo **Abrir texto**.
+- `docs/PDF_E0_FEASIBILITY.md`: comparação nativo/PDF.js/Drive/Samsung Notes, roteiro de teste real, limites e decisões pendentes de biblioteca/armazenamento/escopos. Não foi selecionada nova dependência ou persistência.
+- Testes adicionados: nove cenários em `tests/pdf-prototype.test.mjs` e cenário sintético em `tests/browser.cjs`. **Realizados:** 21 checks em ambiente JavaScript isolado com arquivos recuperados da branch, todos PASS (sintaxe, HTML/manifesto, URL local/revogação, segurança de link, caneta/touch, foco). **Não realizados:** execução completa de Node/Playwright, renderização real do PDF no navegador, teste no Samsung S Pen, avaliação de latência/palm rejection, acesso Drive privado.
+- **Próximo gate**: rodar `npm ci && npm run build && npm test && npm run test:browser` no checkout local; validar visual no Samsung. Só depois decidir se E1/E2 devem usar PDF.js e persistência de traços com aprovação explícita. Nenhuma versão publicada.
+
+
 ## Implementação em revisão — cinco obras na entrada (issue #4)
 
 - Branch isolada `codex/inicio-cinco-obras-recentes` baseada em `codex/integrar-busca-sugestoes`, commit `190c19c1ee8bc77e049a1f7e60ee14a4dc37c6ca` (PR #10). Não foi alterada nenhuma das branches de PRs anteriores.
