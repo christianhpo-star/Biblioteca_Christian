@@ -1,5 +1,16 @@
 # Retomada
 
+## E2 — Leitura imersiva com formas e régua S Pen (07/11/2026)
+
+- Branch `codex/pdf-e2-immersive-shapes`, PR encadeada sobre `codex/pdf-e1-integrated-pen-pages` (PR #14). Não modificar `codex/tablet-e0-public-preview`, `main` ou o Firebase; sem deploy nesta tarefa.
+- Implementação: `templates/index.html` + `styles/pdf-prototype.css` (cabeçalho curto, PDF central, dock inferior e menu) e `src/reading/pdf-prototype.js` (modo imersivo, diagnóstico sob demanda, toolbar escondível).
+- `src/reading/ink-shapes.js` novo módulo de reconhecimento por gesto: Auto/Reta/Retângulo/Elipse/Triângulo. `src/reading/pdf-pages.js` transforma ao soltar a S Pen, inclui Desfazer/Refazer e mantém formas alinhadas às páginas. `src/manifest.json` carrega geometria antes do leitor.
+- Testes em `tests/ink-shapes.test.mjs`, `tests/pdf-pages.test.mjs`, `tests/browser.cjs`, `scripts/verify-tablet-preview.mjs`; CI sem deploy em `.github/workflows/pdf-e2-quality.yml`.
+- QA relevante: workflow [42336779898](https://github.com/christianhpo-star/Biblioteca_Christian/actions/runs/42336779898) **success**: 68 Node, 1 Playwright, guard e viewport sintético 390/1024. Artefato de screenshots sintéticos para QA visual. Nenhum teste físico da versão E2 no Samsung ainda.
+- Documentação detalhada e roteiro em `docs/PDF_E2_IMMERSIVE.md`. S Pen e dedo são tratados separadamente, palm rejection é heurístico; tinta não salva, não exporta e é descartada ao fechar.
+- Próximo passo: revisar PR e imagens da UI, autorizar separadamente eventual publicação da demo E2 e validar formas manualmente no Samsung antes de persistência de anotações.
+
+
 ## Resultado de CI PDF E1 — 07/11/2026
 
 - PR #14 (`codex/pdf-e1-integrated-pen-pages`) em revisão, sem deploy/merge. `docs/PDF_E1_IMPLEMENTATION.md` reúne limitações e roteiro de teste.
