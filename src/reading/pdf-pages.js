@@ -330,7 +330,7 @@
         } finally {
             record.rendering = false;
             record.task = null;
-            if (gen === state.generation) pump();
+            if (gen === state.generation) { queueVisiblePages(); pump(); }
         }
     }
 
@@ -349,8 +349,10 @@
             queued.delete(record.index);
             if (record.rendering || record.renderedZoom === state.zoom) continue;
             state.inFlight++;
+            const startedAt = state.generation;
             void renderRecord(record).finally(() => {
-                state.inFlight--;
+                if (startedAt !== state.generation) return;
+                state.inFlight = Math.max(0, state.inFlight - 1);
                 if (state.pdf) { evictCanvasCache(); pump(); }
             });
         }
@@ -465,7 +467,12 @@
             evictCanvasCache();
         }, {root:container, rootMargin:'400px 0px'});
         state.records.forEach(r => state.observer.observe(r.element));
-        queueRecord(state.records[0]);
+        // A primeira página deve estar realmente pintada antes de marcar o carregamento como pronto.
+        await renderRecord(state.records[0]);
+        if (gen !== state.generation) return;
+        if (!state.records[0].error.hidden) {
+            throw new Error('A primeira página não pôde ser renderizada.');
+        }
         updatePageIndicator();
         safeStatus('PDF: ' + pdf.numPages + ' páginas. Dedo: navegar e pinçar. ' +
             'S Pen: escrever. Riscos temporários, sem salvamento.');
