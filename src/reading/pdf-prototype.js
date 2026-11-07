@@ -130,6 +130,9 @@
     async function inspectSelectedFile(file) {
         if (!file) return;
         const request = ++requestId;
+        // A selecao de outro arquivo descarta a visualizacao anterior antes da validacao.
+        // Isso evita deixar um PDF antigo na tela com aviso de arquivo invalido.
+        releaseLocalPdf();
         if (!file.size) {
             status.textContent = 'Arquivo vazio. Escolha outro PDF.';
             return;
