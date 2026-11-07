@@ -31,14 +31,37 @@ test('registros compactos, documento ordenado, downloads reais e recuperação d
     assert.equal(await page.locator('#pdfPrototype').isVisible(),true);
     const syntheticPdf=await PDFDocument.create();
     syntheticPdf.addPage([320,480]);
+    syntheticPdf.addPage([320,480]);
     await page.locator('#pdfPrototypeFile').setInputFiles({
       name:'documento-sintetico.pdf',
       mimeType:'application/pdf',
       buffer:Buffer.from(await syntheticPdf.save())
     });
-    await page.waitForFunction(()=>document.getElementById('pdfPrototypeFrame')?.src.startsWith('blob:'));
-    assert.equal(await page.locator('#pdfPrototypeFrame').isVisible(),true);
+    await page.waitForFunction(()=>{
+      const canvas=document.querySelector('#pdfPrototypePages .pdf-page-canvas');
+      return canvas && canvas.width>0 && canvas.height>0 &&
+        !canvas.closest('.pdf-rendered-page').classList.contains('pdf-page-loading');
+    },{timeout:20000});
+    assert.equal(await page.locator('.pdf-rendered-page').count(),2);
+    assert.equal(await page.locator('#pdfPrototypeFrame').isHidden(),true);
     assert.equal(await page.locator('#pdfPrototypeNewTab').isVisible(),true);
+    const svg=page.locator('.pdf-page-ink').first();
+    const rect=await svg.boundingBox();
+    const pen=(type,id,dx,dy)=>({pointerType:type,pointerId:id,
+      pressure:0.6,clientX:rect.x+dx,clientY:rect.y+dy});
+    await svg.dispatchEvent('pointerdown',pen('pen',21,30,35));
+    await svg.dispatchEvent('pointermove',pen('pen',21,85,75));
+    await svg.dispatchEvent('pointerup',pen('pen',21,85,75));
+    assert.equal(await svg.locator('path').count(),1);
+    await svg.dispatchEvent('pointerdown',pen('touch',22,35,40));
+    await svg.dispatchEvent('pointermove',pen('touch',22,55,65));
+    await svg.dispatchEvent('pointerup',pen('touch',22,55,65));
+    assert.equal(await svg.locator('path').count(),1);
+    await page.locator('#pdfZoomIn').click();
+    assert.equal(await page.locator('#pdfZoomLabel').textContent(),'120%');
+    assert.equal(await svg.locator('path').count(),1);
+    await page.locator('#pdfInkUndo').click();
+    assert.equal(await svg.locator('path').count(),0);
     await page.locator('.pdf-prototype-pen > summary').click();
     await page.locator('#pdfPrototypeCanvas').dispatchEvent('pointerdown',{
       pointerId:81,pointerType:'pen',pressure:0.5,clientX:10,clientY:20
@@ -47,6 +70,7 @@ test('registros compactos, documento ordenado, downloads reais e recuperação d
     await page.locator('#pdfPrototypeClose').click();
     assert.equal(await page.locator('#pdfPrototype').isHidden(),true);
     assert.equal(await page.locator('#pdfPrototypeFrame').getAttribute('src'),null);
+    assert.equal(await page.locator('#pdfPrototypePages').isHidden(),true);
     assert.equal(await page.evaluate(()=>JSON.stringify(window.libraryBridge.getState())),beforePdf);
     await page.locator('.dashboard-advanced > summary').click();
 
