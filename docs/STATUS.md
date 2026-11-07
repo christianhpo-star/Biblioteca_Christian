@@ -1,5 +1,17 @@
 # Estado — 06/11/2026
 
+## E1 em desenvolvimento — PDF.js com tinta temporária por página (07/11/2026)
+
+- Relato confirmado no Samsung: quadro separado de diagnóstico S Pen funciona; PDF embutido em iframe não aparece; fallback Google PDF abre, mas não permite à Biblioteca separar caneta e dedo. O leitor E0 não está homologado para Android.
+- Branch de implementação `codex/pdf-e1-integrated-pen-pages`, criada a partir do commit `f689dfa4faeb062364265b42f1d7edc8162ff7c7` da PR #13, sem alterar a branch de publicação ou a `main`.
+- Novo renderizador `src/reading/pdf-pages.js`: PDF local por página com PDF.js 6.5.438 e worker da mesma origem, sem iframe; tela móvel com toolbar de caneta/marca-texto/borracha/desfazer/zoom; S Pen desenha num SVG vinculado à página e dedo usa rolagem/pinça. Até seis canvases pintados simultaneamente; riscos só na memória e apagados ao sair.
+- `scripts/vendor-pdfjs.mjs` obtém pacote npm de versão fixa na compilação e copia os dois arquivos precompilados, licença, sem CDN no navegador; `scripts/build.mjs` inclui os arquivos no cache do service worker. `scripts/serve.mjs` corrigido para servir `.mjs` com JavaScript MIME (o bloqueio causou falha no primeiro teste de Chromium).
+- Mantidos seleção local, fallback `Ver PDF em outra aba`, link Drive externo, diagnóstico separado e dados fictícios. Nenhum upload, mudança Firebase, persistência de traços, migração, exportação ou edição do PDF real. Limite de teste: PDFs de até 50 MB e 500 páginas.
+- Testes adaptados em `tests/pdf-prototype.test.mjs`, `tests/pdf-pages.test.mjs`, `tests/browser.cjs`, `scripts/verify-tablet-preview.mjs`. Workflow `.github/workflows/pdf-e1-quality.yml` executa build e testes na branch **sem deploy**. `docs/PDF_E1_IMPLEMENTATION.md` descreve roteiro de homologação no Samsung.
+- **Verificação real inicial:** GitHub Actions run 42333943652 — build e testes Node PASS; primeiro teste de navegador FAIL por timeout de página, investigado e encontrado problema de MIME para `.mjs` no servidor de desenvolvimento. Correção gravada; acompanhar novas execuções e não declarar Chromium/tablet validados antes de PASS real.
+- A demonstração pública anterior no GitHub Pages permanece E0. A branch E1 não foi publicada nem mesclada. Autorização de publicação de uma nova versão ainda depende de verificação e aceite.
+
+
 ## Prévia pública publicada e verificada
 
 - **URL HTTPS real:** https://christianhpo-star.github.io/Biblioteca_Christian/ — HTTP 200, verificada pelo script contra a publicação, em 1024×768 e 390×844.
