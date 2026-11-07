@@ -698,7 +698,7 @@
         min-height: 46px;
         padding: 4px 2px;
     }
-    .pdf-reader-immersive .pdf-prototype-reading-tools button:has(.pdf-tool-label) {
+    .pdf-reader-immersive :is(#pdfInkPen, #pdfInkHighlight, #pdfInkErase, #pdfInkShape) {
         min-width: 43px;
     }
     .pdf-reader-immersive .pdf-tool-symbol { font-size: 20px; }
