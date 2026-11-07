@@ -5,7 +5,7 @@
 - Branch `codex/pdf-e0-prototipo-local-pen`, baseada na PR #11 (`339e7d5`); escopo: **prova de viabilidade**, não leitor completo de anotações. Não alterar login, Drive, banco, estado, PDFs privados nem publicar.
 - Código: `src/reading/pdf-prototype.js` e `styles/pdf-prototype.css` isolados; HTML de diálogo e botão na ficha/dash avançado; manifesto. Escolha PDF do dispositivo, iframe nativo e fallback em nova aba, revoga URL blob; tela de diagnóstico separada registra somente métricas visíveis, sem dados persistidos.
 - Design e riscos: `docs/PDF_E0_FEASIBILITY.md`. Browser nativo não garante iframe no Android nem coordenadas de página; PDF.js é candidato após decisão, não está instalado.
-- Testes adicionados: `tests/pdf-prototype.test.mjs` (nove) e `tests/browser.cjs` ampliado. PASS em 21 verificações V8 isoladas; suítes Node/Playwright, PDF real no navegador e Samsung físico **não validados**.
+- Testes adicionados: `tests/pdf-prototype.test.mjs` (dez) e `tests/browser.cjs` ampliado. PASS em 21 verificações V8 isoladas; suítes Node/Playwright, PDF real no navegador e Samsung físico **não validados**.
 - Executar localmente com Node 22: `npm ci && npm run build && npm test && npm run test:browser`. Usar PDFs sintéticos; observar no tablet Chrome/Samsung Internet/PWA, touch/zoom, caneta/palma, foco, arquivos inválidos, formato em 320/390/768/1024/1440. Não enviar arquivos reais ao repositório.
 - Após QA E0, decidir explicitamente dependência de renderização, IndexedDB/backup para traços e acesso de PDF privado. E1/E2/E3 ainda não iniciadas. Requer aprovação de escopos/arquitetura e PRs anteriores antes de merge/deploy.
 
