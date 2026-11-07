@@ -1,4 +1,4 @@
-name: Tablet E0 - demonstracao publica e testes
+name: Tablet E1 - demonstracao publica e testes
 
 on:
   push:
@@ -19,8 +19,17 @@ jobs:
     if: github.repository == 'christianhpo-star/Biblioteca_Christian' && github.ref == 'refs/heads/codex/tablet-e0-public-preview'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout apenas desta branch
+      # O workflow e executado SOMENTE pela branch de demonstracao autorizada.
+      # O codigo publicado e exatamente o commit E1 aprovado no CI, sem merge na main
+      # ou alteracao de branches de desenvolvimento. Atualizar SHA exige nova revisao.
+      - name: Checkout E1 aprovada (commit imutavel)
         uses: actions/checkout@v4
+        with:
+          ref: a8f4c55c44ac6165cfda50b2821b4858dde1c0b3
+          persist-credentials: false
+
+      - name: Confirmar a origem auditada do build
+        run: test "$(git rev-parse HEAD)" = "a8f4c55c44ac6165cfda50b2821b4858dde1c0b3"
 
       - name: Node 22
         uses: actions/setup-node@v4
@@ -49,7 +58,7 @@ jobs:
       - name: Impedir dados privados e preparar Pages
         run: node scripts/prepare-tablet-preview.mjs
 
-      - name: Testar artefato final em tablet e celular com fallback PDF
+      - name: Testar E1 com paginas PDF.js, caneta e toque simulados
         run: node scripts/verify-tablet-preview.mjs
 
       - name: Configurar artifact GitHub Pages
@@ -72,6 +81,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Publicar demonstracao sem dados reais
+      - name: Publicar E1 demonstrativa sem dados reais
         id: deployment
         uses: actions/deploy-pages@v4
