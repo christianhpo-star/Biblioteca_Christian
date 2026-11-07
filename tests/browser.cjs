@@ -61,7 +61,16 @@ test('registros compactos, documento ordenado, downloads reais e recuperação d
     }
     assert.equal(await page.locator('.pdf-rendered-page').count(),2);
     assert.equal(await page.locator('#pdfPrototypeFrame').isHidden(),true);
-    assert.equal(await page.locator('#pdfPrototypeNewTab').isVisible(),true);
+    assert.match(await page.locator('#pdfPrototypeNewTab').getAttribute('href'),/^blob:/);
+    assert.equal(await page.locator('#pdfPrototype').evaluate(el=>el.classList.contains('pdf-reading-active')),true);
+    assert.equal(await page.locator('#pdfPrototypeTools').isVisible(),true);
+    const readerHeights=await page.evaluate(()=>({
+      viewer:document.getElementById('pdfPrototypeViewer').getBoundingClientRect().height,
+      screen:document.getElementById('pdfPrototype').getBoundingClientRect().height,
+      header:document.querySelector('#pdfPrototype .pdf-prototype-toolbar').getBoundingClientRect().height
+    }));
+    assert.ok(readerHeights.header<=74,'A barra superior deve ser compacta');
+    assert.ok(readerHeights.viewer/readerHeights.screen>0.65,'PDF deve ocupar a maior parte da tela');
     const svg=page.locator('.pdf-page-ink').first();
     const rect=await svg.boundingBox();
     const pen=(type,id,dx,dy)=>({pointerType:type,pointerId:id,
@@ -79,7 +88,19 @@ test('registros compactos, documento ordenado, downloads reais e recuperação d
     assert.equal(await svg.locator('path').count(),1);
     await page.locator('#pdfInkUndo').click();
     assert.equal(await svg.locator('path').count(),0);
-    await page.locator('.pdf-prototype-pen > summary').click();
+    await page.locator('#pdfInkRedo').click();
+    assert.equal(await svg.locator('path').count(),1);
+    await page.locator('#pdfInkUndo').click();
+    await page.locator('#pdfInkShape').click();
+    await page.locator('#pdfShapeMode').selectOption('line');
+    await svg.dispatchEvent('pointerdown',pen('pen',78,20,35));
+    await svg.dispatchEvent('pointermove',pen('pen',78,55,68));
+    await svg.dispatchEvent('pointerup',pen('pen',78,105,74));
+    assert.equal(await svg.locator('path').count(),1);
+    assert.match(await svg.locator('path').first().getAttribute('d'),/^M[0-9.]+ [0-9.]+ L[0-9.]+ [0-9.]+$/);
+    await page.locator('#pdfReaderMenu > summary').click();
+    await page.locator('#pdfReaderDiagnosticsToggle').click();
+    assert.equal(await page.locator('#pdfPrototypeDiagnostics').isVisible(),true);
     await page.locator('#pdfPrototypeCanvas').dispatchEvent('pointerdown',{
       pointerId:81,pointerType:'pen',pressure:0.5,clientX:10,clientY:20
     });
