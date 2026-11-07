@@ -1,5 +1,20 @@
 # PDF E1 — leitura interna com PDF.js e S Pen temporária
 
+## Evidência de CI antes do teste físico
+
+O workflow https://github.com/christianhpo-star/Biblioteca_Christian/actions/runs/42334160948
+concluiu em success no SHA `25def8d0` (GitHub Actions/Ubuntu, Node 22):
+55 testes Node aprovados, um fluxo Playwright Chromium aprovado, guard de
+privacidade da demo e verificação das páginas canvas em 1024×768 e 390×844.
+A verificação simulou `pointerType=pen` e `pointerType=touch`, zoom e fallback;
+não corresponde a gestos de uma S Pen física ou à rejeição nativa da palma.
+
+O primeiro Chromium havia falhado por ausência de MIME JavaScript para
+arquivos `.mjs` no servidor de testes. O problema foi corrigido e submetido
+ao workflow concluído. O site GitHub Pages atual permanece E0 até autorização
+específica para publicar a versão E1.
+
+
 Data: 07/11/2026. Implementação experimental referente à issue #7.
 Branch: codex/pdf-e1-integrated-pen-pages (derivada da demonstração pública existente).
 Sem merge, deploy ou alteração do acervo pessoal nesta entrega.
