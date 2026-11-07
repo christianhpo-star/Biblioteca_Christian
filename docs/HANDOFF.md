@@ -1,5 +1,14 @@
 # Retomada
 
+## Publicação de teste Samsung — prévia GitHub Pages (06/11/2026)
+
+- Branch `codex/tablet-e0-public-preview` baseada na PR #12, com workflow de GitHub Pages restrito à branch e configuração local com catálogo `data/demo.json` fictício.
+- `scripts/prepare-tablet-preview.mjs` valida exatamente o payload demo e modo local, bloqueia `cloud.js`, ajusta manifesto para URL em subdiretório e insere aviso/atalho para testar PDF e S Pen no artifact `dist/`. Não publica dados pessoais.
+- Tutorial e roteiro em `docs/TABLET_PUBLIC_PREVIEW.md`. Ativação administrativa pendente de **Settings → Pages → GitHub Actions**; via connector não é possível ligar Pages diretamente. Ao habilitar, conferir workflow e reexecutar se preciso.
+- Gates para deploy: npm ci, build demo, npm test, navegador Playwright, build demo com chave exclusiva, segurança de artifacts; se falhar, corrigir em branch e não publicar. Teste Android real ocorre após URL ativa.
+- Não fazer merge nem substituir a biblioteca pessoal.
+
+
 ## E0 — laboratório de leitura PDF e eventos da S Pen (06/11/2026)
 
 - Branch `codex/pdf-e0-prototipo-local-pen`, baseada na PR #11 (`339e7d5`); escopo: **prova de viabilidade**, não leitor completo de anotações. Não alterar login, Drive, banco, estado, PDFs privados nem publicar.
