@@ -182,7 +182,24 @@
                     </div>
                 </div>
 
-                <div class="section-box template-style-3" id="driveLibraryAccess">
+                <!-- Entrada direta: somente cinco livros com dados de inclusão confiáveis. -->
+                <section class="home-books-preview" aria-labelledby="dashboardHomeTitle">
+                    <div class="home-books-header">
+                        <div>
+                            <h3 id="dashboardHomeTitle">Do seu acervo</h3>
+                            <p id="dashboardHomeHint" role="status">Carregando obras…</p>
+                        </div>
+                        <button type="button" class="btn-action-primary home-books-all"
+                            onclick="openFullCatalogFromHome()">Ver todo o acervo</button>
+                    </div>
+                    <div id="dashboardHomeBooks" class="home-books-content" aria-live="polite"></div>
+                </section>
+
+                <!-- Recursos anteriores continuam disponíveis, mas não ocupam a abertura. -->
+                <details class="dashboard-advanced">
+                    <summary>Indicadores e organização da biblioteca</summary>
+                    <div class="dashboard-advanced-body">
+                        <div class="section-box template-style-3" id="driveLibraryAccess">
                     <h3 class="template-style-4">Seu acervo no Google Drive</h3>
                     <p class="template-style-5">Use este catálogo para mapear obras, temas, fichamentos e estados de leitura. Acesse os PDFs nas duas pastas do Drive, inclusive no tablet.</p>
                     <div class="template-style-6">
@@ -346,6 +363,8 @@
                         <span class="cat-overview-meta">29 obras · Romance de 30, Crítica Literária e Letramento</span>
                     </div>
                 </div>
+                    </div>
+                </details>
             </section>
 
             <!-- 2. EXPLORADOR DO ACERVO & FILTROS FACETADOS -->
@@ -421,6 +440,7 @@
                 <div class="results-summary-bar">
                     <span id="resultsCount">Exibindo obras do catálogo</span>
                     <span id="resultsFilterNote"></span>
+                    <button type="button" class="btn-action-secondary" onclick="switchView('dashboard')">Voltar ao início</button>
                 </div>
 
                 <!-- VISTA 1: CARDS -->
@@ -655,6 +675,7 @@
                             <div id="modalWorkKeywords" class="tags-cloud"></div>
                         </div>
                         <div class="modal-work-file">
+                            <p><strong>Adicionada ao acervo:</strong> <span id="modalWorkAddedAt">Data de inclusão não registrada</span></p>
                             <p><strong>Arquivo:</strong> <span id="modalFileName"></span></p>
                             <p><strong>Localização:</strong> <span id="modalFilePath"></span></p>
                             <p><strong>Páginas:</strong> <span id="modalFilePages"></span> · <span id="modalFileSize"></span></p>
