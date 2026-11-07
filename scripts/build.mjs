@@ -29,7 +29,7 @@ const fingerprinted = new Map();
 for (const path of [...manifest.scripts, ...manifest.styles]) {
   const bytes = await readFile(resolve(root, path));
   const digest = createHash('sha256').update(bytes).digest('hex').slice(0, 12);
-  const versioned = path.replace(/(\\.[^./]+)$/, '.' + digest + '$1');
+  const versioned = path.replace(/(\.[^./]+)$/, '.' + digest + '$1');
   if (versioned === path) throw Error('Arquivo sem extensao para versionar: ' + path);
   fingerprinted.set(path, versioned);
   await mkdir(dirname(resolve(dist, versioned)), {recursive:true});
