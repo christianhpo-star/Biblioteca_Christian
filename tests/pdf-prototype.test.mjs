@@ -10,7 +10,7 @@ const manifest = JSON.parse(read('src/manifest.json'));
 
 function fixture(work = null) {
     const map = new Map(), events = {}, frames = [], opened = [], closed = [], restored = [];
-    const created = [], revoked = [];
+    const created = [], revoked = [], loaded = [];
     let lines = 0, clicks = 0;
     const ink = {
         clearRect() { lines = 0; },
@@ -63,7 +63,21 @@ function fixture(work = null) {
         querySelectorAll: () => background,
         addEventListener(name, callback) { events[name] = callback; }
     };
-    const window = { addEventListener(name, callback) { frames.push({ name, callback }); } };
+    const window = {
+        addEventListener(name, callback) { frames.push({ name, callback }); },
+        // Leitor E1 isolado no teste do ciclo de vida do seletor E0.
+        PdfPagePrototype: {
+            async load(file) {
+                loaded.push(file.name);
+                element('pdfPrototypePages').hidden = false;
+                element('pdfPrototypeEmpty').hidden = true;
+            },
+            destroy() {
+                element('pdfPrototypePages').hidden = true;
+                element('pdfPrototypeEmpty').hidden = false;
+            }
+        }
+    };
     const context = vm.createContext({
         document, window, URL: LocalURL,
         currentModalWorkId: 5,
@@ -85,7 +99,7 @@ function fixture(work = null) {
         await new Promise(resolve => setImmediate(resolve));
     }
     return { window, context, get, events, frames, background, origin,
-        created, revoked, opened, closed, restored, makeFile, pick,
+        created, revoked, loaded, opened, closed, restored, makeFile, pick,
         get drawnLines() { return lines; },
         get filePickerClicks() { return clicks; } };
 }
@@ -131,13 +145,15 @@ test('PDF local com assinatura válida usa URL temporária e revoga ao fechar', 
     f.window.openPdfPrototype();
     await f.pick(f.makeFile('exemplo.pdf', '%PDF-1.7\nconteudo sintetico'));
     assert.equal(f.created.length, 1);
-    assert.match(f.get('pdfPrototypeFrame').src, /^blob:local-test-/);
-    assert.equal(f.get('pdfPrototypeFrame').hidden, false);
+    assert.equal(f.get('pdfPrototypeFrame').src, '');
+    assert.equal(f.get('pdfPrototypeFrame').hidden, true);
+    assert.equal(f.get('pdfPrototypePages').hidden, false);
+    assert.deepEqual(f.loaded, ['exemplo.pdf']);
     assert.equal(f.get('pdfPrototypeNewTab').hidden, false);
-    assert.match(f.get('pdfPrototypeStatus').textContent, /exemplo\.pdf/);
     f.get('pdfPrototypeClose').events.click();
     assert.deepEqual(f.revoked, [f.created[0].url]);
     assert.equal(f.get('pdfPrototypeFrame').src, '');
+    assert.equal(f.get('pdfPrototypePages').hidden, true);
     assert.equal(f.get('pdfPrototypeNewTab').hidden, true);
 });
 
@@ -210,10 +226,13 @@ test('Escape fecha o experimento; arquivos e traços não entram em estado ou re
 
 test('HTML e manifesto registram módulo e CSS sem alterar o leitor principal', () => {
     assert.match(html, /id="pdfPrototypeFrame"/);
+    assert.match(html, /id="pdfPrototypePages"/);
+    assert.match(html, /id="pdfInkPen"/);
     assert.match(html, /id="pdfPrototypeCanvas"/);
     assert.match(html, /id="modalPdfPrototypeBtn"/);
     assert.match(html, /Nenhum arquivo é enviado ou salvo/);
     assert.ok(manifest.scripts.includes('src/reading/pdf-prototype.js'));
+    assert.ok(manifest.scripts.includes('src/reading/pdf-pages.js'));
     assert.ok(manifest.styles.includes('styles/pdf-prototype.css'));
     assert.match(html, /id="modalOpenPdfBtn"/);
 });
