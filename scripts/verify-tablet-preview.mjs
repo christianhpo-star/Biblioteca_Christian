@@ -74,6 +74,24 @@ try {
     assert.equal(await page.locator('.pdf-rendered-page').count(),2);
     assert.equal(await page.locator('#pdfPrototypeFrame').isHidden(),true);
     const blob=await page.locator('#pdfPrototypeNewTab').getAttribute('href');
+    assert.equal(await page.locator('#pdfPrototype').evaluate(el=>
+      el.classList.contains('pdf-reading-active')),true);
+    assert.equal(await page.locator('#pdfPrototypeTools').isVisible(),true);
+    assert.equal(await page.locator('#pdfPrototypeDiagnostics').isVisible(),false);
+    if (viewport.width === 390) {
+      const dock=await page.locator('#pdfPrototypeTools').evaluate(el=>({
+        visible:el.clientWidth, total:el.scrollWidth
+      }));
+      assert.ok(dock.total <= dock.visible+3,
+        'Barra de ferramentas não deve cortar os botões em 390px: '+JSON.stringify(dock));
+    }
+    const bounds=await page.evaluate(()=>({
+      header:document.querySelector('.pdf-prototype-toolbar').getBoundingClientRect().height,
+      viewer:document.getElementById('pdfPrototypeViewer').getBoundingClientRect().height,
+      screen:document.getElementById('pdfPrototype').getBoundingClientRect().height
+    }));
+    assert.ok(bounds.header<=74);
+    assert.ok(bounds.viewer/bounds.screen>0.65);
     const penLayer=page.locator('.pdf-page-ink').first();
     const box=await penLayer.boundingBox();
     assert.ok(box?.width>100 && box?.height>100);
@@ -91,9 +109,23 @@ try {
     await page.locator('#pdfZoomIn').click();
     assert.equal(await page.locator('#pdfZoomLabel').textContent(),'120%');
     assert.equal(await penLayer.locator('path').count(),1,'Zoom preserva traços da mesma página');
+    await page.locator('#pdfInkUndo').click();
+    await page.locator('#pdfInkShape').click();
+    await page.locator('#pdfShapeMode').selectOption('line');
+    const straight=({pointerType:'pen',pointerId:71,pressure:0.5});
+    await penLayer.dispatchEvent('pointerdown',{...straight,clientX:box.x+25,clientY:box.y+20});
+    await penLayer.dispatchEvent('pointermove',{...straight,clientX:box.x+75,clientY:box.y+55});
+    await penLayer.dispatchEvent('pointerup',{...straight,clientX:box.x+105,clientY:box.y+65});
+    assert.match(await penLayer.locator('path').first().getAttribute('d'),
+      /^M[0-9.]+ [0-9.]+ L[0-9.]+ [0-9.]+$/);
+    await page.locator('#pdfInkUndo').click();
+    assert.equal(await penLayer.locator('path').count(),0);
+    await page.locator('#pdfInkRedo').click();
+    assert.equal(await penLayer.locator('path').count(),1);
     await mkdir('test-results',{recursive:true});
     await page.screenshot({path:`test-results/tablet-preview-${remote?'live':'local'}-${viewport.width}.png`});
     // Fallback externo segue disponível, mas o leitor integrado não depende dele.
+    await page.locator('#pdfReaderMenu > summary').click();
     assert.equal(await page.locator('#pdfPrototypeNewTab').isVisible(),true);
     const opened=context.waitForEvent('page');
     await page.locator('#pdfPrototypeNewTab').click();

@@ -877,76 +877,136 @@
         </div>
     </div>
 
-    <!-- E0: laboratório de leitura PDF e eventos da caneta. Não guarda PDFs nem traços. -->
-    <section id="pdfPrototype" class="pdf-prototype" role="dialog" aria-modal="true"
-        aria-labelledby="pdfPrototypeTitle" hidden>
+    <!-- E2: leitor imersivo; PDFs e tinta continuam exclusivamente em memória. -->
+    <section id="pdfPrototype" class="pdf-prototype pdf-reader-immersive" role="dialog"
+        aria-modal="true" aria-labelledby="pdfPrototypeTitle" hidden>
         <header class="pdf-prototype-toolbar">
+            <button type="button" class="pdf-reader-back" id="pdfPrototypeClose"
+                aria-label="Voltar à biblioteca" title="Voltar à biblioteca">←</button>
             <div class="pdf-prototype-title-group">
-                <h2 id="pdfPrototypeTitle">Leitor PDF — teste no tablet</h2>
+                <h2 id="pdfPrototypeTitle">Leitor PDF</h2>
                 <p id="pdfPrototypeWork" class="pdf-prototype-work"></p>
-                <p id="pdfPrototypeEngine" class="pdf-prototype-work" role="status">Aguardando leitor integrado…</p>
+                <p id="pdfPrototypeEngine" class="pdf-prototype-work" role="status">
+                    Aguardando leitor integrado…
+                </p>
             </div>
-            <div class="pdf-prototype-actions">
-                <button type="button" id="pdfPrototypePick" class="btn-action-primary">Escolher PDF deste dispositivo</button>
-                <input type="file" id="pdfPrototypeFile" accept=".pdf,application/pdf"
-                    aria-label="Selecionar PDF salvo no dispositivo" hidden>
-                <a id="pdfPrototypeExternal" class="btn-action-secondary" href="#"
-                    target="_blank" rel="noopener noreferrer" hidden>Abrir original no navegador</a>
-                <a id="pdfPrototypeNewTab" class="btn-action-secondary" href="#"
-                    target="_blank" rel="noopener noreferrer" hidden>Ver PDF em outra aba</a>
-                <button type="button" class="btn-action-secondary" id="pdfPrototypeClose">Voltar</button>
-            </div>
+            <span id="pdfPageIndicator" class="pdf-page-indicator" aria-live="polite"></span>
+            <details id="pdfReaderMenu" class="pdf-reader-menu">
+                <summary aria-label="Mais opções de leitura" title="Mais opções">⋮</summary>
+                <div class="pdf-reader-menu-content">
+                    <button type="button" id="pdfPrototypeReplace">Trocar PDF</button>
+                    <a id="pdfPrototypeExternal" href="#" target="_blank"
+                        rel="noopener noreferrer" hidden>Abrir original</a>
+                    <a id="pdfPrototypeNewTab" href="#" target="_blank"
+                        rel="noopener noreferrer" hidden>Abrir PDF em outra aba</a>
+                    <button type="button" id="pdfInkClear">Limpar todos os riscos temporários</button>
+                    <button type="button" id="pdfToolsToggle" aria-pressed="false">
+                        Ocultar ferramentas
+                    </button>
+                    <button type="button" id="pdfReaderDiagnosticsToggle" aria-expanded="false">
+                        Diagnóstico da S Pen
+                    </button>
+                    <p class="pdf-reader-menu-note">Os riscos são temporários e não são salvos.</p>
+                </div>
+            </details>
         </header>
         <p id="pdfPrototypeStatus" class="pdf-prototype-status" role="status" aria-live="polite">
-            Escolha um PDF local. Nenhum arquivo é enviado ou salvo.
+            Selecione um PDF do dispositivo. Nenhum arquivo será enviado.
         </p>
         <div class="pdf-prototype-body">
             <div class="pdf-prototype-viewer" id="pdfPrototypeViewer">
-                <div id="pdfPrototypeTools" class="pdf-prototype-reading-tools" role="toolbar"
-                    aria-label="Ferramentas do leitor e das anotações temporárias" hidden>
-                    <button type="button" id="pdfInkPen" aria-pressed="true">Caneta</button>
-                    <button type="button" id="pdfInkHighlight" aria-pressed="false">Marca-texto</button>
-                    <button type="button" id="pdfInkErase" aria-pressed="false">Borracha</button>
-                    <button type="button" id="pdfInkUndo">Desfazer</button>
-                    <button type="button" id="pdfInkClear">Limpar riscos</button>
-                    <span class="pdf-reading-tool-divider" aria-hidden="true"></span>
-                    <button type="button" id="pdfZoomOut" aria-label="Diminuir zoom">−</button>
-                    <output id="pdfZoomLabel" aria-live="off">100%</output>
-                    <button type="button" id="pdfZoomIn" aria-label="Aumentar zoom">+</button>
-                    <span id="pdfPageIndicator" class="pdf-page-indicator" aria-live="polite"></span>
-                </div>
                 <div id="pdfPrototypeEmpty" class="pdf-prototype-empty">
-                    <p>Escolha um PDF salvo no dispositivo para visualizá-lo dentro da Biblioteca.</p>
-                    <p>O dedo navega e amplia; a S Pen escreve temporariamente sobre as páginas.
-                        Nenhuma anotação é salva nesta versão de teste.</p>
+                    <h3>Seu PDF, sua leitura.</h3>
+                    <p>Escolha um arquivo salvo no dispositivo para ler e experimentar a S Pen.</p>
+                    <button type="button" id="pdfPrototypePick" class="btn-action-primary">
+                        Escolher PDF deste dispositivo
+                    </button>
+
+                    <p class="pdf-reader-start-hint">Dedo para navegar e ampliar · S Pen para anotar</p>
                 </div>
+                    <input type="file" id="pdfPrototypeFile" accept=".pdf,application/pdf"
+                        aria-label="Selecionar PDF salvo no dispositivo" hidden>
                 <div id="pdfPrototypePages" class="pdf-prototype-pages"
-                    aria-label="Páginas renderizadas do PDF; dedo para navegar e caneta para escrever"
-                    tabindex="0" hidden></div>
-                <!-- Elemento legado mantido invisível para compatibilidade; PDF interno usa canvas. -->
+                    aria-label="Páginas do PDF, com anotação temporária por S Pen" tabindex="0" hidden></div>
+                <!-- Legado E0: nunca recebe o arquivo local no leitor integrado. -->
                 <iframe id="pdfPrototypeFrame" title="Visualizador legado desativado"
                     referrerpolicy="no-referrer" hidden></iframe>
+
+                <div id="pdfPrototypeTools" class="pdf-prototype-reading-tools"
+                    role="toolbar" aria-label="Ferramentas de anotação" hidden>
+                    <button type="button" id="pdfInkPen" aria-pressed="true" title="Caneta">
+                        <span class="pdf-tool-symbol" aria-hidden="true">✎</span>
+                        <span class="pdf-tool-label">Caneta</span>
+                    </button>
+                    <button type="button" id="pdfInkHighlight" aria-pressed="false"
+                        title="Marca-texto">
+                        <span class="pdf-tool-symbol" aria-hidden="true">▰</span>
+                        <span class="pdf-tool-label">Marcar</span>
+                    </button>
+                    <button type="button" id="pdfInkErase" aria-pressed="false" title="Borracha">
+                        <span class="pdf-tool-symbol" aria-hidden="true">⌫</span>
+                        <span class="pdf-tool-label">Apagar</span>
+                    </button>
+                    <button type="button" id="pdfInkShape" aria-pressed="false"
+                        title="Corrigir linhas e reconhecer formas">
+                        <span class="pdf-tool-symbol" aria-hidden="true">◯</span>
+                        <span class="pdf-tool-label">Formas</span>
+                    </button>
+                    <span class="pdf-reading-tool-divider" aria-hidden="true"></span>
+                    <button type="button" id="pdfInkUndo" title="Desfazer" aria-label="Desfazer">
+                        <span class="pdf-tool-symbol" aria-hidden="true">↶</span>
+                    </button>
+                    <button type="button" id="pdfInkRedo" title="Refazer" aria-label="Refazer">
+                        <span class="pdf-tool-symbol" aria-hidden="true">↷</span>
+                    </button>
+                    <span class="pdf-reading-tool-divider" aria-hidden="true"></span>
+                    <button type="button" id="pdfZoomOut" title="Reduzir zoom"
+                        aria-label="Diminuir zoom">
+                        <span class="pdf-tool-symbol" aria-hidden="true">−</span>
+                    </button>
+                    <output id="pdfZoomLabel" aria-live="off">100%</output>
+                    <button type="button" id="pdfZoomIn" title="Aumentar zoom"
+                        aria-label="Aumentar zoom">
+                        <span class="pdf-tool-symbol" aria-hidden="true">+</span>
+                    </button>
+                </div>
+                <div id="pdfShapeOptions" class="pdf-reader-options" hidden>
+                    <label for="pdfShapeMode">Transformar o traço em</label>
+                    <select id="pdfShapeMode" aria-label="Modo de reconhecimento de formas">
+                        <option value="auto">Auto: reta ou forma</option>
+                        <option value="line">Linha reta</option>
+                        <option value="rect">Retângulo</option>
+                        <option value="ellipse">Elipse / círculo</option>
+                        <option value="triangle">Triângulo</option>
+                    </select>
+                    <span>Desenhe com a S Pen; a correção acontece ao soltar.</span>
+                    <button type="button" id="pdfShapeOptionsClose" aria-label="Fechar opções de formas">✕</button>
+                </div>
+                <button type="button" id="pdfToolsReveal" class="pdf-tools-reveal" hidden
+                    aria-label="Mostrar ferramentas de anotação" title="Mostrar ferramentas">✎</button>
             </div>
-            <details class="pdf-prototype-pen">
-                <summary>Testar S Pen e toque (área separada do PDF)</summary>
+            <details id="pdfPrototypeDiagnostics" class="pdf-prototype-pen">
+                <summary>Diagnóstico de S Pen e toque (área de testes separada)</summary>
                 <div class="pdf-prototype-pen-body">
-                    <p>Desenhe nesta área com a S Pen, depois toque nela com o dedo e apoie a palma.
-                        O diagnóstico mostra como o navegador identifica esses contatos; não comprova rejeição da palma.</p>
+                    <p>Esta área permite examinar como o navegador identifica a S Pen, o dedo e a palma.
+                        Ela não escreve no PDF e não salva traços.</p>
                     <canvas id="pdfPrototypeCanvas" width="900" height="230"
-                        aria-label="Área para testar eventos da S Pen. Os traços não são salvos."></canvas>
+                        aria-label="Área de diagnóstico da S Pen, sem salvamento"></canvas>
                     <div class="pdf-prototype-pen-tools">
-                        <label><input id="pdfPrototypeMouse" type="checkbox"> Permitir desenhar com mouse (teste no computador)</label>
-                        <button id="pdfPrototypeClear" type="button" class="btn-action-secondary">Limpar teste</button>
+                        <label><input id="pdfPrototypeMouse" type="checkbox">
+                            Permitir desenhar com mouse (somente para teste)</label>
+                        <button id="pdfPrototypeClear" type="button" class="btn-action-secondary">
+                            Limpar teste
+                        </button>
                     </div>
-                    <p id="pdfPrototypePenStatus" class="pdf-prototype-pen-status" role="status" aria-live="polite">
-                        Sem contato detectado neste teste.
-                    </p>
+                    <p id="pdfPrototypePenStatus" class="pdf-prototype-pen-status"
+                        role="status" aria-live="polite">Sem contato detectado neste teste.</p>
                 </div>
             </details>
         </div>
         <p class="pdf-prototype-disclaimer">
-            Protótipo E1: a S Pen escreve sobre as páginas, mas os traços são descartados ao sair; nenhum PDF ou risco é salvo no Drive.
-            Para PDFs privados, use “Abrir original no navegador” ou escolha uma cópia local.
+            Leitura local e anotações provisórias. Fechar o leitor descarta os riscos;
+            nenhum PDF ou anotação é enviado ao Drive.
         </p>
     </section>
 

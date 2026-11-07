@@ -46,6 +46,7 @@
         frame.removeAttribute('src');
         frame.hidden = true;
         empty.hidden = false;
+        shell.classList?.remove('pdf-reading-active', 'pdf-reader-error');
         localLink.hidden = true;
         localLink.removeAttribute('href');
         if (blobUrl) {
@@ -76,6 +77,13 @@
         returnFocus = document.activeElement;
         previousOverflow = document.body.style.overflow;
         shell.hidden = false;
+        shell.classList?.remove('pdf-reading-active', 'pdf-reader-error',
+            'pdf-show-diagnostics', 'pdf-hide-tools');
+        get('pdfReaderMenu').open = false;
+        get('pdfPrototypeDiagnostics').open = false;
+        get('pdfToolsToggle').textContent = 'Ocultar ferramentas';
+        get('pdfToolsToggle').setAttribute('aria-pressed', 'false');
+        get('pdfToolsReveal').hidden = true;
         document.body.style.overflow = 'hidden';
 
         inactiveBackground = [...document.querySelectorAll('.app-main, .app-sidebar, #cloudBar')]
@@ -84,7 +92,7 @@
         get('pdfPrototypeWork').textContent = work?.titulo || 'Documento local de teste';
         // Indicador textual: permite detectar versões misturadas no WebView do tablet.
         get('pdfPrototypeEngine').textContent = window.PdfPagePrototype?.load
-            ? 'Motor: PDF.js integrado — E1.1'
+            ? 'Motor: PDF.js integrado — E2 (leitura imersiva)'
             : 'Leitor incompleto: atualize esta página no navegador';
         const url = safeWebUrl(work?.drive_url || work?.uri || '');
         originLink.hidden = !url;
@@ -95,11 +103,11 @@
         releaseLocalPdf();
         fileInput.value = '';
         status.textContent = url
-            ? 'O original vinculado pode exigir login. Escolha uma copia PDF salva no dispositivo para testar o leitor interno.'
-            : 'Escolha um PDF local. Nada sera enviado ou salvo.';
+            ? 'Abra um PDF salvo no dispositivo; o original exige suas próprias permissões.'
+            : 'Escolha um PDF local. Nenhum dado será enviado ou salvo.';
         get('pdfPrototypeMouse').checked = false;
         clearPenTest();
-        const details = shell.querySelector('.pdf-prototype-pen');
+        const details = get('pdfPrototypeDiagnostics');
         if (details) details.open = false;
         get('pdfPrototypePick').focus();
     };
@@ -119,6 +127,9 @@
         clearPenTest();
         fileInput.value = '';
         shell.hidden = true;
+        shell.classList?.remove('pdf-show-diagnostics', 'pdf-hide-tools');
+        get('pdfReaderMenu').open = false;
+        get('pdfPrototypeDiagnostics').open = false;
         releaseBackground();
         activeWorkId = null;
         // Restaurar antes de reabrir a ficha: a origem de foco dela nao pode ser
@@ -162,12 +173,17 @@
             }
             await window.PdfPagePrototype.load(file);
             if (request !== requestId || shell.hidden) return;
-            // O PDF interno é desenhado em canvas; iframe permanece sempre desativado.
+            shell.classList?.add('pdf-reading-active');
+            get('pdfReaderMenu').open = false;
+            get('pdfPrototypeWork').textContent = file.name || 'PDF local';
+            // Modo imersivo: ferramentas flutuantes, cabeçalho mínimo e canvas.
+            // O iframe legado permanece desligado em todos os casos.
             frame.hidden = true;
         } catch (error) {
             if (request === requestId && !shell.hidden) {
                 window.PdfPagePrototype?.destroy();
                 empty.hidden = false;
+                shell.classList?.add('pdf-reader-error');
                 status.textContent = 'Não foi possível abrir o PDF dentro da Biblioteca: ' +
                     (error?.message || 'erro desconhecido') +
                     '. Use Ver PDF em outra aba ou escolha outro PDF.';
@@ -246,6 +262,31 @@
     });
 
     get('pdfPrototypePick').addEventListener('click', () => fileInput.click());
+    get('pdfPrototypeReplace').addEventListener('click', () => {
+        get('pdfReaderMenu').open = false;
+        fileInput.click();
+    });
+    get('pdfToolsToggle').addEventListener('click', () => {
+        const hidden = !shell.classList.contains('pdf-hide-tools');
+        shell.classList.toggle('pdf-hide-tools', hidden);
+        get('pdfToolsReveal').hidden = !hidden;
+        get('pdfToolsToggle').textContent = hidden ? 'Mostrar ferramentas' : 'Ocultar ferramentas';
+        get('pdfToolsToggle').setAttribute('aria-pressed', String(hidden));
+        get('pdfReaderMenu').open = false;
+    });
+    get('pdfToolsReveal').addEventListener('click', () => {
+        shell.classList.remove('pdf-hide-tools');
+        get('pdfToolsReveal').hidden = true;
+        get('pdfToolsToggle').textContent = 'Ocultar ferramentas';
+        get('pdfToolsToggle').setAttribute('aria-pressed', 'false');
+    });
+    get('pdfReaderDiagnosticsToggle').addEventListener('click', () => {
+        const visible = !shell.classList.contains('pdf-show-diagnostics');
+        shell.classList.toggle('pdf-show-diagnostics', visible);
+        get('pdfPrototypeDiagnostics').open = visible;
+        get('pdfReaderDiagnosticsToggle').setAttribute('aria-expanded', String(visible));
+        get('pdfReaderMenu').open = false;
+    });
     get('pdfPrototypeClose').addEventListener('click', closePdfPrototype);
     get('pdfPrototypeClear').addEventListener('click', clearPenTest);
     fileInput.addEventListener('change', () => { void inspectSelectedFile(fileInput.files?.[0]); });

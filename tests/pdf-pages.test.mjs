@@ -4,6 +4,7 @@ import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 
 const source = readFileSync(new URL('../src/reading/pdf-pages.js', import.meta.url), 'utf8');
+const shapeSource = readFileSync(new URL('../src/reading/ink-shapes.js',import.meta.url),'utf8');
 // Apenas o import ESM e substituido pela biblioteca falsa: gestos e DOM usam fonte real.
 const patched = source.replace(
     "import(new URL('vendor/pdfjs/pdf.min.mjs', document.baseURI).href)",
@@ -48,7 +49,8 @@ function fixture() {
     for(const id of ['pdfInkPen','pdfInkHighlight','pdfInkErase','pdfInkUndo',
         'pdfInkClear','pdfZoomIn','pdfZoomOut','pdfZoomLabel','pdfPageIndicator',
         'pdfPrototypePages','pdfPrototypeEmpty','pdfPrototypeTools',
-        'pdfPrototypeStatus','pdfPrototypeMouse']) get(id);
+        'pdfPrototypeStatus','pdfPrototypeMouse','pdfInkShape','pdfShapeMode',
+        'pdfShapeOptions','pdfShapeOptionsClose','pdfInkRedo']) get(id);
     const doc = {
         baseURI:'https://example.org/Biblioteca_Christian/',
         getElementById:get, createElement:tag=>element(tag),
@@ -82,6 +84,7 @@ function fixture() {
     }
     const ctx = vm.createContext({window:win,document:doc,URL,
         IntersectionObserver:Observer,console});
+    vm.runInContext(shapeSource,ctx);
     vm.runInContext(patched,ctx);
     const viewer = win.PdfPagePrototype;
     const file = {size:1024, async arrayBuffer(){return new Uint8Array(64).buffer;}};
@@ -167,4 +170,66 @@ test('PDFs muito grandes e versão sem estado persistente recebem restrições e
     const f=fixture();
     await assert.rejects(f.viewer.load({size:52*1024*1024}),/50 MB/);
     assert.doesNotMatch(source,/localStorage|saveAppState|indexedDB|XMLHttpRequest|fetch\s*\(/);
+});
+
+test('modo Formas endireita linhas e acompanha borracha/desfazer/refazer',async()=>{
+    const f=fixture();
+    await f.viewer.load(f.file);
+    const svg=f.pageInk();
+    f.get('pdfInkShape').listeners.click();
+    assert.equal(f.get('pdfInkShape').attrs['aria-pressed'],'true');
+    assert.equal(f.get('pdfShapeOptions').hidden,false);
+    f.get('pdfShapeMode').value='line';
+    f.get('pdfShapeMode').listeners.change();
+    f.pointer(svg,'pointerdown',101,'pen',50,60);
+    f.pointer(svg,'pointermove',101,'pen',90,92);
+    f.pointer(svg,'pointermove',101,'pen',115,85);
+    f.pointer(svg,'pointerup',101,'pen',160,145);
+    assert.equal(svg.children.length,1);
+    const path=svg.children[0].attrs.d;
+    assert.match(path,/^M[0-9.]+ [0-9.]+ L[0-9.]+ [0-9.]+$/);
+    f.get('pdfInkUndo').listeners.click();
+    assert.equal(svg.children.length,0);
+    f.get('pdfInkRedo').listeners.click();
+    assert.equal(svg.children.length,1);
+    assert.equal(svg.children[0].attrs.d,path);
+    f.get('pdfInkPen').listeners.click();
+    assert.equal(f.get('pdfInkShape').attrs['aria-pressed'],'false');
+    f.viewer.destroy();
+});
+
+test('forma Retângulo é desenhada sobre a página, preservada no zoom e pode ser desfeita',async()=>{
+    const f=fixture();
+    await f.viewer.load(f.file);
+    const svg=f.pageInk();
+    f.get('pdfInkShape').listeners.click();
+    f.get('pdfShapeMode').value='rect';
+    f.get('pdfShapeMode').listeners.change();
+    f.pointer(svg,'pointerdown',200,'pen',40,50);
+    f.pointer(svg,'pointermove',200,'pen',150,65);
+    f.pointer(svg,'pointerup',200,'pen',175,180);
+    const d=svg.children[0].attrs.d;
+    assert.ok(d.endsWith(' Z'));
+    assert.match(d,/ L/);
+    f.get('pdfZoomIn').listeners.click();
+    assert.equal(svg.children[0].attrs.d,d);
+    f.get('pdfInkUndo').listeners.click();
+    assert.equal(svg.children.length,0);
+    f.viewer.destroy();
+});
+
+test('mudar PDF descarta geometria, tinta e histórico de refazer',async()=>{
+    const f=fixture();
+    await f.viewer.load(f.file);
+    const svg=f.pageInk();
+    f.get('pdfInkShape').listeners.click();
+    f.pointer(svg,'pointerdown',301,'pen',20,50);
+    f.pointer(svg,'pointermove',301,'pen',120,60);
+    f.pointer(svg,'pointerup',301,'pen',120,60);
+    f.get('pdfInkUndo').listeners.click();
+    assert.equal(f.get('pdfInkRedo').disabled,false);
+    f.viewer.destroy();
+    assert.equal(f.get('pdfInkRedo').disabled,true);
+    assert.equal(f.get('pdfShapeMode').value,'auto');
+    assert.equal(f.get('pdfShapeOptions').hidden,true);
 });

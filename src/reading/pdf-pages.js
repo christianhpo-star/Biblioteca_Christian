@@ -21,9 +21,9 @@
     const ns = 'http://www.w3.org/2000/svg';
     const state = {
         task: null, pdf: null, observer: null, records: [], queue: [],
-        inFlight: 0, generation: 0, zoom: 1, tool: 'pen',
+        inFlight: 0, generation: 0, zoom: 1, tool: 'pen', shapeMode: 'auto',
         activePen: null, touches: new Map(), pinch: null,
-        nextStrokeId: 0, history: [], loading: null, loadLibrary: null
+        nextStrokeId: 0, history: [], redoStack: [], loading: null, loadLibrary: null
     };
 
     function clamp(value, low, high) {
@@ -34,14 +34,36 @@
         get('pdfPrototypeStatus').textContent = value;
     }
 
+    /** Ferramentas exclusivas: o botão Formas alterna seu pequeno seletor. */
     function setTool(tool) {
-        if (!['pen', 'highlight', 'erase'].includes(tool)) return;
+        if (!['pen', 'highlight', 'erase', 'shape'].includes(tool)) return;
+        const wasSelected = state.tool === 'shape';
         state.tool = tool;
         for (const [id, current] of [
-            ['pdfInkPen', 'pen'], ['pdfInkHighlight', 'highlight'], ['pdfInkErase', 'erase']
+            ['pdfInkPen', 'pen'], ['pdfInkHighlight', 'highlight'],
+            ['pdfInkErase', 'erase'], ['pdfInkShape', 'shape']
         ]) {
             get(id)?.setAttribute('aria-pressed', String(tool === current));
         }
+        const options = get('pdfShapeOptions');
+        if (options) options.hidden = tool !== 'shape'
+            ? true : (wasSelected ? !options.hidden : false);
+        if (tool === 'shape') {
+            safeStatus('Formas ativas: desenhe com a S Pen e solte para endireitar. ' +
+                'No modo Auto, traços ambíguos são preservados.');
+        }
+    }
+
+    function updateHistoryButtons() {
+        if (get('pdfInkUndo')) get('pdfInkUndo').disabled = !state.history.length;
+        if (get('pdfInkRedo')) get('pdfInkRedo').disabled = !state.redoStack.length;
+    }
+
+    /** Novo gesto cria um ramo do histórico; só desfazer permite refazer. */
+    function recordAction(action) {
+        state.history.push(action);
+        state.redoStack.length = 0;
+        updateHistoryButtons();
     }
 
     function setZoom(next) {
@@ -82,7 +104,7 @@
 
     function makePath(stroke) {
         const path = document.createElementNS(ns, 'path');
-        path.setAttribute('d', pathData(stroke.points));
+        path.setAttribute('d', stroke.d || pathData(stroke.points));
         path.setAttribute('fill', 'none');
         path.setAttribute('stroke', stroke.tool === 'highlight' ? '#facc15' : '#2563eb');
         path.setAttribute('stroke-width', String(stroke.tool === 'highlight' ? 12 : 2.3));
@@ -99,11 +121,23 @@
 
     function commitStroke(record, stroke) {
         if (stroke.points.length === 1) {
-            // Um toque isolado deve produzir um ponto visivel.
+            // Um toque isolado deve produzir um ponto visível.
             stroke.points.push({x: stroke.points[0].x + 0.05, y: stroke.points[0].y + 0.05});
         }
+        if (stroke.tool === 'shape') {
+            const geometry = window.PdfInkGeometry?.transform(stroke.points, state.shapeMode);
+            if (geometry?.d && geometry.points?.length) {
+                stroke.d = geometry.d;
+                stroke.shapeKind = geometry.kind;
+                // Borracha passa a seguir a geometria corrigida, não o risco original.
+                stroke.points = geometry.points;
+                if (geometry.kind === 'freehand' && state.shapeMode === 'auto') {
+                    safeStatus('Traço mantido livre. Use Reta, Retângulo ou Elipse para forçar uma forma.');
+                }
+            }
+        }
         record.strokes.push(stroke);
-        state.history.push({kind: 'add', index: record.index, stroke});
+        recordAction({kind:'add', index:record.index, stroke});
         repaintInk(record);
     }
 
@@ -130,28 +164,47 @@
         const stroke = nearestStroke(record, point);
         if (!stroke) return;
         record.strokes.splice(record.strokes.indexOf(stroke), 1);
-        state.history.push({kind: 'erase', index: record.index, stroke});
+        recordAction({kind:'erase', index:record.index, stroke});
+        repaintInk(record);
+    }
+
+    /** Mesmas operações reversíveis para desfazer/refazer, inclusive formas. */
+    function applyHistory(action, forward) {
+        if (action.kind === 'clear') {
+            for (const item of action.snapshot) {
+                const record = state.records[item.index - 1];
+                if (!record) continue;
+                record.strokes = forward ? [] : item.strokes.slice();
+                repaintInk(record);
+            }
+            return;
+        }
+        const record = state.records[action.index - 1];
+        if (!record) return;
+        const include = action.kind === 'add' ? forward : !forward;
+        if (include) {
+            if (!record.strokes.some(stroke => stroke.id === action.stroke.id))
+                record.strokes.push(action.stroke);
+        } else {
+            record.strokes = record.strokes.filter(stroke => stroke.id !== action.stroke.id);
+        }
         repaintInk(record);
     }
 
     function undoStroke() {
         const action = state.history.pop();
         if (!action) return;
-        if (action.kind === 'clear') {
-            for (const item of action.snapshot) {
-                const r = state.records[item.index - 1];
-                if (r) { r.strokes = item.strokes; repaintInk(r); }
-            }
-            return;
-        }
-        const record = state.records[action.index - 1];
-        if (!record) return;
-        if (action.kind === 'add') {
-            record.strokes = record.strokes.filter(item => item.id !== action.stroke.id);
-        } else if (!record.strokes.some(item => item.id === action.stroke.id)) {
-            record.strokes.push(action.stroke);
-        }
-        repaintInk(record);
+        applyHistory(action, false);
+        state.redoStack.push(action);
+        updateHistoryButtons();
+    }
+
+    function redoStroke() {
+        const action = state.redoStack.pop();
+        if (!action) return;
+        applyHistory(action, true);
+        state.history.push(action);
+        updateHistoryButtons();
     }
 
     function clearAllInk() {
@@ -160,7 +213,7 @@
         if (!snapshot.length) return;
         if (typeof window.confirm === 'function' &&
             !window.confirm('Apagar os riscos temporários deste PDF?')) return;
-        state.history.push({kind: 'clear', snapshot});
+        recordAction({kind:'clear', snapshot});
         for (const record of state.records) { record.strokes = []; repaintInk(record); }
         safeStatus('Riscos temporários apagados. Use Desfazer para recuperar nesta sessão.');
     }
@@ -503,12 +556,17 @@
         state.pdf = null;
         state.records = [];
         state.history = [];
+        state.redoStack = [];
         state.inFlight = 0;
         state.zoom = 1;
         state.tool = 'pen';
+        state.shapeMode = 'auto';
+        if (get('pdfShapeMode')) get('pdfShapeMode').value = 'auto';
+        if (get('pdfShapeOptions')) get('pdfShapeOptions').hidden = true;
         get('pdfZoomLabel').textContent = '100%';
         get('pdfPageIndicator').textContent = '';
         setTool('pen');
+        updateHistoryButtons();
         container.replaceChildren();
         container.hidden = true;
         get('pdfPrototypeTools').hidden = true;
@@ -517,10 +575,20 @@
     get('pdfInkPen').addEventListener('click', () => setTool('pen'));
     get('pdfInkHighlight').addEventListener('click', () => setTool('highlight'));
     get('pdfInkErase').addEventListener('click', () => setTool('erase'));
+    get('pdfInkShape').addEventListener('click', () => setTool('shape'));
+    get('pdfShapeMode').addEventListener('change', () => {
+        state.shapeMode = get('pdfShapeMode').value;
+        get('pdfShapeOptions').hidden = true;
+    });
+    get('pdfShapeOptionsClose').addEventListener('click', () => {
+        get('pdfShapeOptions').hidden = true;
+    });
     get('pdfInkUndo').addEventListener('click', undoStroke);
+    get('pdfInkRedo').addEventListener('click', redoStroke);
     get('pdfInkClear').addEventListener('click', clearAllInk);
     get('pdfZoomIn').addEventListener('click', () => setZoom(state.zoom + 0.2));
     get('pdfZoomOut').addEventListener('click', () => setZoom(state.zoom - 0.2));
+    updateHistoryButtons();
     container.addEventListener('scroll', updatePageIndicator, {passive:true});
     window.addEventListener('resize', () => {
         if (!state.pdf) return;

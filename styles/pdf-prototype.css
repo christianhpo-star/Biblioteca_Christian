@@ -284,3 +284,429 @@
     .pdf-prototype-reading-tools button { min-height: 42px; }
     .pdf-rendered-page { margin: 10px auto 14px; }
 }
+
+
+/* E2 — modo de leitura imersivo, inspirado na ergonomia de caderno digital.
+   A folha recebe o espaço principal; controles ficam sobrepostos e recolhíveis. */
+.pdf-reader-immersive {
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+    background: #e8ebf0;
+}
+.pdf-reader-immersive .pdf-prototype-toolbar {
+    flex: 0 0 auto;
+    min-height: 52px;
+    padding: 6px 12px;
+    gap: 8px;
+    flex-wrap: nowrap;
+    color: #1f2937;
+    box-shadow: 0 1px 6px rgba(0,0,0,.06);
+    position: relative;
+    z-index: 6;
+}
+.pdf-reader-back {
+    border: none;
+    background: transparent;
+    min-width: 42px;
+    min-height: 42px;
+    border-radius: 50%;
+    font-size: 25px;
+    color: #334155;
+    cursor: pointer;
+}
+.pdf-reader-back:hover,
+.pdf-reader-menu > summary:hover { background: #f1f5f9; }
+.pdf-reader-immersive .pdf-prototype-title-group {
+    flex: 1 1 auto;
+    overflow: hidden;
+    min-width: 70px;
+}
+.pdf-reader-immersive .pdf-prototype-title-group h2 {
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 0;
+}
+.pdf-reader-immersive .pdf-prototype-work {
+    color: #64748b;
+    font-size: 11px;
+    margin: 1px 0 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.pdf-reader-immersive #pdfPrototypeEngine { font-size: 10px; }
+.pdf-reader-immersive.pdf-reading-active #pdfPrototypeTitle,
+.pdf-reader-immersive.pdf-reading-active #pdfPrototypeEngine { display: none; }
+.pdf-reader-immersive.pdf-reading-active .pdf-prototype-work {
+    font-size: 14px;
+    font-weight: 650;
+    color: #1f2937;
+    max-width: 100%;
+}
+.pdf-reader-immersive .pdf-page-indicator {
+    flex: 0 0 auto;
+    padding: 0 4px;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    color: #64748b;
+    max-width: 130px;
+    white-space: nowrap;
+}
+.pdf-reader-menu { flex: 0 0 auto; position: relative; }
+.pdf-reader-menu > summary {
+    display: grid;
+    place-items: center;
+    list-style: none;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    font-size: 25px;
+    font-weight: 700;
+    border-radius: 50%;
+    color: #334155;
+    user-select: none;
+}
+.pdf-reader-menu > summary::-webkit-details-marker { display: none; }
+.pdf-reader-menu-content {
+    position: absolute;
+    top: calc(100% + 7px);
+    right: 0;
+    min-width: 210px;
+    width: max-content;
+    max-width: min(92vw, 270px);
+    background: #fff;
+    border: 1px solid #d5dbe4;
+    border-radius: 13px;
+    padding: 7px;
+    box-shadow: 0 12px 34px rgba(15,23,42,.2);
+    z-index: 20;
+    display: grid;
+    gap: 3px;
+}
+.pdf-reader-menu-content > button,
+.pdf-reader-menu-content > a {
+    display: flex;
+    width: 100%;
+    justify-content: flex-start;
+    align-items: center;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: #1e293b;
+    text-align: left;
+    text-decoration: none;
+    min-height: 42px;
+    padding: 8px 11px;
+    font-size: 13px;
+    cursor: pointer;
+}
+.pdf-reader-menu-content > :is(button,a):hover { background:#f1f5f9; }
+.pdf-reader-menu-note {
+    margin: 5px 7px 2px;
+    padding-top: 8px;
+    border-top: 1px solid #e2e8f0;
+    color: #64748b;
+    font-size: 11px;
+    line-height: 1.4;
+}
+.pdf-reader-immersive .pdf-prototype-status {
+    font-size: 12px;
+    padding: 7px 12px;
+    line-height: 1.35;
+}
+.pdf-reader-immersive.pdf-reading-active .pdf-prototype-status:not(:focus) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    border: 0;
+    white-space: nowrap;
+}
+.pdf-reader-immersive.pdf-reader-error .pdf-prototype-status {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 10px 12px !important;
+    margin: 0 !important;
+    clip-path: none !important;
+    white-space: normal !important;
+}
+.pdf-reader-immersive .pdf-prototype-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+}
+.pdf-reader-immersive .pdf-prototype-viewer {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    background: #e5e8ed;
+}
+.pdf-reader-immersive .pdf-prototype-viewer iframe { display: none !important; }
+.pdf-reader-immersive .pdf-prototype-empty {
+    width: min(460px, calc(100% - 32px));
+    color: #334155;
+    border: none;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 12px 28px rgba(30,41,59,.08);
+    padding: 28px 22px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+.pdf-reader-immersive .pdf-prototype-empty h3 {
+    font-size: 21px;
+    font-family: Georgia,serif;
+    margin: 0 0 6px;
+    color: #0f172a;
+}
+.pdf-reader-immersive .pdf-prototype-empty p { margin: 9px 0 16px; }
+.pdf-reader-immersive .pdf-prototype-empty #pdfPrototypePick {
+    display: block;
+    min-height: 48px;
+    width: 100%;
+    margin-top: 18px;
+    border-radius: 11px;
+}
+.pdf-reader-immersive .pdf-prototype-empty .pdf-reader-start-hint {
+    color: #64748b;
+    font-size: 12px;
+    margin: 16px 0 0;
+}
+.pdf-reader-immersive .pdf-prototype-pages {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    overflow: auto;
+    background: #e6e9ee;
+    padding-bottom: 95px;
+    box-sizing: border-box;
+    scroll-padding-bottom: 95px;
+}
+.pdf-reader-immersive .pdf-rendered-page {
+    margin: 12px auto 15px;
+}
+.pdf-reader-immersive .pdf-page-stage {
+    border: 1px solid rgba(15,23,42,.09);
+    box-shadow: 0 4px 14px rgba(15,23,42,.12);
+}
+.pdf-reader-immersive .pdf-prototype-reading-tools {
+    position: absolute;
+    left: 50%;
+    right: auto;
+    bottom: max(9px, env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    width: max-content;
+    max-width: min(calc(100vw - 18px), 720px);
+    height: auto;
+    min-height: 58px;
+    padding: 5px 7px;
+    border: 1px solid #d5dae3;
+    border-radius: 17px;
+    background: rgba(255,255,255,.97);
+    color: #26334a;
+    box-shadow: 0 8px 26px rgba(15,23,42,.2);
+    z-index: 9;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+.pdf-reader-immersive .pdf-prototype-reading-tools::-webkit-scrollbar { display: none; }
+.pdf-reader-immersive .pdf-prototype-reading-tools button {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1px;
+    min-width: 47px;
+    min-height: 49px;
+    padding: 5px 7px;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: #334155;
+    cursor: pointer;
+}
+.pdf-reader-immersive .pdf-prototype-reading-tools button[aria-pressed="true"] {
+    color: #1d4ed8;
+    background: #dbeafe;
+    font-weight: 700;
+}
+.pdf-reader-immersive .pdf-prototype-reading-tools button:disabled {
+    opacity: .35;
+    cursor: default;
+}
+.pdf-reader-immersive .pdf-tool-symbol {
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 1;
+}
+.pdf-reader-immersive .pdf-tool-label {
+    font-size: 10px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+.pdf-reader-immersive .pdf-reading-tool-divider {
+    flex: 0 0 1px;
+    height: 29px;
+    margin: auto 1px;
+    background: #d9dfe7;
+}
+.pdf-reader-immersive #pdfZoomLabel {
+    flex: 0 0 auto;
+    min-width: 38px;
+    font-size: 11px;
+    color: #475569;
+    font-weight: 650;
+    text-align: center;
+}
+.pdf-reader-immersive .pdf-reader-options {
+    position: absolute;
+    left: 50%;
+    bottom: calc(80px + env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    width: min(410px, calc(100% - 24px));
+    z-index: 10;
+    padding: 14px 44px 13px 14px;
+    background: #fff;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(15,23,42,.2);
+    display: grid;
+    gap: 7px;
+    font-size: 12px;
+}
+.pdf-reader-immersive .pdf-reader-options > label {
+    color: #334155;
+    font-weight: 700;
+    font-size: 12px;
+}
+.pdf-reader-immersive .pdf-reader-options select {
+    width: 100%;
+    min-height: 41px;
+    color: #0f172a;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font: inherit;
+    font-size: 13px;
+    padding: 7px 9px;
+}
+.pdf-reader-immersive #pdfShapeOptionsClose {
+    position: absolute;
+    top: 9px;
+    right: 9px;
+    background: transparent;
+    border: none;
+    border-radius: 50%;
+    color: #475569;
+    font-size: 17px;
+    min-width: 34px;
+    min-height: 34px;
+    cursor: pointer;
+}
+.pdf-reader-immersive .pdf-tools-reveal {
+    position: absolute;
+    right: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    z-index: 9;
+    border: none;
+    background: #fff;
+    color: #1e40af;
+    border-radius: 50%;
+    width: 49px;
+    height: 49px;
+    font-size: 23px;
+    box-shadow: 0 6px 18px rgba(15,23,42,.18);
+    cursor: pointer;
+}
+.pdf-reader-immersive.pdf-hide-tools #pdfPrototypeTools { display: none !important; }
+.pdf-reader-immersive.pdf-hide-tools #pdfShapeOptions { display: none !important; }
+.pdf-reader-immersive .pdf-prototype-pen,
+.pdf-reader-immersive .pdf-prototype-disclaimer {
+    display: none;
+}
+.pdf-reader-immersive.pdf-show-diagnostics .pdf-prototype-pen {
+    display: block;
+    max-height: 37vh;
+    overflow-y: auto;
+    border-color: #cbd5e1;
+}
+.pdf-reader-immersive .pdf-prototype-pen > summary { min-height: 42px; }
+.pdf-reader-immersive :is(button,select,summary):focus-visible {
+    outline: 3px solid #2563eb;
+    outline-offset: 2px;
+}
+@media (max-width: 700px) {
+    .pdf-reader-immersive .pdf-prototype-toolbar { padding: 4px 7px; min-height: 48px; }
+    .pdf-reader-immersive .pdf-reader-back { min-width: 38px; min-height: 38px; }
+    .pdf-reader-immersive .pdf-prototype-title-group h2 { font-size: 12px; }
+    .pdf-reader-immersive.pdf-reading-active .pdf-prototype-work { font-size: 13px; }
+    .pdf-reader-immersive .pdf-prototype-reading-tools {
+        min-height: 55px;
+        padding: 3px 4px;
+        max-width: calc(100vw - 12px);
+        border-radius: 15px;
+    }
+    .pdf-reader-immersive .pdf-prototype-reading-tools button {
+        min-width: 44px;
+        min-height: 48px;
+        padding: 4px 6px;
+    }
+    .pdf-reader-immersive .pdf-reader-options {
+        bottom: calc(72px + env(safe-area-inset-bottom));
+    }
+    .pdf-reader-immersive .pdf-rendered-page { margin: 8px auto 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .pdf-reader-immersive *, .pdf-reader-immersive *::before, .pdf-reader-immersive *::after {
+        transition: none !important;
+        animation: none !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+
+/* Regressão visual no Android: preservar os instrumentos principais sem
+   deslocamento horizontal num viewport de 390px (ver captura sintética E2). */
+@media (max-width: 420px) {
+    .pdf-reader-immersive .pdf-prototype-reading-tools {
+        width: calc(100vw - 10px);
+        max-width: calc(100vw - 10px);
+        min-height: 53px;
+        justify-content: space-evenly;
+        padding: 3px 4px;
+        gap: 1px;
+        box-sizing: border-box;
+    }
+    .pdf-reader-immersive .pdf-prototype-reading-tools button {
+        min-width: 33px;
+        min-height: 46px;
+        padding: 4px 2px;
+    }
+    .pdf-reader-immersive :is(#pdfInkPen, #pdfInkHighlight, #pdfInkErase, #pdfInkShape) {
+        min-width: 43px;
+    }
+    .pdf-reader-immersive .pdf-tool-symbol { font-size: 20px; }
+    .pdf-reader-immersive .pdf-tool-label { font-size: 9px; }
+    .pdf-reader-immersive #pdfZoomLabel {
+        min-width: 30px;
+        padding: 0;
+        font-size: 10px;
+    }
+    .pdf-reader-immersive .pdf-reading-tool-divider { display: none; }
+}

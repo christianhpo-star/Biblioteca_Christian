@@ -230,7 +230,10 @@ test('HTML e manifesto registram módulo e CSS sem alterar o leitor principal', 
     assert.match(html, /id="pdfInkPen"/);
     assert.match(html, /id="pdfPrototypeCanvas"/);
     assert.match(html, /id="modalPdfPrototypeBtn"/);
-    assert.match(html, /Nenhum arquivo é enviado ou salvo/);
+    assert.match(html, /Nenhum arquivo será enviado/);
+    assert.match(html, /id="pdfInkShape"/);
+    assert.match(html, /id="pdfInkRedo"/);
+    assert.match(html, /id="pdfReaderMenu"/);
     assert.ok(manifest.scripts.includes('src/reading/pdf-prototype.js'));
     assert.ok(manifest.scripts.includes('src/reading/pdf-pages.js'));
     assert.ok(manifest.styles.includes('styles/pdf-prototype.css'));
