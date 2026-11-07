@@ -78,6 +78,13 @@ try {
       el.classList.contains('pdf-reading-active')),true);
     assert.equal(await page.locator('#pdfPrototypeTools').isVisible(),true);
     assert.equal(await page.locator('#pdfPrototypeDiagnostics').isVisible(),false);
+    if (viewport.width === 390) {
+      const dock=await page.locator('#pdfPrototypeTools').evaluate(el=>({
+        visible:el.clientWidth, total:el.scrollWidth
+      }));
+      assert.ok(dock.total <= dock.visible+3,
+        'Barra de ferramentas não deve cortar os botões em 390px: '+JSON.stringify(dock));
+    }
     const bounds=await page.evaluate(()=>({
       header:document.querySelector('.pdf-prototype-toolbar').getBoundingClientRect().height,
       viewer:document.getElementById('pdfPrototypeViewer').getBoundingClientRect().height,
