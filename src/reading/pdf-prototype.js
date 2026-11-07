@@ -82,6 +82,10 @@
             .map(element => ({ element, inert: element.inert }));
         inactiveBackground.forEach(({ element }) => { element.inert = true; });
         get('pdfPrototypeWork').textContent = work?.titulo || 'Documento local de teste';
+        // Indicador textual: permite detectar versões misturadas no WebView do tablet.
+        get('pdfPrototypeEngine').textContent = window.PdfPagePrototype?.load
+            ? 'Motor: PDF.js integrado — E1.1'
+            : 'Leitor incompleto: atualize esta página no navegador';
         const url = safeWebUrl(work?.drive_url || work?.uri || '');
         originLink.hidden = !url;
         if (url) originLink.href = url;
