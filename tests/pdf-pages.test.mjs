@@ -157,6 +157,12 @@ test('caneta cancelada não salva traço; marca-texto, borracha e limpeza são t
     f.viewer.destroy();
 });
 
+test('servidor de desenvolvimento atende PDF.js ESM com MIME JavaScript',()=>{
+    const server = readFileSync(new URL('../scripts/serve.mjs',import.meta.url),'utf8');
+    assert.match(server, /'[.]mjs':'text\/javascript/);
+    assert.match(server, /X-Content-Type-Options/);
+});
+
 test('PDFs muito grandes e versão sem estado persistente recebem restrições explícitas',async()=>{
     const f=fixture();
     await assert.rejects(f.viewer.load({size:52*1024*1024}),/50 MB/);
