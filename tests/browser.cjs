@@ -24,6 +24,32 @@ test('registros compactos, documento ordenado, downloads reais e recuperação d
     await page.getByRole('button',{name:'Voltar ao início'}).click();
     assert.equal(await page.locator('#viewDashboard').isVisible(),true);
 
+    // E0 usa somente um PDF gerado em memoria; nunca le arquivos pessoais.
+    await page.locator('.dashboard-advanced > summary').click();
+    const beforePdf=await page.evaluate(()=>JSON.stringify(window.libraryBridge.getState()));
+    await page.getByRole('button',{name:'Testar leitor de PDF local'}).click();
+    assert.equal(await page.locator('#pdfPrototype').isVisible(),true);
+    const syntheticPdf=await PDFDocument.create();
+    syntheticPdf.addPage([320,480]);
+    await page.locator('#pdfPrototypeFile').setInputFiles({
+      name:'documento-sintetico.pdf',
+      mimeType:'application/pdf',
+      buffer:Buffer.from(await syntheticPdf.save())
+    });
+    await page.waitForFunction(()=>document.getElementById('pdfPrototypeFrame')?.src.startsWith('blob:'));
+    assert.equal(await page.locator('#pdfPrototypeFrame').isVisible(),true);
+    assert.equal(await page.locator('#pdfPrototypeNewTab').isVisible(),true);
+    await page.locator('.pdf-prototype-pen > summary').click();
+    await page.locator('#pdfPrototypeCanvas').dispatchEvent('pointerdown',{
+      pointerId:81,pointerType:'pen',pressure:0.5,clientX:10,clientY:20
+    });
+    assert.match(await page.locator('#pdfPrototypePenStatus').innerText(),/Caneta: 1/);
+    await page.locator('#pdfPrototypeClose').click();
+    assert.equal(await page.locator('#pdfPrototype').isHidden(),true);
+    assert.equal(await page.locator('#pdfPrototypeFrame').getAttribute('src'),null);
+    assert.equal(await page.evaluate(()=>JSON.stringify(window.libraryBridge.getState())),beforePdf);
+    await page.locator('.dashboard-advanced > summary').click();
+
     // A busca do catálogo é única e atualiza sugestões enquanto a pessoa digita.
     assert.equal(await page.locator('#globalSearchInput').count(),1);
     assert.equal(await page.locator('#explorerSearchInput, #heroSearchInput').count(),0);
