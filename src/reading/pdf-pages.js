@@ -466,13 +466,14 @@
             }
             evictCanvasCache();
         }, {root:container, rootMargin:'400px 0px'});
-        state.records.forEach(r => state.observer.observe(r.element));
-        // A primeira página deve estar realmente pintada antes de marcar o carregamento como pronto.
+        // A primeira página deve estar realmente pintada antes de iniciar observadores.
+        // Evita dois renders concorrentes da primeira página no primeiro frame.
         await renderRecord(state.records[0]);
         if (gen !== state.generation) return;
         if (!state.records[0].error.hidden) {
             throw new Error('A primeira página não pôde ser renderizada.');
         }
+        state.records.forEach(r => state.observer.observe(r.element));
         updatePageIndicator();
         safeStatus('PDF: ' + pdf.numPages + ' páginas. Dedo: navegar e pinçar. ' +
             'S Pen: escrever. Riscos temporários, sem salvamento.');
